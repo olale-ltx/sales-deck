@@ -1,0 +1,25 @@
+---
+description: LTX visual language for new presentations in this folder
+alwaysApply: true
+---
+
+# LTX visual language
+
+Follow `STYLE-GUIDE.md` and `design/ltx.css`. Source is the LoRA training guide, not `sales-deck-original/`.
+
+- Colors are the Webflow "LTX brand colors" set in `design/ltx.css`. Page ground is `--ltx-offwhite` (`#e7e8eb`). Ink is `--ltx-black` (`#0b0b0b`). No pink, green, or pure-white canvas. Accents are `--ltx-slate-dark` (current position) and `--ltx-slate-medium` (progress so far), on progress and position marks only. No purple. Active states are black.
+- Aeonik, then Inter. Display through H3 is weight 400. H4–H6 and active labels are 500. Do not use 700, 800, or 900.
+- Reuse Webflow class names: `heading-style-h*`, `h1-display`, `text-size-*`, `section-name-new` (eyebrow), `ltx-but-base` / `.is-black`. Do not invent a one-off style for a single element.
+- On a 1920×1080 stage use `--fs-*-stage`. Do not use the `vw` clamps there; those track the browser viewport.
+- Hairlines are 1px `--color-border`. Footage sits in `.media-card` with `--scrim`.
+- Index numbers are zero-padded, `tabular-nums`, in a `--nav-num-col` track.
+- Motion uses `--ease-out-soft` and the transition tokens. Honor `prefers-reduced-motion`. In-page links jump; they do not smooth-scroll.
+- Leave `sales-deck-original/` as reference. New slides link `design/ltx.css`.
+
+```css
+/* ❌ scaled slide title */
+.title { font-size: 70px; font-weight: 600; color: #111; }
+
+/* ✅ stage title */
+.title { font-size: var(--fs-h1-stage); font-weight: 400; letter-spacing: var(--ls-h1); color: var(--color-ink); }
+```

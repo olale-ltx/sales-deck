@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deck style reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://use.typekit.net" crossorigin>
+<script src="https://use.typekit.net/emb1gsr.js"></script>
+<script>try{Typekit.load()}catch(e){}</script>
+<link rel="stylesheet" href="../design/ltx.css">
+<style>
+  /* This page is the review surface, not a slide. Stage sizes match the deck. */
+  :root {
+    --fs-display: var(--fs-display-stage);
+    --fs-h1: var(--fs-h1-stage);
+    --fs-h2: var(--fs-h2-stage);
+    --fs-h3: var(--fs-h3-stage);
+    --fs-h4: var(--fs-h4-stage);
+    --fs-h5: var(--fs-h5-stage);
+    --fs-h6: var(--fs-h6-stage);
+    --fs-xlarge: var(--fs-xlarge-stage);
+    --fs-large: var(--fs-large-stage);
+    --fs-medium: var(--fs-medium-stage);
+    --fs-regular: var(--fs-regular-stage);
+    --fs-small: var(--fs-small-stage);
+    --fs-tiny: var(--fs-tiny-stage);
+  }
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 4rem 2rem 6rem; }
+  .block { padding: 3rem 0; border-top: 1px solid var(--color-border); }
+  .specimen { padding: 2rem 0; border-top: 1px solid var(--color-border); }
+  .specimen:first-of-type { border-top: 0; padding-top: 0; }
+  .specimen > :first-child, .swatch p { margin: 0; }
+  .specimen-tag{
+    display:block; margin:0 0 0.35rem;
+    font-size:0.75rem; font-weight:500; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--ltx-grey-muted);
+  }
+  /* Comments are review notes, kept smaller than any deck style. */
+  .note { margin-top: 0.75rem; max-width: 42rem; }
+  .meta, .used, .proposed {
+    margin: 0.3rem 0 0;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+  }
+  .note > :first-child { margin-top: 0; }
+  .meta { color: var(--ltx-grey-light); }
+  .used { color: var(--ltx-grey); }
+  .proposed { color: var(--ltx-black); }
+  .swatch .used { margin-top: 0.2rem; }
+  .swatches { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .swatch { display: flex; gap: 1rem; align-items: center; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.75rem 1rem; }
+  .chip { width: 3rem; height: 3rem; border-radius: var(--radius-sm); flex: 0 0 auto; border: 1px solid var(--color-border); }
+  .row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+  .on-dark { background: var(--ltx-grey); color: var(--ltx-white); border-radius: var(--radius-md); padding: 1.5rem; }
+  .track { position: relative; height: 4px; background: var(--ltx-grey-line); border-radius: var(--radius-pill); margin-top: 0.75rem; }
+  .track .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: var(--radius-pill); }
+  .track .dot { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--ltx-white); border: 3px solid currentColor; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.25rem; }
+  .note-list { margin: 0; padding-left: 1.25rem; }
+  .note-list li { margin: 0.4rem 0; }
+  @media (max-width: 720px) {
+    .swatches, .pair { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="section-name-new"><span class="text-scramble">[</span><span class="section-name">Deck styles</span><span class="text-scramble">]</span></p>
+  <h1 class="heading-style-h2" style="margin-top:1rem">Style reference</h1>
+  <p class="text-size-large" style="margin-top:1rem; max-width:40rem">The deck’s styles at 1920×1080 stage size. The lock below is applied to every slide on desktop.</p>
+
+  <section class="block">
+    <h2 class="heading-style-h4">Lock</h2>
+<div class="note">
+      <p class="used">One job per style.</p>
+</div>
+    <div class="comparison-table-wrapper" style="margin-top:1.25rem">
+      <table class="comparison-table text-size-small">
+        <thead>
+          <tr><th>Role</th><th>Class</th><th>Color</th><th>Weight</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Cover and close</td><td>.h1-display</td><td>Black</td><td>400</td></tr>
+          <tr><td>Section divider</td><td>.h1-display</td><td>Black, number grey-light</td><td>400</td></tr>
+          <tr><td>Slide title</td><td>.heading-style-h1</td><td>Black</td><td>400</td></tr>
+          <tr><td>Panel heading</td><td>.heading-style-h3</td><td>Black</td><td>400</td></tr>
+          <tr><td>Card or row title</td><td>.heading-style-h5</td><td>Black</td><td>500</td></tr>
+          <tr><td>Lead</td><td>.text-size-xlarge</td><td>Black</td><td>400</td></tr>
+          <tr><td>Body</td><td>.text-size-regular</td><td>Black</td><td>400</td></tr>
+          <tr><td>Support</td><td>.text-size-small</td><td>Grey-light</td><td>400</td></tr>
+          <tr><td>Meta</td><td>.text-size-tiny</td><td>Grey-muted</td><td>400</td></tr>
+          <tr><td>Hero stat</td><td>.h1-display</td><td>Black</td><td>400</td></tr>
+          <tr><td>Metric</td><td>.heading-style-h2</td><td>Black</td><td>400</td></tr>
+          <tr><td>Eyebrow</td><td>.section-name-new</td><td>Grey-medium</td><td>300</td></tr>
+          <tr><td>Primary button</td><td>.ltx-but-base.is-black</td><td>White on black</td><td>400</td></tr>
+          <tr><td>Secondary button</td><td>.ltx-but-base</td><td>Black</td><td>400</td></tr>
+        </tbody>
+      </table>
+    </div>
+<div class="note">
+      <p class="text-size-small used">Left unused until a slide needs them: H4, H6, large, medium. Grey-medium drops out. The compact button (`.is-small`) drops out.</p>
+</div>
+  </section>
+
+  <section class="block">
+    <h2 class="heading-style-h4">Color</h2>
+    <p class="used">Mostly greys. Slate is the accent.</p>
+    <div class="swatches" style="margin-top:1.25rem">
+      <div class="swatch"><div class="chip" style="background:#0b0b0b"></div><div><p class="text-size-small">Black · #0b0b0b</p><p class="used">Titles, body, active nav, primary button, focus.</p></div></div>
+      <div class="swatch"><div class="chip" style="background:#333333"></div><div><p class="text-size-small">Grey · #333333</p><p class="used">Supporting text. Also the fill behind a video before it loads.</p></div></div>
+      <div class="swatch"><div class="chip" style="background:#474747"></div><div><p class="text-size-small">Grey-medium · #474747</p><p class="used">A few bylines. No separate job. Proposed: stop using it.</p></div></div>
+      <div class="swatch"><div class="chip" style="background:#707070"></div><div><p class="text-size-small">Grey-light · #707070</p><p class="used">Support text and inactive text.</p></div></div>
+      <div class="swatch"><div class="chip" style="background:#858585"></div><div><p class="text-size-small">Grey-muted · #858585</p><p class="used">Captions, axis labels, inactive numbers.</p></div></div>
+      <div class="swatch"><div class="chip" style="background:#d2d2d7"></div><div><p class="text-size-small">Grey-line · #d2d2d7</p><p class="used">Hairlines, card borders, unfilled tracks.</p></div></div>
+      <div class="swatch"><div class="chip" style="background:#e7e8eb"></div><div><p class="text-size-small">Offwhite · #e7e8eb</p><p class="used">Slide ground, top nav, gate.</p></div></div>
+      <div class="swatch"><div class="chip" style="background:#f9f9f9"></div><div><p class="text-size-small">White · #f9f9f9</p><p class="used">Cards, panels, type on footage, glass on video.</p></div></div>
+      <div class="swatch"><div class="chip" style="background:#2e3445"></div><div><p class="text-size-small">Slate-dark · #2e3445</p><p class="used">Accent, current position: slider thumb, chart dot, playhead, active step, capability tick.</p></div></div>
+      <div class="swatch"><div class="chip" style="background:#868ea5"></div><div><p class="text-size-small">Slate-medium · #868ea5</p><p class="used">Accent, progress so far: slider fill, timeline fill, next-steps line, hatch. Not a text color.</p></div></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="heading-style-h4">Slate instead of purple</h2>
+    <p class="used">Applied.</p>
+    <div class="pair">
+      <div>
+        <p class="text-size-small">Now · purple</p>
+        <div class="track"><div class="fill" style="width:42%; background:#6d28d9"></div><div class="dot" style="left:42%; color:#6d28d9"></div></div>
+      </div>
+      <div>
+        <p class="text-size-small">Proposed · slate-medium fill, slate-dark position</p>
+        <div class="track"><div class="fill" style="width:42%; background:#868ea5"></div><div class="dot" style="left:42%; color:#2e3445"></div></div>
+      </div>
+    </div>
+    <div class="comparison-table-wrapper" style="margin-top:1.5rem">
+      <table class="comparison-table text-size-small">
+        <thead>
+          <tr><th>Mark</th><th>Now</th><th>Proposed</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Pricing slider thumb, chart dot</td><td>Purple</td><td>Slate-dark</td></tr>
+          <tr><td>Pricing slider fill</td><td>Purple</td><td>Slate-medium</td></tr>
+          <tr><td>Next-steps line</td><td>Purple</td><td>Slate-medium</td></tr>
+          <tr><td>Usage timeline fill, hatch</td><td>Purple</td><td>Slate-medium</td></tr>
+          <tr><td>Usage playhead</td><td>Purple</td><td>Slate-dark</td></tr>
+          <tr><td>Capability tick</td><td>Purple</td><td>Slate-dark</td></tr>
+          <tr><td>Unfilled track</td><td>Grey-line</td><td>Grey-line</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="used">Active navigation, links, and buttons stay black. Selected cards and rows stay on the greys.</p>
+  </section>
+
+  <section class="block">
+    <h2 class="heading-style-h4">Text</h2>
+<div class="note">
+      <p class="text-size-regular used">Each sample is the real class, at deck size. “Used now” is where that size landed. “Proposed” is its only job after the lock.</p>
+</div>
+
+    <article class="specimen">
+      <span class="specimen-tag">Display · .h1-display (not H1–H6)</span>
+      <p class="h1-display">Display</p>
+<div class="note">
+        <p class="text-size-tiny meta">Display · .h1-display · 6rem · line-height 1 · tracking −0.035em · weight 400</p>
+        <p class="text-size-regular used">Used now: cover, “Thank you”, section-divider number and label, the 30M+ stat, and the “World Model” hero.</p>
+        <p class="text-size-regular proposed">Proposed: cover, close, section dividers, and the one hero stat.</p>
+</div>
+    </article>
+
+    <article class="specimen">
+      <span class="specimen-tag">H1 · .heading-style-h1</span>
+      <p class="heading-style-h1">Slide title</p>
+<div class="note">
+        <p class="text-size-tiny meta">H1 · .heading-style-h1 · 4.5rem · line-height 1 · tracking −0.03em · weight 400</p>
+        <p class="text-size-regular used">Used now: all 13 content-slide titles. Two leftover rules also use this size for an icon and a metric.</p>
+        <p class="text-size-regular proposed">Proposed: the single title of a content slide. Nothing else.</p>
+</div>
+    </article>
+
+    <article class="specimen">
+      <span class="specimen-tag">H2 · .heading-style-h2</span>
+      <p class="heading-style-h2">Metric</p>
+<div class="note">
+        <p class="text-size-tiny meta">H2 · .heading-style-h2 · 2.8rem · line-height 1.1 · tracking −0.03em · weight 400</p>
+        <p class="text-size-regular used">Used now for several jobs: cover subhead, agenda rows, capability titles, accordion headlines, card titles, and metric values.</p>
+        <p class="text-size-regular proposed">Proposed: in-slide figures only. 22B, 50, 4K, $150K, 35%.</p>
+</div>
+    </article>
+
+    <article class="specimen">
+      <span class="specimen-tag">H3 · .heading-style-h3</span>
+      <p class="heading-style-h3">Panel heading</p>
+<div class="note">
+        <p class="text-size-tiny meta">H3 · .heading-style-h3 · 2.2rem · line-height 1 · tracking −0.025em · weight 400</p>
+        <p class="text-size-regular used">Used now: leads, “You control how it’s deployed”, LTX-2.5 panel headings, pricing figures, case numbers.</p>
+        <p class="text-size-regular proposed">Proposed: the heading inside a panel, under the slide title. Not a card title, not a number.</p>
+</div>
+    </article>
+
+    <article class="specimen">
+      <span class="specimen-tag">H4 · .heading-style-h4</span>
+      <p class="heading-style-h4">Unused in the lock</p>
+<div class="note">
+        <p class="text-size-tiny meta">H4 · .heading-style-h4 · 1.75rem · line-height 1.1 · tracking −0.02em · weight 500</p>
+        <p class="text-size-regular used">Used now: the “Who are we” lead, a few card titles, pricing-card values.</p>
+        <p class="text-size-regular proposed">Proposed: no deck role. Those leads become x-large. Those titles become H5.</p>
+</div>
+    </article>
+
+    <article class="specimen">
+      <span class="specimen-tag">H5 · .heading-style-h5</span>
+      <p class="heading-style-h5">Card title</p>
+<div class="note">
+        <p class="text-size-tiny meta">H5 · .heading-style-h5 · 1.5rem · line-height 1.2 · tracking −0.01em · weight 500</p>
+        <p class="text-size-regular used">Not used. Card titles are currently H2, H3, H4, x-large, or large.</p>
+        <p class="text-size-regular proposed">Proposed: every card, row, tab, and stage name.</p>
+</div>
+    </article>
+
+    <article class="specimen">
+      <span class="specimen-tag">H6 · .heading-style-h6</span>
+      <p class="heading-style-h6">Unused in the lock</p>
+<div class="note">
+        <p class="text-size-tiny meta">H6 · .heading-style-h6 · 1.25rem · line-height 1.3 · tracking −0.02em · weight 500</p>
+        <p class="text-size-regular used">Used now: short lines under a heading, some panel copy.</p>
+        <p class="text-size-regular proposed">Proposed: no deck role. Those lines become body or support.</p>
+</div>
+    </article>
+
+    <article class="specimen">
+      <p class="text-size-xlarge">The sentence under the title.</p>
+<div class="note">
+        <p class="text-size-tiny meta">.text-size-xlarge · 1.5rem · line-height 1.3 · tracking 0 · weight 400</p>
+        <p class="text-size-regular used">Used now: industry cards, “Also built for” titles, the next-steps intro, chart subheads. Leads also use H2, H3, and H4.</p>
+        <p class="text-size-regular proposed">Proposed: the lead under a slide title. Black, weight 400.</p>
+</div>
+    </article>
+
+    <article class="specimen">
+      <p class="text-size-large">Large, unused in the lock.</p>
+<div class="note">
+        <p class="text-size-tiny meta">.text-size-large · 1.375rem · line-height 1.3 · tracking −0.015em · weight 400</p>
+        <p class="text-size-regular used">Used now: footer captions, some card titles, watermarks, older card body.</p>
+        <p class="text-size-regular proposed">Proposed: no deck role.</p>
+</div>
+    </article>
+
+    <article class="specimen">
+      <p class="text-size-medium">Medium, unused in the lock.</p>
+<div class="note">
+        <p class="text-size-tiny meta">.text-size-medium · 1.125rem · line-height 1.3 · tracking 0.001em · weight 400</p>
+        <p class="text-size-regular used">Used now: mixed body, tabs, pills, node labels.</p>
+        <p class="text-size-regular proposed">Proposed: no deck role. Body becomes regular. Labels become small or tiny.</p>
+</div>
+    </article>
+
+    <article class="specimen">
+      <p class="text-size-regular">Body copy sits in black, weight 400, and stays on this size across every slide.</p>
+<div class="note">
+        <p class="text-size-tiny meta">.text-size-regular · 1.03125rem · line-height 1.1 · tracking 0.01rem · weight 400 · color black</p>
+        <p class="text-size-regular used">Used now as one of four sizes for paragraphs.</p>
+        <p class="text-size-regular proposed">Proposed: the only body size.</p>
+</div>
+    </article>
+
+    <article class="specimen">
+      <p class="text-size-small" style="color:var(--ltx-grey-light)">Support line, nav label, secondary sentence.</p>
+<div class="note">
+        <p class="text-size-tiny meta">.text-size-small · 0.9375rem · line-height 1.2 · tracking 0.01rem · weight 400 · color grey-light</p>
+        <p class="text-size-regular used">Used now: nav labels, customer quotes, some secondary lines.</p>
+        <p class="text-size-regular proposed">Proposed: support text and nav. Quotes move to .text-style-quote.</p>
+</div>
+    </article>
+
+    <article class="specimen">
+      <p class="text-size-tiny" style="color:var(--ltx-grey-muted)">Caption, axis label, footnote, inactive number.</p>
+<div class="note">
+        <p class="text-size-tiny meta">.text-size-tiny · 0.8125rem · line-height 1.2 · tracking 0.002rem · weight 400 · color grey-muted</p>
+        <p class="text-size-regular used">Used now: the largest set in the file. Captions, kickers, proofs, rail names. Many of them are weight 500.</p>
+        <p class="text-size-regular proposed">Proposed: meta only. Active meta switches to black and weight 500. It does not grow.</p>
+</div>
+    </article>
+  </section>
+
+  <section class="block">
+    <h2 class="heading-style-h4">Components</h2>
+
+    <article class="specimen">
+      <p class="section-name-new"><span class="text-scramble">[</span><span class="section-name">About LTX</span><span class="text-scramble">]</span></p>
+<div class="note">
+        <p class="text-size-tiny meta">.section-name-new · label 0.9rem · weight 300 · tracking 0.15em · uppercase · grey-medium · no brackets</p>
+        <p class="text-size-regular used">Used now on all 20 bracket labels, including [ Drag to explore ], [ Selected stage ], and [ Year progress ].</p>
+        <p class="text-size-regular proposed">Applied to every eyebrow and small tag. Do not set a separate size on the tags.</p>
+</div>
+    </article>
+
+    <article class="specimen">
+      <div class="row">
+        <span class="ltx-but-base is-black">Continue</span>
+        <span class="ltx-but-base">Watch the Full Video</span>
+      </div>
+<div class="note">
+        <p class="text-size-tiny meta">.ltx-but-base · 1.1rem · weight 400 · radius 0.3rem · .is-black fills black</p>
+        <p class="text-size-regular used">Used now: gate Continue and “See how LTX works” are filled. “See how LTX works” and “Watch the Full Video” also use the smaller padding.</p>
+        <p class="text-size-regular proposed">Proposed: one size. Filled for the forward action, outline for the quieter one.</p>
+</div>
+    </article>
+
+    <article class="specimen">
+      <blockquote class="text-style-quote">The quote sits on a black rule, at H6 size, line-height 1.5.</blockquote>
+<div class="note">
+        <p class="text-size-tiny meta">.text-style-quote · 1.25rem · line-height 1.5 · 3px black rule</p>
+        <p class="text-size-regular used">Not used yet. Customer quotes are still .cs-quote at small size.</p>
+        <p class="text-size-regular proposed">Proposed: customer quotes.</p>
+</div>
+    </article>
+
+    <article class="specimen">
+      <div class="on-dark">
+        <p class="text-size-small" style="color:var(--ltx-white)">Type on footage uses white #f9f9f9.</p>
+        <p class="text-size-tiny" style="color:var(--ltx-white); margin-top:0.35rem">The card behind a video is grey until the frame loads. Type on it is white #f9f9f9.</p>
+      </div>
+    </article>
+  </section>
+
+  <section class="block">
+    <h2 class="heading-style-h4">Same role, different styles</h2>
+    <div class="comparison-table-wrapper" style="margin-top:1.25rem">
+      <table class="comparison-table text-size-small">
+        <thead>
+          <tr><th>Role</th><th>Sizes in the deck now</th><th>Lock</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Card or row title</td><td>H2, H3, H4, x-large, large</td><td>H5</td></tr>
+          <tr><td>Lead under a title</td><td>H2, H3, H4, x-large</td><td>X-large</td></tr>
+          <tr><td>Paragraph</td><td>Large, medium, regular, small</td><td>Regular, black</td></tr>
+          <tr><td>Big number</td><td>Display, H1, H2, H3</td><td>H2, except 30M+ at display</td></tr>
+          <tr><td>Weight</td><td>About 118 rules at 500</td><td>400, except H4–H6 and active labels</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="block" id="decisions">
+    <h2 class="heading-style-h4">Decisions</h2>
+    <ol class="text-size-regular note-list">
+      <li>Every content slide keeps one H1 title, including dense slides.</li>
+      <li>The sentence under a title is always x-large.</li>
+      <li>The heading inside a panel is always H3.</li>
+      <li>Card, row, and tab titles are always H5.</li>
+      <li>Body is regular in black. Support is small in grey-light. Meta is tiny in grey-muted.</li>
+      <li>In-slide figures are H2. Display stays on the cover, the close, the section dividers, and 30M+.</li>
+      <li>Purple leaves. Current position uses slate-dark. Progress so far uses slate-medium. Unfilled tracks stay grey-line.</li>
+      <li>Weight 400 through H3, body, and buttons. Weight 500 only on H4–H6 and the active label. Eyebrows stay 300.</li>
+      <li>Grey-medium leaves the deck.</li>
+      <li>Both buttons share one size. The compact variant goes away.</li>
+      <li>Red leaves. A gate field error gets a black border, focus moves to the field, and the message under the form says what is wrong.</li>
+    </ol>
+<div class="note">
+      <p class="used">Confirmed 20 Oct 2026.</p>
+</div>
+  </section>
+
+</div>
+</body>
+</html>

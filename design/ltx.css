@@ -1,0 +1,526 @@
+/* ==========================================================================
+   LTX visual language
+   Tokens and classes from the ltx.io Webflow site: the "LTX brand colors"
+   and "Typography" variable collections (viewport-min 20rem,
+   viewport-max 90rem) and the style guide at website.ltx.io/style-guide.
+   Class names match Webflow where Webflow has one.
+
+   Load Aeonik before this file. See STYLE-GUIDE.md.
+   On a fixed 1920×1080 stage, point the --fs-* tokens at the --fs-*-stage
+   values on the stage element. The vw clamps track the browser viewport,
+   not a scaled canvas.
+   ========================================================================== */
+
+:root {
+  --ltx-black: #0b0b0b;
+  --ltx-grey-dark: #1f1f24;
+  --ltx-grey: #333333;
+  --ltx-grey-medium: #474747;
+  --ltx-grey-light: #707070;
+  --ltx-grey-muted: #858585;
+  --ltx-grey-line: #d2d2d7;
+  --ltx-offwhite: #e7e8eb;
+  --ltx-white: #f9f9f9;
+  --ltx-white-full: #ffffff;
+  --ltx-slate-dark: #2e3445;
+  --ltx-slate-medium: #868ea5;
+  --ltx-slate-light: #bbc0cb;
+  --ltx-slate-tint: #d4dae8;
+
+  --color-bg: var(--ltx-offwhite);
+  --color-surface: var(--ltx-white);
+  --color-ink: var(--ltx-black);
+  --color-text: var(--ltx-black);
+  --color-text-secondary: var(--ltx-grey);
+  --color-text-muted: var(--ltx-grey-light);
+  --color-text-subtle: var(--ltx-grey-muted);
+  --color-border: var(--ltx-grey-line);
+  --color-soft-fill: rgba(134, 142, 165, 0.1);
+  --color-on-media: var(--ltx-white);
+  --color-accent: var(--ltx-slate-dark);
+
+  --font-sans: "Aeonik", "Inter", Arial, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --fs-display: clamp(3rem, 5vw, 6rem);
+  --fs-h1: clamp(3rem, 2.5714rem + 2.1429vw, 4.5rem);
+  --fs-h2: clamp(2.25rem, 2.0929rem + 0.7857vw, 2.8rem);
+  --fs-h3: clamp(1.8rem, 1.6857rem + 0.5714vw, 2.2rem);
+  --fs-h4: clamp(1.5rem, 1.4286rem + 0.3571vw, 1.75rem);
+  --fs-h5: clamp(1.35rem, 1.3071rem + 0.2143vw, 1.5rem);
+  --fs-h6: clamp(1.125rem, 1.0893rem + 0.1786vw, 1.25rem);
+  --fs-xlarge: clamp(1.375rem, 1.3393rem + 0.1786vw, 1.5rem);
+  --fs-large: clamp(1.2188rem, 1.1741rem + 0.2232vw, 1.375rem);
+  --fs-medium: 1.125rem;
+  --fs-regular: 1.0313rem;
+  --fs-small: clamp(0.9063rem, 0.8973rem + 0.0446vw, 0.9375rem);
+  --fs-tiny: 0.8125rem;
+
+  /* The clamp ceilings: what ltx.io shows at a 90rem viewport. */
+  --fs-display-stage: 6rem;
+  --fs-h1-stage: 4.5rem;
+  --fs-h2-stage: 2.8rem;
+  --fs-h3-stage: 2.2rem;
+  --fs-h4-stage: 1.75rem;
+  --fs-h5-stage: 1.5rem;
+  --fs-h6-stage: 1.25rem;
+  --fs-xlarge-stage: 1.5rem;
+  --fs-large-stage: 1.375rem;
+  --fs-medium-stage: 1.125rem;
+  --fs-regular-stage: 1.0313rem;
+  --fs-small-stage: 0.9375rem;
+  --fs-tiny-stage: 0.8125rem;
+
+  --lh-tiny: 0.95;
+  --lh-compact: 1;
+  --lh-small: 1.1;
+  --lh-normal: 1.1;
+  --lh-medium: 1.3;
+  --lh-large: 1.4;
+  --lh-xlarge: 1.5;
+
+  --ls-display: -0.035em;
+  --ls-h1: -0.03em;
+  --ls-h2: -0.03em;
+  --ls-h3: -0.025em;
+  --ls-h4: -0.02em;
+  --ls-h5: -0.01em;
+  --ls-h6: -0.02em;
+  --ls-xlarge: 0;
+  --ls-large: -0.015em;
+  --ls-medium: 0.001em;
+  --ls-regular: 0.01rem;
+  --ls-small: 0.01rem;
+  --ls-tiny: 0.002rem;
+
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1.25rem;
+  --space-md: 1.75rem;
+  --space-lg: 2.5rem;
+  --space-xl: 4rem;
+  --space-2xl: 6rem;
+
+  --container-max: 100rem;
+  --container-pad: clamp(1rem, 3.5vw, 3rem);
+  --rail-width: 30%;
+  --gap-rail-content: clamp(3rem, 7vw, 8rem);
+
+  --radius-sm: 3px;
+  --radius-md: 0.5rem;
+  --radius-btn: 0.3rem;
+  --radius-pill: 999px;
+
+  /* Read on an element set to the number's font-size. 0.08em covers 0.04em
+     tracking on two digits. */
+  --nav-num-col: calc(2ch + 0.08em);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-btn: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --transition-fast: 0.14s var(--ease-out-soft);
+  --transition-base: 0.24s var(--ease-out-soft);
+  --transition-panel: 0.34s var(--ease-out-soft);
+  --transition-open: 0.5s var(--ease-out-soft);
+  --z-header: 20;
+
+  --scrim:
+    linear-gradient(to top, rgba(11, 11, 11, 0.55) 0%, rgba(11, 11, 11, 0.18) 42%, rgba(11, 11, 11, 0) 72%),
+    linear-gradient(100deg, rgba(11, 11, 11, 0.32) 0%, rgba(11, 11, 11, 0) 45%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Page layout (Webflow-style)
+   page-wrapper > padding-global > main-container > sections
+   -------------------------------------------------------------------------- */
+
+.page-wrapper {
+  width: 100%;
+}
+
+.global-padding,
+.padding-global {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  padding-inline: var(--content-pad-x, 3vw);
+}
+
+.main-container {
+  width: 100%;
+  max-width: var(--content-max, 90rem);
+  margin-inline: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Type
+   -------------------------------------------------------------------------- */
+
+.h1-display,
+.heading-style-h1,
+.heading-style-h2,
+.heading-style-h3,
+.heading-style-h4,
+.heading-style-h5,
+.heading-style-h6 {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.h1-display { font-size: var(--fs-display); line-height: var(--lh-compact); letter-spacing: var(--ls-display); font-weight: 400; }
+.heading-style-h1 { font-size: var(--fs-h1); line-height: var(--lh-compact); letter-spacing: var(--ls-h1); font-weight: 400; }
+.heading-style-h2 { font-size: var(--fs-h2); line-height: var(--lh-small); letter-spacing: var(--ls-h2); font-weight: 400; }
+.heading-style-h3 { font-size: var(--fs-h3); line-height: var(--lh-compact); letter-spacing: var(--ls-h3); font-weight: 400; }
+.heading-style-h4 { font-size: var(--fs-h4); line-height: var(--lh-small); letter-spacing: var(--ls-h4); font-weight: 500; }
+.heading-style-h5 { font-size: var(--fs-h5); line-height: var(--lh-normal); letter-spacing: var(--ls-h5); font-weight: 500; }
+.heading-style-h6 { font-size: var(--fs-h6); line-height: var(--lh-medium); letter-spacing: var(--ls-h6); font-weight: 500; }
+
+.text-size-xlarge { font-size: var(--fs-xlarge); line-height: var(--lh-medium); letter-spacing: var(--ls-xlarge); }
+.text-size-large  { font-size: var(--fs-large);  line-height: var(--lh-medium); letter-spacing: var(--ls-large); }
+.text-size-medium { font-size: var(--fs-medium); line-height: var(--lh-medium); letter-spacing: var(--ls-medium); }
+.text-size-regular { font-size: var(--fs-regular); line-height: var(--lh-normal); letter-spacing: var(--ls-regular); }
+.text-size-small  { font-size: var(--fs-small);  line-height: var(--lh-normal); letter-spacing: var(--ls-small); }
+.text-size-tiny   { font-size: var(--fs-tiny);   line-height: var(--lh-normal); letter-spacing: var(--ls-tiny); }
+
+.text-weight-light { font-weight: 300; }
+.text-weight-normal { font-weight: 400; }
+.text-weight-medium { font-weight: 500; }
+.text-weight-semibold { font-weight: 600; }
+.text-style-allcaps { text-transform: uppercase; }
+.text-style-muted { opacity: 0.6; }
+.text-color-secondary { color: var(--color-text-muted); }
+.text-color-accent { color: var(--color-accent); }
+.is-grey-medium { color: var(--ltx-grey-medium); }
+.text-balanced { text-wrap: balance; }
+.text-pretty { text-wrap: pretty; }
+
+/* Homepage mission block — Webflow combo: mission-text + is-bold + text-pretty */
+.mission-text {
+  margin: 0;
+  font-size: clamp(2.5rem, 3.5vw, 5rem);
+  line-height: var(--lh-compact);
+  letter-spacing: var(--ls-h1);
+  color: var(--color-ink);
+}
+.mission-text.is-bold { font-weight: 500; }
+
+/* --------------------------------------------------------------------------
+   Eyebrow — Webflow component "page-name-eyebrow", light variant
+   <div class="section-name-new">
+     <div class="text-scramble">[</div><p class="section-name">About LTX</p><div class="text-scramble">]</div>
+   </div>
+   -------------------------------------------------------------------------- */
+
+.section-name-new {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  color: var(--ltx-grey-medium);
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: var(--lh-medium);
+  text-wrap: balance;
+}
+.section-name {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.text-scramble {
+  display: none;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: 0.3rem;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons — ltx.io ltx-but-base (light theme)
+   -------------------------------------------------------------------------- */
+
+.ltx-but-base {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.8rem 1.6rem 0.9rem;
+  border: 1px solid var(--ltx-black);
+  border-radius: var(--radius-btn);
+  background-color: transparent;
+  color: var(--ltx-black);
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.03rem;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.35s var(--ease-btn);
+}
+.ltx-but-base:hover { transform: translateY(-3px); }
+.ltx-but-base.is-black {
+  background-color: var(--ltx-black);
+  color: var(--ltx-white);
+  border-color: var(--ltx-black);
+}
+.ltx-but-base.is-small { padding: 0.5rem 1rem 0.6rem; font-size: 1.05rem; }
+.ltx-but-base:disabled,
+.ltx-but-base[aria-disabled="true"] { opacity: 0.55; cursor: progress; transform: none; }
+
+.nav-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+/* --------------------------------------------------------------------------
+   Inline links — underline present, retracts on hover (ltx.io blog)
+   -------------------------------------------------------------------------- */
+
+.draw-underline {
+  position: relative;
+  color: inherit;
+  text-decoration: none;
+}
+.draw-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(1);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+  pointer-events: none;
+}
+.draw-underline:is(:hover, :focus)::after {
+  transform: scaleX(0);
+  transform-origin: right;
+}
+@media (prefers-reduced-motion: reduce) {
+  .draw-underline { text-decoration: underline; text-underline-offset: 4px; }
+  .draw-underline::after { content: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Media card — hero and chapter covers
+   -------------------------------------------------------------------------- */
+
+.media-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  border-radius: var(--radius-md);
+  background-color: var(--ltx-grey);
+  color: var(--color-on-media);
+}
+.media-card__media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.media-card__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--scrim);
+}
+.media-card__inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  width: 100%;
+  padding: clamp(1.25rem, 2.2vw, 2.25rem);
+}
+.media-card__title {
+  margin: 0;
+  max-width: 27rem;
+  color: var(--color-on-media);
+  text-wrap: balance;
+}
+
+.pill {
+  display: inline-flex;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(249, 249, 249, 0.72);
+  border-radius: var(--radius-pill);
+  background: rgba(11, 11, 11, 0.3);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font-size: var(--fs-small);
+  letter-spacing: 0.04rem;
+  line-height: var(--lh-medium);
+  color: var(--ltx-white);
+}
+
+/* --------------------------------------------------------------------------
+   Numbered index — rail, mobile menu, "what's inside"
+   -------------------------------------------------------------------------- */
+
+.index {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.index__row {
+  display: grid;
+  grid-template-columns: var(--nav-num-col) minmax(0, 1fr);
+  gap: var(--space-2xs);
+  align-items: center;
+  padding-block: var(--space-sm);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--fs-h6);
+  text-decoration: none;
+  color: var(--color-text-muted);
+}
+.index__item:last-child .index__row { border-bottom: 1px solid var(--color-border); }
+.index__num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  font-weight: 400;
+  color: var(--color-text-subtle);
+}
+.index__title {
+  letter-spacing: var(--ls-h6);
+  line-height: var(--lh-medium);
+  text-wrap: pretty;
+}
+.index__row:hover,
+.index__item.is-active .index__row {
+  color: var(--color-ink);
+}
+.index__item.is-active .index__title { font-weight: 500; }
+
+/* --------------------------------------------------------------------------
+   Quote, code, table — shared content blocks
+   -------------------------------------------------------------------------- */
+
+.text-style-quote {
+  margin: 0;
+  border-left: 0.1875rem solid var(--ltx-black);
+  padding: 0.75rem 1.25rem;
+  font-size: 1.25rem;
+  line-height: var(--lh-xlarge);
+}
+
+.ltx-code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--color-soft-fill);
+  padding: 0.12em 0.35em;
+  border-radius: var(--radius-sm);
+}
+
+.code-card {
+  position: relative;
+  background-color: var(--color-soft-fill);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+}
+.code-card pre {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: var(--lh-large);
+  letter-spacing: 0;
+  color: var(--ltx-grey-medium);
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.comparison-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+}
+.comparison-table {
+  --table-border-color: rgba(11, 11, 11, 0.12);
+  --table-soft-bg: rgba(11, 11, 11, 0.03);
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--table-border-color);
+  table-layout: fixed;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+}
+.comparison-table th,
+.comparison-table td {
+  border: 1px solid var(--table-border-color);
+  text-align: left;
+  vertical-align: top;
+  color: var(--color-ink);
+  padding: 12px 14px;
+  overflow-wrap: anywhere;
+}
+.comparison-table thead th { font-weight: 700; background: var(--table-soft-bg); }
+
+/* --------------------------------------------------------------------------
+   Scrolling-page base
+   Apply by adding class "ltx-page" on <body>. Leave it off a fixed stage.
+   -------------------------------------------------------------------------- */
+
+.ltx-page {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--font-sans);
+  font-size: var(--fs-large);
+  line-height: var(--lh-xlarge);
+  letter-spacing: var(--ls-large);
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+.ltx-page *,
+.ltx-page *::before,
+.ltx-page *::after { box-sizing: border-box; }
+.ltx-page h1,
+.ltx-page h2,
+.ltx-page h3,
+.ltx-page h4,
+.ltx-page h5,
+.ltx-page h6,
+.ltx-page p,
+.ltx-page figure,
+.ltx-page blockquote { margin: 0; }
+.ltx-page img,
+.ltx-page svg,
+.ltx-page video { display: block; max-width: 100%; height: auto; }
+.ltx-page a { color: inherit; }
+.ltx-page button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+.ltx-page ::selection { background: var(--ltx-black); color: var(--ltx-white); }
+.ltx-page :focus-visible { outline: 2px solid var(--ltx-black); outline-offset: 2px; }
+
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+}

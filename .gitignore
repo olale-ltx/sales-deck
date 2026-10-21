@@ -1,0 +1,7 @@
+.DS_Store
+node_modules/
+
+# Large source videos (~530 MB) never change; keep them out of history.
+# Hero posters are small and generated for the deck, so they stay versioned.
+sales-deck-original/videos/*
+!sales-deck-original/videos/posters/
