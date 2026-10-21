@@ -42,6 +42,7 @@
   --content-max: 100rem;
   /* Gap from chapter hero video (.section-hero-slide) to the next .screen slot */
   --hero-to-content-gap: 4rem;
+  --hero-to-content-gap-who: 2rem;
 
   --font-sans: "Aeonik", "Inter", Arial, system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -121,6 +122,7 @@
   --gap-rail-content: clamp(3rem, 7vw, 8rem);
 
   --radius-sm: 3px;
+  --radius-chip: 0.25rem;
   --radius-md: 0.5rem;
   --radius-btn: 0.3rem;
   --radius-pill: 999px;
@@ -259,12 +261,6 @@
 }
 .section-name {
   margin: 0;
-  font-family: var(--font-sans);
-  font-size: var(--fs-eyebrow);
-  font-weight: 300;
-  line-height: var(--lh-eyebrow);
-  letter-spacing: var(--ls-eyebrow);
-  text-transform: uppercase;
 }
 .text-scramble {
   display: none;
@@ -273,6 +269,64 @@
   font-weight: 300;
   line-height: 1;
   letter-spacing: 0.3rem;
+}
+
+/* --------------------------------------------------------------------------
+   Chart label — muted tiny type on diagrams, spec strips, and deck kickers
+   Track names, axis hints, captions under values, on-frame step tags.
+   -------------------------------------------------------------------------- */
+
+.chart-label,
+.section-name,
+.wm-node-lbl,
+.wm-core,
+.adv-bar-lbl,
+.adv-mlbl,
+.dash-metrics .mlbl,
+.pr-card-lbl,
+.pr-slider-scale span,
+.uf-tl-months span,
+.cs-metric-lbl,
+.cs-rail-ind,
+.cs-section-lbl,
+.cs-hero-stat .lbl,
+.cs-wf-legend span,
+.chal-col-head,
+.compare-col .lbl,
+.example-strip .cell .lbl {
+  font-family: var(--font-sans);
+  font-size: var(--fs-tiny);
+  font-weight: 400;
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-tiny);
+  color: var(--ltx-grey-muted);
+}
+
+/* Hub / primary diagram title — uppercase (e.g. World Model center, group kickers) */
+.chart-label.is-caps,
+.section-name,
+.wm-core {
+  text-transform: uppercase;
+}
+
+.chart-label.is-on-media {
+  color: rgba(249, 249, 249, 0.72);
+}
+
+/* Secondary line under a chart label (diagram box subtitle) */
+.chart-label em {
+  font-style: normal;
+  text-transform: none;
+}
+
+/* Dense challenge columns use a row title, not a viz caption */
+.chal-cols-dense .chal-col-head {
+  font-size: var(--fs-regular);
+  font-weight: 400;
+  letter-spacing: var(--ls-regular);
+  line-height: var(--lh-medium);
+  text-transform: none;
+  color: var(--ltx-black);
 }
 
 /* --------------------------------------------------------------------------
@@ -308,6 +362,47 @@
 .ltx-but-base.is-small { padding: 0.5rem 1rem 0.6rem; font-size: 1.05rem; }
 .ltx-but-base:disabled,
 .ltx-but-base[aria-disabled="true"] { opacity: 0.55; cursor: progress; transform: none; }
+
+/* Bordered tag / filter chip (ltx.io topic boxes) */
+.ltx-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-chip);
+  background: var(--ltx-white);
+  font-family: var(--font-sans);
+  font-size: var(--fs-small);
+  font-weight: 400;
+  letter-spacing: var(--ls-small);
+  line-height: var(--lh-normal);
+  color: var(--ltx-grey-light);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--transition-base),
+    border-color var(--transition-base),
+    background var(--transition-base);
+}
+.ltx-chip:hover {
+  color: var(--ltx-black);
+  border-color: var(--ltx-grey-medium);
+}
+.ltx-chip.is-on,
+.ltx-chip.active,
+.ltx-chip[aria-selected="true"] {
+  color: var(--ltx-black);
+  font-weight: 500;
+  border-color: var(--ltx-black);
+}
+.ltx-chip:focus-visible {
+  outline: 2px solid var(--ltx-black);
+  outline-offset: 2px;
+}
 
 .nav-ctas {
   display: flex;
@@ -406,7 +501,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Numbered index — rail, mobile menu, "what's inside"
+   Numbered index — `.index-num`, list (`.index`), rails, agenda
    -------------------------------------------------------------------------- */
 
 .index {
@@ -426,11 +521,16 @@
   color: var(--color-text-muted);
 }
 .index__item:last-child .index__row { border-bottom: 1px solid var(--color-border); }
+.index-num,
 .index__num {
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.04em;
+  font-family: var(--font-sans);
+  font-size: var(--fs-tiny);
   font-weight: 400;
-  color: var(--color-text-subtle);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-tiny);
+  font-variant-numeric: tabular-nums;
+  color: var(--ltx-grey-line);
+  transition: color 0.25s ease;
 }
 .index__title {
   letter-spacing: var(--ls-h6);
@@ -439,6 +539,10 @@
 }
 .index__row:hover,
 .index__item.is-active .index__row {
+  color: var(--color-ink);
+}
+.index__row:hover .index__num,
+.index__item.is-active .index__num {
   color: var(--color-ink);
 }
 .index__item.is-active .index__title { font-weight: 500; }

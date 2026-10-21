@@ -40,6 +40,7 @@
   --content-max:100rem;
   --section-gap:12rem;
   --hero-to-content-gap:4rem;
+  --hero-to-content-gap-who:2rem;
 }
 body.has-chapter-sub{
   --chrome-top:calc(var(--topnav-h) + var(--subnav-h));
@@ -59,7 +60,7 @@ html,body{
 :focus-visible{ outline:2px solid var(--ltx-black); outline-offset:2px; }
 /* Typography: design/ltx.css only. Roles — display/h1: titles; h3: panel + agenda;
    h5: cards/tabs/rows; section-sub + text-size-large: block subtext; text-size-regular: body;
-   text-size-small: nav/support; text-size-tiny: meta; section-name: eyebrows. Layout hooks
+   text-size-small: nav/support; text-size-tiny: meta; section-name: eyebrows; chart-label: diagram captions. Layout hooks
    (section-sub, cap-desc, …) never set font-size. Artboard sections scale as a whole. */
 #stage{
   position:relative;
@@ -127,7 +128,7 @@ html,body{
     border-bottom:none;
   }
   .about-page .chapter-blocks > .about-block.who-chapter{
-    padding-top:clamp(0.5rem, 0.8vw, 1rem);
+    padding-top:0;
     padding-bottom:0;
   }
   #aboutIndustries .section-sub{ margin-bottom:0; }
@@ -201,9 +202,9 @@ html,body{
   .screen.layout-document > .site-section.pgx-slide .pgx-explorer{ min-width:0; }
   .screen.layout-document > .site-section.pgx-slide .pgx-nav{
     position:relative; top:auto; left:auto; width:auto; bottom:auto;
-    display:flex; flex-direction:column; justify-content:center; gap:8px;
+    display:flex; flex-direction:column; justify-content:flex-start; gap:0;
   }
-  .pgx-explorer > .pgx-nav{ align-self:stretch; justify-content:space-evenly; min-height:100%; }
+  .pgx-explorer > .pgx-nav{ align-self:stretch; justify-content:flex-start; min-height:100%; }
   .ctrl-shell > .ctrl-nav{ align-self:stretch; min-height:100%; }
   .screen.layout-document > .site-section.pgx-slide .pgx-stage{
     position:relative; top:auto; left:auto; right:auto; bottom:auto;
@@ -220,9 +221,42 @@ html,body{
     position:relative; top:auto; left:auto; right:auto; bottom:auto;
     margin:4rem 0 var(--space-xl); min-height:min(540px, 72vh);
   }
+  /* Overview chapter: one viewport per screen (cover, then agenda) */
+  #chapter-0 .main-container > .screen{
+    min-height:calc(100dvh - var(--chrome-top));
+    scroll-margin-top:var(--chrome-top);
+  }
+  #chapter-0 .main-container > .screen + .screen{ margin-top:0; }
+  .screen.layout-document > .site-section.agenda-slide{
+    display:flex; flex-direction:column;
+    box-sizing:border-box;
+    width:100% !important; height:auto !important; min-height:calc(100dvh - var(--chrome-top));
+    transform:none !important;
+    padding:clamp(1.25rem, 2.5vw, 2rem) 0;
+  }
+  .screen.layout-document > .site-section.agenda-slide .topbar,
+  .screen.layout-document > .site-section.agenda-slide .rule{ flex:0 0 auto; }
+  .screen.layout-document > .site-section.agenda-slide .agenda-wrap{
+    position:relative; top:auto; left:auto; right:auto; bottom:auto;
+    flex:1 1 auto; display:flex; flex-direction:column; justify-content:center;
+    width:100%; min-height:0;
+  }
   .screen.layout-artboard > .site-section.nx-slide{ --fit-top:50; }
   .screen.layout-artboard > .site-section.pricing-sim,
   .screen.layout-artboard > .site-section.usage-flow{ --fit-top:80; }
+  /* First body screen after a chapter hero: crop artboard band so first content
+     aligns with the top — gap is only --hero-to-content-gap on the .screen slot. */
+  .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section:has(.cap-nav){
+    --fit-top:228;
+  }
+  .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section:has(.acc-wrap){
+    --fit-top:184;
+  }
+  .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section.adv-slide,
+  .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section.access-slide,
+  .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section.commercial-hub{
+    --fit-top:187;
+  }
 }
 @media (max-width:900px){
   .screen{ height:auto !important; overflow:visible; }
@@ -592,7 +626,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .compare-col{ position:relative; overflow:hidden; border-radius:var(--radius); padding:32px 36px; }
 .compare-col.closed{ background:var(--bg-alt); border:1px solid var(--line); }
 .compare-col.open{ background:var(--card); }
-.compare-col .lbl{ position:relative; z-index:1; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
+.compare-col .lbl{ position:relative; z-index:1; }
 .compare-row{ position:relative; z-index:1; padding:16px 10px; margin:0 -10px; border-radius:6px; border-bottom:1px solid var(--line); transition:opacity .3s ease, background .3s ease, box-shadow .3s ease; }
 .compare-row:last-child{ border-bottom:none; }
 .compare-row h4{  margin:0 0 3px;  transition:color .3s ease; font-size:var(--fs-h5); font-weight:500; letter-spacing:var(--ls-h5); line-height:var(--lh-normal); color:var(--ltx-black); }
@@ -752,7 +786,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 }
 .cs-metric.is-on{ display:flex; }
 .cs-metric-val{ font-size:var(--fs-h2); font-weight:400; letter-spacing:var(--ls-h2); line-height:var(--lh-small); color:var(--ltx-black); }
-.cs-metric-lbl{   max-width:150px; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
+.cs-metric-lbl{ max-width:150px; }
 .cs-quote{
   position:relative; margin:0 0 16px;
   opacity:0; transform:translateY(8px);
@@ -791,7 +825,6 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   filter:brightness(0); opacity:.42; transition:opacity .25s ease;
 }
 .cs-rail-name{ font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
-.cs-rail-ind{ font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 .cs-rail-btn.is-on{
   border-color:var(--ltx-black); color:var(--ltx-black);
   box-shadow:inset 0 -2px 0 var(--ltx-black);
@@ -818,31 +851,51 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .plain-item h4{    margin:0 0 8px; font-size:var(--fs-h5); font-weight:500; letter-spacing:var(--ls-h5); line-height:var(--lh-normal); color:var(--ltx-black); }
 .plain-item p{   margin:0; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
 
-/* agenda */
+/* agenda — document layout; compact rows (h3 titles, small tabular nums) */
 .agenda-wrap{
-  position:absolute; left:var(--content-gutter); right:var(--content-gutter); top:232px; bottom:70px;
+  position:relative;
   display:flex; flex-direction:column;
+  width:100%; max-width:100%;
+  --agenda-in-ease:cubic-bezier(.22,1,.36,1);
+  --agenda-in-duration:0.78s;
+  --agenda-row-stagger:0.088s;
+  --agenda-lane-gap:0.052s;
 }
 .agenda-row{
-  position:relative; display:flex; align-items:center; gap:18px;
-  flex:1; min-height:0;
-  padding:0 28px 0 12px;
-  border-bottom:1px solid var(--line); cursor:pointer; border-radius:6px;
+  position:relative;
+  display:grid;
+  grid-template-columns:var(--nav-num-col) minmax(0, 1fr) auto;
+  align-items:center;
+  gap:clamp(0.65rem, 1.2vw, 1rem);
+  flex:none;
+  padding:1.5rem 0.35rem 1.5rem 0;
+  border-bottom:1px solid var(--line); cursor:pointer; border-radius:0;
   overflow:hidden;
-  opacity:0; transform:translateY(18px);
+  opacity:1;
   transition:padding .25s ease, background .3s ease, box-shadow .3s ease;
 }
-.agenda-row .n{
-  width:78px; flex:0 0 auto; transition:color .25s ease; color:var(--ltx-grey-light); font-variant-numeric:tabular-nums; }
+.agenda-row .index-num{
+  opacity:1 !important;
+  color:var(--ltx-grey-muted);
+  transition:color .25s ease;
+}
+.agenda-row:hover .index-num{ color:var(--ltx-black); }
 .agenda-row .t{
-  white-space:nowrap; color:var(--ltx-black); }
+  margin:0;
+  min-width:0;
+  white-space:nowrap;
+  color:var(--ltx-black);
+  will-change:transform, opacity;
+}
+.agenda-row .index-num{ will-change:transform; }
 .agenda-row .go{
-  margin-left:auto; flex:0 0 auto;
-  position:relative; width:1.15em; height:1em;
+  position:relative;
+  flex:none;
+  width:1.25em; min-width:1.625rem; height:1.25em; min-height:1.625rem;
   opacity:0; transform:translateX(-8px);
   overflow:hidden;
   transition:opacity .38s cubic-bezier(.22,1,.36,1), transform .38s cubic-bezier(.22,1,.36,1), color .25s ease;
-  font-size:var(--fs-h3); font-weight:400; letter-spacing:var(--ls-h3); line-height:var(--lh-compact); color:var(--ltx-black);
+  font-size:var(--fs-h5); font-weight:400; letter-spacing:0; line-height:1; color:var(--ltx-black);
 }
 .agenda-row .go-i{
   position:absolute; top:0; left:0; width:100%; height:100%;
@@ -851,8 +904,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 }
 .agenda-row .go-i.is-out{ transform:translateX(0); }
 .agenda-row .go-i.is-in{ transform:translateX(-130%); }
-.agenda-row:hover{ padding-left:28px; }
-.agenda-row:hover .n{ color:var(--ink); }
+.agenda-row:hover{ padding-left:0.5rem; }
 .agenda-row:hover .t{ color:var(--ltx-black); }
 .agenda-row:hover .go{
   opacity:1; transform:translateX(0); color:var(--ltx-black);
@@ -868,33 +920,48 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 }
 .agenda-row:not(:hover) .go-i.is-out{ transform:translateX(0); }
 .agenda-row:not(:hover) .go-i.is-in{ transform:translateX(-130%); }
-.site-section.active .agenda-wrap.is-playing .agenda-row{
-  animation:agendaItemIn .5s cubic-bezier(.16,1,.3,1) forwards;
+.site-section.active .agenda-wrap.is-playing .agenda-row .index-num{
+  animation:agendaNumIn var(--agenda-in-duration) var(--agenda-in-ease) forwards;
+}
+.site-section.active .agenda-wrap.is-playing .agenda-row .t{
+  opacity:0;
+  animation:agendaTitleIn var(--agenda-in-duration) var(--agenda-in-ease) forwards;
 }
 .site-section.active .agenda-wrap.is-playing .agenda-row .go{
-  animation:agendaGoReveal .42s cubic-bezier(.16,1,.3,1) forwards;
+  animation:agendaGoIn var(--agenda-in-duration) var(--agenda-in-ease) forwards;
 }
-.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(1){ animation-delay:.04s; }
-.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(1) .go{ animation-delay:.2s; }
-.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(2){ animation-delay:.26s; }
-.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(2) .go{ animation-delay:.42s; }
-.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(3){ animation-delay:.48s; }
-.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(3) .go{ animation-delay:.64s; }
-.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(4){ animation-delay:.7s; }
-.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(4) .go{ animation-delay:.86s; }
-.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(5){ animation-delay:.92s; }
-.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(5) .go{ animation-delay:1.08s; }
-.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(6){ animation-delay:1.14s; }
-.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(6) .go{ animation-delay:1.3s; }
-.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(7){ animation-delay:1.36s; }
-.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(7) .go{ animation-delay:1.52s; }
-@keyframes agendaItemIn{
-  from{ opacity:0; transform:translateY(18px); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(1) .index-num{ animation-delay:0s; }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(1) .t{ animation-delay:var(--agenda-lane-gap); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(1) .go{ animation-delay:calc(var(--agenda-lane-gap) * 2); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(2) .index-num{ animation-delay:var(--agenda-row-stagger); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(2) .t{ animation-delay:calc(var(--agenda-row-stagger) + var(--agenda-lane-gap)); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(2) .go{ animation-delay:calc(var(--agenda-row-stagger) + var(--agenda-lane-gap) * 2); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(3) .index-num{ animation-delay:calc(var(--agenda-row-stagger) * 2); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(3) .t{ animation-delay:calc(var(--agenda-row-stagger) * 2 + var(--agenda-lane-gap)); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(3) .go{ animation-delay:calc(var(--agenda-row-stagger) * 2 + var(--agenda-lane-gap) * 2); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(4) .index-num{ animation-delay:calc(var(--agenda-row-stagger) * 3); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(4) .t{ animation-delay:calc(var(--agenda-row-stagger) * 3 + var(--agenda-lane-gap)); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(4) .go{ animation-delay:calc(var(--agenda-row-stagger) * 3 + var(--agenda-lane-gap) * 2); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(5) .index-num{ animation-delay:calc(var(--agenda-row-stagger) * 4); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(5) .t{ animation-delay:calc(var(--agenda-row-stagger) * 4 + var(--agenda-lane-gap)); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(5) .go{ animation-delay:calc(var(--agenda-row-stagger) * 4 + var(--agenda-lane-gap) * 2); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(6) .index-num{ animation-delay:calc(var(--agenda-row-stagger) * 5); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(6) .t{ animation-delay:calc(var(--agenda-row-stagger) * 5 + var(--agenda-lane-gap)); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(6) .go{ animation-delay:calc(var(--agenda-row-stagger) * 5 + var(--agenda-lane-gap) * 2); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(7) .index-num{ animation-delay:calc(var(--agenda-row-stagger) * 6); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(7) .t{ animation-delay:calc(var(--agenda-row-stagger) * 6 + var(--agenda-lane-gap)); }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(7) .go{ animation-delay:calc(var(--agenda-row-stagger) * 6 + var(--agenda-lane-gap) * 2); }
+@keyframes agendaNumIn{
+  from{ transform:translate3d(0,10px,0); }
+  to{ transform:none; }
+}
+@keyframes agendaTitleIn{
+  from{ opacity:0; transform:translate3d(0,14px,0); }
   to{ opacity:1; transform:none; }
 }
-@keyframes agendaGoReveal{
-  from{ opacity:0; transform:translateX(-10px); }
-  to{ opacity:.45; transform:translateX(0); }
+@keyframes agendaGoIn{
+  from{ opacity:0; transform:translate3d(-8px,0,0); }
+  to{ opacity:.5; transform:none; }
 }
 @keyframes agendaArrowOut{
   from{ transform:translateX(0); }
@@ -906,7 +973,9 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 }
 @media (prefers-reduced-motion:reduce){
   .agenda-row{ opacity:1; transform:none; animation:none !important; }
-  .agenda-row .go{ animation:none !important; opacity:1; transform:none; }
+  .agenda-row .index-num, .agenda-row .t, .agenda-row .go{ animation:none !important; transform:none; }
+  .agenda-row .t{ opacity:1; }
+  .agenda-row .go{ opacity:1; transform:none; }
   .agenda-row .go-i.is-out{ transform:none; }
   .agenda-row .go-i.is-in{ display:none; }
 }
@@ -920,7 +989,6 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .example-strip{ position:absolute; left:var(--content-gutter); bottom:150px; display:flex; background:var(--card); border-radius:var(--radius); overflow:hidden; }
 .example-strip .cell{ padding:20px 26px; border-right:1px solid var(--line); }
 .example-strip .cell:last-child{ border-right:none; }
-.example-strip .cell .lbl{ font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 .example-strip .cell .big{   margin:2px 0; font-size:var(--fs-h2); font-weight:400; letter-spacing:var(--ls-h2); line-height:var(--lh-small); color:var(--ltx-black); }
 .example-strip .cell .small{ font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
 
@@ -1070,7 +1138,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .dash-metrics .metric{ padding:0 36px; text-align:center; border-right:1px solid var(--line); }
 .dash-metrics .metric:last-child{ border-right:none; }
 .dash-metrics .mval{ display:block; font-size:var(--fs-h2); font-weight:400; letter-spacing:var(--ls-h2); line-height:var(--lh-small); color:var(--ltx-black); }
-.dash-metrics .mlbl{ display:block;   margin-top:5px; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
+.dash-metrics .mlbl{ display:block; margin-top:5px; }
 
 /* ============ SLIDE 12: Use Cases & Workflows — workflow navigator ============ */
 .acc-wrap{ position:absolute; top:184px; left:var(--content-gutter); right:var(--content-gutter); bottom:80px; display:flex; gap:56px; }
@@ -1101,8 +1169,8 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   flex:0 0 32px; width:32px; height:32px;
   display:flex; align-items:center; justify-content:center;
   border:1px solid var(--line); border-radius:50%; background:var(--ltx-white);
-     
-  transition:border-color .25s ease, color .25s ease; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
+  transition:border-color .25s ease, color .25s ease;
+}
 .acc-item-lbl{ min-width:0; }
 .acc-item:hover{ color:var(--ink); }
 .acc-item:hover .acc-num{ border-color:var(--ink); color:var(--ink); }
@@ -1196,9 +1264,9 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .adv-card.active .adv-check-svg path, .adv-row.story-done .adv-check-svg path{ stroke-dashoffset:0; }
 .adv-metric{ display:flex; align-items:baseline; gap:8px; }
 .adv-mval{ font-size:var(--fs-h2); font-weight:400; letter-spacing:var(--ls-h2); line-height:var(--lh-small); color:var(--ltx-black); }
-.adv-mlbl{ font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
+.adv-mlbl{ display:block; margin-top:5px; }
 .adv-bar-row{ display:flex; align-items:center; gap:8px; margin-top:6px; }
-.adv-bar-lbl{   width:56px; flex:0 0 auto; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
+.adv-bar-lbl{ width:56px; flex:0 0 auto; }
 .adv-bar{ flex:1 1 auto; height:7px; background:rgba(0,0,0,.06); border-radius:4px; overflow:hidden; }
 .adv-bar-fill{ height:100%; border-radius:4px; width:0%; transition:width 1s cubic-bezier(.16,1,.3,1); }
 .adv-bar-fill.ltx{ background:var(--ltx-slate-medium); }
@@ -1290,7 +1358,9 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   width:44px; height:44px; border-radius:50%; border:2px solid var(--line); 
   display:flex; align-items:center; justify-content:center;  
   margin:0 auto 16px; position:relative; z-index:2;
-  transition:border-color .3s ease, box-shadow .3s ease, background .3s ease, color .3s ease; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
+  transition:border-color .3s ease, box-shadow .3s ease, background .3s ease;
+}
+.ns-node .index-num{ transition:color .3s ease; }
 .ns-stage h4{
     margin:0 0 6px;  padding:0 6px;
   opacity:0; transform:translateY(6px); transition:opacity .4s ease .12s, transform .4s ease .12s, color .3s ease; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
@@ -1300,17 +1370,20 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .ns-stage.revealed h4, .ns-stage.revealed p{ opacity:1; transform:translateY(0); }
 .ns-stage.revealed h4{ color:var(--ink-soft); }
 .ns-stage.active .ns-node{
-  border-color:var(--ltx-black); color:var(--ltx-black); background:rgba(11,11,11,0.08);
+  border-color:var(--ltx-black); background:rgba(11,11,11,0.08);
   box-shadow:0 0 0 6px rgba(11,11,11,0.042), 0 0 14px rgba(11,11,11,0.135);
 }
+.ns-stage.active .ns-node .index-num{ color:var(--ltx-black); }
 .ns-stage.active h4{ color:var(--ink); }
-.ns-stage.done .ns-node{ border-color:var(--ltx-black); background:var(--ltx-black); color:var(--ltx-white); }
+.ns-stage.done .ns-node{ border-color:var(--ltx-black); background:var(--ltx-black); }
+.ns-stage.done .ns-node .index-num{ color:var(--ltx-white); }
 .ns-stage.done h4{ color:var(--ink); }
 /* click-selected state wins over the plain done/active look regardless of cascade phase */
 .ns-stage.selected .ns-node{
-  border-color:var(--ltx-black); color:var(--ltx-black); background:rgba(11,11,11,0.08);
+  border-color:var(--ltx-black); background:rgba(11,11,11,0.08);
   box-shadow:0 0 0 6px rgba(11,11,11,0.042), 0 0 14px rgba(11,11,11,0.135);
 }
+.ns-stage.selected .ns-node .index-num{ color:var(--ltx-black); }
 .ns-stage.selected h4{ color:var(--ink); }
 .ns-row.has-selection .ns-stage:not(.selected){ opacity:.55; }
 
@@ -1326,7 +1399,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 }
 .ns-panel-tag{ margin-bottom:16px; }
 .ns-panel-body{ display:flex; align-items:flex-start; gap:22px; }
-.ns-panel-num{ flex:none;    font-variant-numeric:tabular-nums; font-size:var(--fs-h3); font-weight:400; letter-spacing:var(--ls-h3); line-height:var(--lh-compact); color:var(--ltx-grey-light); }
+.ns-panel-body > .index-num{ flex:none; min-width:var(--nav-num-col); }
 .ns-panel-text h3{   margin:0 0 8px; font-size:var(--fs-h3); font-weight:400; letter-spacing:var(--ls-h3); line-height:var(--lh-compact); color:var(--ltx-black); }
 .ns-panel-text p{   margin:0; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
 .ns-panel-body.ns-fade{ animation:nsPanelFade .35s ease; }
@@ -1340,20 +1413,28 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   margin:0; font-size:var(--fs-xlarge); font-weight:400; letter-spacing:var(--ls-xlarge); line-height:var(--lh-medium); color:var(--ltx-black); }
 .pgx-nav{
   position:absolute; top:459px; left:var(--content-gutter); width:640px; bottom:72px;
-  display:flex; flex-direction:column; justify-content:center; gap:8px;
+  display:flex; flex-direction:column; justify-content:flex-start; gap:0;
 }
 .pgx-item{
-  position:relative; padding:16px 20px 16px 22px; cursor:pointer;
-  border-left:2px solid var(--line); opacity:.4;
-  transition:opacity .28s ease, border-color .28s ease, background .28s ease;
+  position:relative; margin:0; padding-inline:1.25rem; cursor:pointer;
+  border:none; border-bottom:1px solid var(--ltx-grey-line);
+  box-sizing:border-box;
+  opacity:.4;
+  transition:opacity .28s ease, background .28s ease, color .28s ease;
 }
+.pgx-item:last-child{ border-bottom:none; }
+.pgx-item.is-on{ border-bottom-color:transparent; }
+.pgx-item.is-on + .pgx-item{ border-top:none; }
 .pgx-item h4{
-  margin:0 0 6px;   
-   transition:color .28s ease; font-size:var(--fs-h5); font-weight:500; letter-spacing:var(--ls-h5); line-height:var(--lh-normal); color:var(--ltx-black); }
-.pgx-item p{ margin:0;    max-width:560px; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
-.pgx-item.is-on, .pgx-item:hover{ opacity:1; background:rgba(11,11,11,0.07); }
-.pgx-item.is-on{ border-left-color:var(--ltx-black); }
+  margin:0 0 6px;
+  transition:color .28s ease; font-size:var(--fs-h5); font-weight:500; letter-spacing:var(--ls-h5); line-height:var(--lh-normal); color:var(--ltx-black); }
+.pgx-item p{ margin:0; max-width:560px; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
+.pgx-item.is-on, .pgx-item:hover{ opacity:1; background:rgba(11,11,11,0.07); color:var(--ltx-black); }
 .pgx-item.is-on h4, .pgx-item:hover h4{ color:var(--ltx-black); }
+.pgx-item.is-on p, .pgx-item:hover p{ color:var(--ltx-grey-light); }
+.pgx-item:focus-visible{
+  outline:2px solid var(--ltx-black); outline-offset:-2px;
+}
 
 .pgx-stage{
   position:absolute; top:490px; left:calc(var(--content-gutter) + 670px); right:var(--content-gutter); bottom:72px;
@@ -1363,6 +1444,15 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   position:relative; flex:1; min-height:0;
   overflow:hidden;
   background:var(--ltx-white);
+}
+/* Bordered viz boxes across pgx panels (spokes, nodes, keys, A/V events) */
+.pgx-spoke,
+.pgx-hub,
+.pgx-node,
+.pgx-key,
+.pgx-ev,
+.pgx-canvas .pgx-chip.ltx-chip{
+  border-radius:4px;
 }
 .pgx-panel{
   position:absolute; inset:0; padding:28px 32px 24px;
@@ -1385,21 +1475,18 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .pgx-slide .dash-metrics .metric:last-child{ border-right:none; }
 .pgx-slide .dash-metrics .mval,
 .pgx-slide .dash-metrics .mval{ font-size:var(--fs-h2); font-weight:400; letter-spacing:var(--ls-h2); line-height:var(--lh-small); color:var(--ltx-black); }
-.pgx-slide .dash-metrics .mlbl,
-.pgx-slide .dash-metrics .mlbl{ display:block;     margin-top:10px;  padding-bottom:0; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
+.pgx-slide .dash-metrics .mlbl{ display:block; margin-top:10px; padding-bottom:0; }
 
 /* State 1 — joint audio-video */
+.pgx-av .chart-label{ text-transform:uppercase; }
 .pgx-av{ position:relative; display:flex; flex-direction:column; gap:10px; }
 .pgx-av-rel{ position:relative; display:flex; flex-direction:column; gap:8px; }
-.pgx-av-cue{
-      
-  padding-left:80px; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
+.pgx-av-cue{ margin:0; padding-left:80px; }
 .pgx-av-link{
   padding-left:80px; height:16px; display:flex; align-items:center; justify-content:center;
    color:var(--ltx-grey-line); font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); }
 .pgx-av-row{ display:flex; align-items:stretch; gap:16px; }
-.pgx-av-lbl{
-  flex:0 0 64px; align-self:center; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
+.pgx-av-lbl{ flex:0 0 64px; align-self:center; }
 .pgx-av-lane{
   position:relative; flex:1; border:1px solid var(--line); background:var(--ltx-white); overflow:hidden;
 }
@@ -1440,8 +1527,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 }
 .pgx-shot-lbl{
   position:absolute; top:6px; left:8px; z-index:1;
-     
-  color:rgba(249,249,249,.72); font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; }
+}
 .pgx-av.is-run .pgx-shot.is-live{
   opacity:1; filter:none;
   box-shadow:inset 0 0 0 2px var(--ltx-black);
@@ -1451,10 +1537,10 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .pgx-ev{
   position:absolute; top:10px; bottom:10px;
   border:1px solid var(--ltx-grey-line); background:var(--ltx-white);
-     
   display:flex; align-items:center; justify-content:center; white-space:nowrap;
   opacity:0; transform:translateY(6px);
-  transition:opacity .35s ease, transform .35s ease, border-color .3s ease, color .3s ease, background .3s ease; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
+  transition:opacity .35s ease, transform .35s ease, border-color .3s ease, color .3s ease, background .3s ease;
+}
 .pgx-av.is-run .pgx-ev{ opacity:1; transform:none; }
 .pgx-ev.walk{ left:3%; width:28%; transition-delay:.32s; }
 .pgx-ev.talk{ left:35%; width:28%; transition-delay:.4s; }
@@ -1472,15 +1558,18 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .pgx-lora{ display:flex; align-items:center; gap:12px; width:100%; }
 .pgx-node{
   flex:0 0 auto; min-width:120px; text-align:center; padding:16px 14px;
-  border:1px solid var(--line); font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
-.pgx-node em{ display:block; font-style:normal;    margin-top:4px; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
+  border:1px solid var(--line);
+}
+.pgx-node.chart-label em{
+  display:block; margin-top:4px;
+  color:var(--ltx-grey-muted);
+}
 .pgx-lora-mid{ flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:10px; }
 .pgx-chips{ display:flex; flex-wrap:wrap; justify-content:center; gap:6px; }
 .pgx-chip{
-     
-  border:1px solid var(--line); background:var(--ltx-white); padding:6px 10px; cursor:pointer;
-  transition:border-color .25s ease, color .25s ease, background .25s ease; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
-.pgx-chip.is-on{ border-color:var(--ltx-black); color:var(--ltx-black); background:rgba(11,11,11,0.06); }
+  padding:0.4rem 0.75rem;
+  font-size:var(--fs-tiny); letter-spacing:var(--ls-tiny);
+}
 .pgx-wire{
   flex:1; height:1px; background:var(--line); position:relative; min-width:24px;
 }
@@ -1500,12 +1589,14 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .pgx-hub{
   grid-column:2; grid-row:2; width:132px; height:132px;
   border:1px solid var(--ltx-black); display:flex; align-items:center; justify-content:center;
-  text-align:center;    
-  background:rgba(11,11,11,0.05); font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
+  text-align:center;
+  background:rgba(11,11,11,0.05);
+}
+.pgx-hub.chart-label{ color:var(--ltx-grey-light); }
 .pgx-spoke{
   min-width:132px; padding:10px 12px; border:1px solid var(--line); text-align:center;
-    
-  opacity:0; transform:translateY(8px); font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
+  opacity:0; transform:translateY(8px);
+}
 .pgx-panel.is-on .pgx-spoke{ animation:pgxSpoke .32s cubic-bezier(.16,1,.3,1) forwards; }
 .pgx-spoke:nth-child(1){ grid-column:2; grid-row:1; animation-delay:.04s; }
 .pgx-spoke:nth-child(2){ grid-column:1; grid-row:2; animation-delay:.12s; }
@@ -1513,45 +1604,47 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .pgx-spoke:nth-child(4){ grid-column:2; grid-row:3; animation-delay:.24s; }
 @keyframes pgxSpoke{ to{ opacity:1; transform:none; } }
 .pgx-own-meta{
-  display:flex; justify-content:center; gap:22px; margin-top:18px; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
+  display:flex; justify-content:center; gap:22px; margin-top:18px;
+}
 
-/* State 4 — longer prompts */
+/* State 4 — longer prompts (prompt keys — edit hex here) */
+.pgx-panel[data-cap="prompts"]{
+  --pgx-char-bg:rgba(255, 201, 184, 0.42);   --pgx-char-edge:#d4785c;   /* character */
+  --pgx-env-bg:rgba(168, 232, 196, 0.42);    --pgx-env-edge:#3d9a6a;    /* environment */
+  --pgx-cam-bg:rgba(168, 196, 255, 0.42);    --pgx-cam-edge:#4a6fd4;    /* camera */
+  --pgx-motion-bg:rgba(245, 200, 120, 0.42); --pgx-motion-edge:#c4842a; /* motion */
+  --pgx-light-bg:rgba(255, 229, 102, 0.38);  --pgx-light-edge:#c9a820;  /* lighting */
+  --pgx-cont-bg:rgba(210, 188, 248, 0.42);   --pgx-cont-edge:#7b52c4;   /* continuity — lavender */
+}
 .pgx-prompt{
   margin:0; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
 .pgx-mark{
   border-bottom:1px solid rgba(11,11,11,0.35);
-  transition:background .25s ease, color .25s ease;
+  background:rgba(11,11,11,0.08);
+  box-decoration-break:clone;
+  -webkit-box-decoration-break:clone;
 }
-.pgx-panel.is-on .pgx-mark{ animation:pgxMark 8s ease-in-out infinite; }
-.pgx-mark[data-k="char"]{ animation-delay:0s; }
-.pgx-mark[data-k="env"]{ animation-delay:1.1s; }
-.pgx-mark[data-k="cam"]{ animation-delay:2.2s; }
-.pgx-mark[data-k="motion"]{ animation-delay:3.3s; }
-.pgx-mark[data-k="light"]{ animation-delay:4.4s; }
-.pgx-mark[data-k="cont"]{ animation-delay:5.5s; }
-@keyframes pgxMark{
-  0%,12%,100%{ background:transparent; color:inherit; }
-  4%,9%{ background:rgba(11,11,11,0.12); color:var(--ltx-black); }
-}
+.pgx-mark[data-k="char"], .pgx-key[data-k="char"]{ background:var(--pgx-char-bg); }
+.pgx-mark[data-k="env"],  .pgx-key[data-k="env"]{ background:var(--pgx-env-bg); }
+.pgx-mark[data-k="cam"],  .pgx-key[data-k="cam"]{ background:var(--pgx-cam-bg); }
+.pgx-mark[data-k="motion"], .pgx-key[data-k="motion"]{ background:var(--pgx-motion-bg); }
+.pgx-mark[data-k="light"], .pgx-key[data-k="light"]{ background:var(--pgx-light-bg); }
+.pgx-mark[data-k="cont"], .pgx-key[data-k="cont"]{ background:var(--pgx-cont-bg); }
+.pgx-mark[data-k="char"]{ border-bottom-color:var(--pgx-char-edge); }
+.pgx-mark[data-k="env"]{ border-bottom-color:var(--pgx-env-edge); }
+.pgx-mark[data-k="cam"]{ border-bottom-color:var(--pgx-cam-edge); }
+.pgx-mark[data-k="motion"]{ border-bottom-color:var(--pgx-motion-edge); }
+.pgx-mark[data-k="light"]{ border-bottom-color:var(--pgx-light-edge); }
+.pgx-mark[data-k="cont"]{ border-bottom-color:var(--pgx-cont-edge); }
+.pgx-panel[data-cap="prompts"] .pgx-key{ border:none; }
+.pgx-spoke.chart-label,
+.pgx-key.chart-label,
+.pgx-node.chart-label{ text-transform:uppercase; }
 .pgx-keys{ display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
 .pgx-key{
-     
-   border:1px solid var(--line); padding:5px 9px; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
-.pgx-panel.is-on .pgx-key{ animation:pgxKey 8s ease-in-out infinite; }
-.pgx-key:nth-child(1){ animation-delay:0s; }
-.pgx-key:nth-child(2){ animation-delay:1.1s; }
-.pgx-key:nth-child(3){ animation-delay:2.2s; }
-.pgx-key:nth-child(4){ animation-delay:3.3s; }
-.pgx-key:nth-child(5){ animation-delay:4.4s; }
-.pgx-key:nth-child(6){ animation-delay:5.5s; }
-@keyframes pgxKey{
-  0%,12%,100%{ border-color:var(--line); color:var(--ltx-grey-muted); }
-  4%,9%{ border-color:var(--ltx-black); color:var(--ltx-black); }
+  border:1px solid var(--line); padding:5px 9px;
 }
-
 @media (prefers-reduced-motion:reduce){
-  .pgx-panel.is-on .pgx-mark,
-  .pgx-panel.is-on .pgx-key,
   .pgx-panel.is-on .pgx-spoke,
   .pgx-panel.is-on .pgx-wire::after{ animation:none; }
   .pgx-spoke{ opacity:1; transform:none; }
@@ -1777,7 +1870,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   background:var(--ltx-white); border:3px solid var(--ltx-slate-dark); border-radius:50%;
   transition:left .1s linear;
 }
-.uf-tl-months{ display:flex; justify-content:space-between;   margin-bottom:16px; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
+.uf-tl-months{ display:flex; justify-content:space-between; margin-bottom:16px; }
 .uf-tl-status{   margin:0; transition:color .3s ease; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
 .uf-tl-status.is-payg{ color:var(--ltx-black); font-weight:400; }
 
@@ -1804,14 +1897,14 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   opacity:0; cursor:pointer; -webkit-appearance:none; appearance:none;
 }
 .pr-range::-webkit-slider-thumb{ -webkit-appearance:none; width:26px; height:26px; }
-.pr-slider-scale{ display:flex; justify-content:space-between;   margin:0 6px 16px; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
+.pr-slider-scale{ display:flex; justify-content:space-between; margin:0 6px 16px; }
 
 .pr-cards{ display:flex; gap:10px; }
 .pr-card{
   flex:1; min-width:0; background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
   padding:10px 12px; transition:border-color .25s ease, box-shadow .25s ease, transform .25s ease;
 }
-.pr-card-lbl{   margin-bottom:5px; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
+.pr-card-lbl{ margin-bottom:5px; }
 .pr-card-val{    font-variant-numeric:tabular-nums; font-size:var(--fs-h2); font-weight:400; letter-spacing:var(--ls-h2); line-height:var(--lh-small); color:var(--ltx-black); }
 .pr-card.pr-pulse{
   border-color:var(--ltx-black); box-shadow:0 6px 18px rgba(11,11,11,0.054); transform:translateY(-2px);
@@ -1912,33 +2005,21 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 /* ============ SLIDE 9: capability explorer ============ */
 .cap-nav{
   position:absolute; top:228px; left:var(--content-gutter); right:var(--content-gutter);
-  display:flex; flex-direction:column; gap:14px;
+  display:flex; flex-direction:column; gap:0.5rem;
 }
+.cap-nav__title{
+  margin:0 0 0.25rem;
+  color:var(--ltx-black);
+}
+.cap-nav__title.heading-style-h4{ font-weight:400; }
 .cap-nav-row{
-  display:flex; flex-wrap:nowrap; align-items:center; justify-content:space-between; width:100%;
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-start;
+  gap:0.5rem; width:100%;
 }
-.cap-dot{
-  width:5px; height:5px; border-radius:50%; background:var(--ltx-black); opacity:.85;
-  flex:0 0 auto; margin:0 4px;
-}
-.cap-btn{
-  font-family:var(--font);   
-  background:none; border:none; padding:0 0 8px; margin:0;
-  cursor:pointer; position:relative; white-space:nowrap;
-  transition:color .22s ease, transform .22s ease, font-weight .22s ease; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
-.cap-btn:hover{ color:var(--ltx-black); transform:translateY(-2px); }
-.cap-btn.active{
-  color:var(--ltx-black); font-weight:500; transform:none;
-}
-.cap-btn::after{
-  content:''; position:absolute; left:0; right:0; bottom:0; height:3px;
-  background:var(--ltx-black); border-radius:3px;
-  transform:scaleX(0); transform-origin:center;
-  transition:transform .25s cubic-bezier(.16,1,.3,1);
-}
-.cap-btn.active::after{ transform:scaleX(1); }
+.cap-dot{ display:none; }
+.cap-btn::after{ display:none; }
 
-.cap-stage{ position:absolute; top:318px; left:var(--content-gutter); right:var(--content-gutter); bottom:80px; }
+.cap-stage{ position:absolute; top:372px; left:var(--content-gutter); right:var(--content-gutter); bottom:80px; }
 .cap-panel{
   position:absolute; inset:0; display:flex; gap:50px;
   opacity:0; pointer-events:none;
@@ -2061,9 +2142,12 @@ body.nav-open .menu-toggle span:nth-child(3){ transform:translateY(-7px) rotate(
 #appnav-sub{
   position:fixed; top:var(--topnav-h); left:0; right:0; z-index:99;
   display:none; align-items:center;
+  /* Pull flush to #appnav (avoids 1px hairline from subpixel height) */
+  margin-top:-1px;
   padding-block:var(--subnav-pad-y);
+  padding-top:calc(var(--subnav-pad-y) + 1px);
   padding-inline:calc(var(--content-pad-x) + max(0px, (100vw - 2 * var(--content-pad-x) - var(--content-max)) / 2));
-  background:rgba(231, 232, 235, 0.7);
+  background:linear-gradient(to bottom, var(--ltx-offwhite) 0, var(--ltx-offwhite) 2px, rgba(231, 232, 235, 0.7) 2px);
   backdrop-filter:blur(12px);
   -webkit-backdrop-filter:blur(12px);
   font-family:var(--font);
@@ -2082,7 +2166,10 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   margin:0; padding:0; border:none; background:none; cursor:pointer;
   font:inherit; color:var(--ltx-grey-medium); white-space:nowrap;
   transition:color var(--transition-fast, .2s ease);
+  min-width:0; flex:0 1 auto;
 }
+.chapter-breadcrumb__link:empty{ display:none; }
+.chapter-breadcrumb__link:empty + .chapter-breadcrumb__sep{ display:none; }
 .chapter-breadcrumb__link:hover{ color:var(--ltx-grey-medium); }
 .chapter-breadcrumb__sep{
   flex:none; color:var(--ltx-grey-medium); user-select:none;
@@ -2137,9 +2224,18 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .section-hero__text-fade{ height:min(70%, 18rem); }
 }
 
-/* First content slot after a chapter hero video — see docs/LTX-MINI-SITE-SYSTEM.md */
-.screen:has(> .section-hero-slide) + .screen{
+/* Hero → first body screen (docs/LTX-MINI-SITE-SYSTEM.md); Who We Are uses tighter gap */
+.main-container > .screen:has(> .section-hero-slide) + .screen{
   margin-top:var(--hero-to-content-gap);
+}
+.main-container > .screen:has(> #section-who-hero) + .screen{
+  margin-top:var(--hero-to-content-gap-who);
+}
+/* Gap is only the margin above — no extra padding on the first block in that screen */
+.main-container > .screen:has(> .section-hero-slide) + .screen > .site-section.about-page .chapter-blocks > .about-block:first-child,
+.main-container > .screen:has(> .section-hero-slide) + .screen > .site-section.chapter-block,
+.main-container > .screen:has(> .section-hero-slide) + .screen > .site-section.about-page{
+  padding-top:0;
 }
 .about-page .chapter-blocks{
   overflow:visible;
@@ -2245,30 +2341,25 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .who-logos{
   width:100vw; margin-left:calc(50% - 50vw); margin-top:8vh; padding:18px 0;
   overflow:hidden; background:transparent;
-  -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
-  mask-image:linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
-  -webkit-mask-size:100% 100%;
-  mask-size:100% 100%;
-  -webkit-mask-repeat:no-repeat;
-  mask-repeat:no-repeat;
 }
-/* Edge softening to page ground (matches ltx.io logo rail) */
+/* Off-white edge scrims over the marquee (above track — matches ltx.io logo rail) */
 .who-logos::before,
 .who-logos::after{
   content:'';
   position:absolute; top:0; bottom:0;
-  width:clamp(3rem, 8vw, 9rem);
-  z-index:2; pointer-events:none;
+  width:clamp(3rem, 10vw, 10rem);
+  z-index:3; pointer-events:none;
 }
 .who-logos::before{
   left:0;
-  background:linear-gradient(90deg, var(--bg) 0%, transparent 100%);
+  background:linear-gradient(90deg, var(--ltx-offwhite) 0%, rgba(231,232,235,0) 100%);
 }
 .who-logos::after{
   right:0;
-  background:linear-gradient(270deg, var(--bg) 0%, transparent 100%);
+  background:linear-gradient(270deg, var(--ltx-offwhite) 0%, rgba(231,232,235,0) 100%);
 }
 .who-logo-track{
+  position:relative; z-index:1;
   display:flex; width:max-content; will-change:transform; align-items:center;
 }
 .who-logos.is-shown .who-logo-track{
@@ -2314,7 +2405,8 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .about-industries-layout.ltx-surface{
   margin-top:28px;
   max-width:100%;
-  padding:0.5rem;
+  /* Left rail (::before) flush to panel edge — match .ctrl-shell.ltx-surface */
+  padding:0.5rem 0.5rem 0.5rem 0;
   overflow:hidden;
   background:var(--ltx-white);
 }
@@ -2362,15 +2454,17 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 /* Left rail accent — same pattern as .ctrl-nav-item (horizontal line archived: docs/patterns/tab-indicator-horizontal-line.md) */
 .industry-tab::before,
 .ctrl-nav-item::before,
-.wm-proof::before{
-  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+.wm-proof::before,
+.pgx-item::before{
+  content:''; position:absolute; left:0; top:0; bottom:0; width:1.5px;
   background:var(--ltx-black); transform:scaleY(0); transform-origin:center;
   transition:transform 0.25s var(--ease-out-soft);
   pointer-events:none;
 }
 .industry-tab.is-on::before, .industry-tab:hover::before,
 .ctrl-nav-item.is-on::before, .ctrl-nav-item:hover::before,
-.wm-proof.is-on::before, .wm-proof:hover::before{ transform:scaleY(1); }
+.wm-proof.is-on::before, .wm-proof:hover::before,
+.pgx-item.is-on::before, .pgx-item:hover::before{ transform:scaleY(1); }
 /* Solid hover/active fill — chapter 1 tab rails */
 .about-page .industry-tab.is-on,
 .about-page .industry-tab:hover,
@@ -2394,7 +2488,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .industry-tab, .split-tab h5, .split-tab p{
     transition-duration:0.001ms;
   }
-  .industry-tab::before, .ctrl-nav-item::before, .wm-proof::before{
+  .industry-tab::before, .ctrl-nav-item::before, .wm-proof::before, .pgx-item::before{
     transition-duration:0.001ms; transform:scaleY(1);
   }
 }
@@ -2438,7 +2532,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 #aboutWorld{ padding-top:28px; }
 .wm-hero{ margin:0 0 18px; max-width:980px; }
 .wm-proofs{
-  display:flex; flex-direction:column; justify-content:space-evenly;
+  display:flex; flex-direction:column; justify-content:flex-start; gap:0;
   min-width:0; align-self:stretch;
 }
 .wm-proof{
@@ -2499,8 +2593,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
   width:148px; height:148px; border-radius:50%;
   display:flex; align-items:center; justify-content:center; text-align:center;
-  pointer-events:none; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow);
-  line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light);
+  pointer-events:none;
 }
 .wm-node{
   position:absolute; transform:translate(-50%,-50%);
@@ -2514,8 +2607,6 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 }
 .wm-node-lbl{
   white-space:nowrap; transition:color .25s ease;
-  font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny);
-  line-height:var(--lh-normal); color:var(--ltx-grey-muted);
 }
 .wm-viz.is-focus .wm-node{ opacity:.28; }
 .wm-viz.is-focus .wm-node.on{ opacity:1; }
@@ -2542,7 +2633,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   display:flex; align-items:baseline; gap:28px; flex-wrap:wrap;
   position:relative; z-index:2; overflow:visible;
 }
-.wm-bridge-kicker{ font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
+.wm-bridge-kicker{ color:var(--ltx-grey-light); }
 .wm-bridge-items{ display:flex; gap:0; align-items:center; flex-wrap:wrap; }
 .wm-bridge-item{
      padding:0 16px;
@@ -2578,10 +2669,8 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   color:var(--ltx-grey-light);
 }
 .ctrl-nav-item.is-on, .ctrl-nav-item:hover{ background:rgba(11,11,11,0.07); }
-.ctrl-nav-num{
-  flex:0 0 22px;   color:var(--ltx-grey-line);
-  font-variant-numeric:tabular-nums; transition:color .25s ease; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); }
-.ctrl-nav-item.is-on .ctrl-nav-num, .ctrl-nav-item:hover .ctrl-nav-num{ color:var(--ltx-black); }
+.ctrl-nav-item .index-num{ flex:0 0 22px; }
+.ctrl-nav-item.is-on .index-num, .ctrl-nav-item:hover .index-num{ color:var(--ltx-black); }
 .ctrl-nav-item h5.heading-style-h5{
   flex:1 1 auto;
   color:inherit;
@@ -2775,8 +2864,9 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   padding:10px 14px; border-radius:7px;
   cursor:pointer; white-space:nowrap; text-align:left;
   transition:background .18s ease, color .18s ease; color:var(--ltx-grey-medium); }
-.submenu .sub-item:hover{ background:transparent; color:var(--ltx-grey-medium); }
+.submenu .sub-item:hover{ background:transparent; color:var(--ltx-black); }
 .submenu .sub-item.current{ color:var(--ltx-black); font-weight:500; background:rgba(11,11,11,0.05); }
+.submenu .sub-item.current:hover{ background:rgba(11,11,11,0.05); color:var(--ltx-black); }
 .agenda-row{ position:relative; }
 
 .logo-loop{
@@ -2972,7 +3062,6 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 
   /* agenda */
   .agenda-wrap{ position:relative !important; top:auto !important; left:auto !important; right:auto !important; }
-  .agenda-row .n, .agenda-row .t{ font-size:30px !important; }
 
   /* revenue chart / example strip */
   .chart-card{
@@ -3022,7 +3111,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .pgx-explorer{ display:block; }
   .pgx-sub{ margin:0; }
   .pgx-nav{ margin:0 0 16px; }
-  .pgx-item{ padding:10px 8px 10px 14px; }
+  .pgx-item.split-tab{ padding-inline:1rem; }
   .pgx-item h4{ font-size:18px; }
   .pgx-item p{ font-size:14px; }
   .pgx-stage{ height:auto; min-height:280px; margin:0 0 16px; }
@@ -3033,8 +3122,9 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .pgx-av-audio{ height:40px; }
   .pgx-av-headwrap{ left:64px; top:14px; }
   .pgx-av-guides{ left:64px; }
-  .pgx-av-cue, .pgx-av-link{ padding-left:64px; font-size:9px; }
-  .pgx-av-lbl{ flex-basis:48px; font-size:10px; }
+  .pgx-av-cue, .pgx-av-link{ padding-left:64px; }
+  .pgx-av .chart-label{ font-size:0.5625rem; letter-spacing:0.04em; }
+  .pgx-av-lbl{ flex-basis:48px; }
   .pgx-lora{ flex-wrap:wrap; justify-content:center; }
   .pgx-wire{ display:none; }
   .pgx-own{ grid-template-columns:1fr 1fr; max-width:none; }
@@ -3174,7 +3264,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     background:transparent;
   }
   .submenu .sub-item{
-    padding:12px 8px; font-size:16px; min-height:44px;
+    padding:12px 8px; font-size:18px; min-height:44px;
     white-space:normal;
   }
   /* LTX 2.5 feature explorer */
@@ -3185,7 +3275,6 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .chal-col-head{ font-size:13px !important; margin-bottom:8px !important; }
   .chal-cols-dense .chal-col-head{ font-size:14px !important; }
   .chal-item p, .chal-cols-dense .chal-item p{ font-size:15px !important; }
-  .chal-item-num, .chal-cols-dense .chal-item-num{ font-size:13px !important; }
   .nx-slide .nx-head, .nx-shell{
     position:relative !important; top:auto !important; left:auto !important; right:auto !important; bottom:auto !important;
   }
@@ -3195,12 +3284,14 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .nx-stage{ height:auto; }
   .nx-group{
     position:relative !important; inset:auto !important; display:none !important;
-    grid-template-columns:1fr; padding:18px 16px; opacity:1 !important; transform:none !important;
+    grid-template-columns:1fr; padding:1.25rem 16px 4rem; align-items:start; align-content:start;
+    opacity:1 !important; transform:none !important;
   }
   .nx-group.is-on{ display:grid !important; }
+  .nx-stage > .nx-prog{
+    left:16px; bottom:1.25rem; width:calc(100% - 32px); max-width:none;
+  }
   .nx-cards{ grid-template-columns:1fr; }
-  .nx-pattern{ display:none; }
-
   .kicker-body{ position:relative !important; top:auto; left:auto; right:auto; font-size:18px !important; max-width:100%; margin:0 0 14px; }
   .big-stat, .big-stat-glossy{ font-size:56px !important; line-height:1.1 !important; position:relative !important; top:auto !important; left:auto !important; }
 
@@ -3463,22 +3554,22 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 
   /* Agenda */
   .agenda-row{
-    display:grid !important;
-    grid-template-columns:36px 1fr 24px;
-    gap:8px;
+    grid-template-columns:var(--nav-num-col) minmax(0, 1fr) auto !important;
+    gap:10px !important;
     align-items:center;
-    min-height:56px;
-    padding:12px 0 !important;
+    min-height:0;
+    padding:1.5rem 0 !important;
     opacity:1 !important; transform:none !important; animation:none !important;
   }
-  .agenda-row .n{
-    width:auto !important; font-size:15px !important; line-height:1.2 !important;
+  .agenda-row .index-num{
+    width:auto !important;
+    opacity:1 !important;
+    color:var(--ltx-grey-muted) !important;
   }
   .agenda-row .t{
-    font-size:17px !important; line-height:1.25 !important;
-    white-space:normal !important; letter-spacing:0 !important;
+    white-space:normal !important;
   }
-  .agenda-row .go{ opacity:1 !important; transform:none !important; font-size:18px !important; margin:0 !important; }
+  .agenda-row .go{ opacity:1 !important; transform:none !important; margin:0 !important; }
 
   /* Who are we metric + logos */
   .big-stat, .big-stat-glossy{ font-size:44px !important; margin:16px 0 8px !important; }
@@ -3543,7 +3634,6 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .chal-col-head, .chal-cols-dense .chal-col-head{
     font-size:12px !important; letter-spacing:.4px; margin-bottom:12px !important;
   }
-  .chal-item-num, .chal-cols-dense .chal-item-num{ font-size:13px !important; }
   .chal-item p, .chal-cols-dense .chal-item p{ font-size:15px !important; line-height:1.4 !important; }
   .chal-item p strong{ font-size:16px; }
 
@@ -3572,12 +3662,10 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   }
   .cap-btn{
     flex:0 0 auto; white-space:nowrap;
-    min-height:auto; padding:0 0 6px !important;
     font-size:13px !important;
   }
-  .cap-dot{ margin:0 10px; }
   .acc-item{ padding-left:14px !important; margin:0 !important; gap:8px; }
-  .acc-num{ flex:0 0 24px; width:24px; height:24px; font-size:10px; }
+  .acc-num{ flex:0 0 24px; width:24px; height:24px; }
   .acc-path{
     display:flex !important; flex-direction:row !important; gap:8px;
     flex:1 1 auto; min-width:0;
@@ -3728,7 +3816,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .case-card.muted .hub-footer{ visibility:hidden; }
 
 .cs-lead{ position:absolute; top:330px; left:var(--content-gutter); right:var(--content-gutter);    margin:0; max-width:900px; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
-.cs-section-lbl{      margin:0 0 14px; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
+.cs-section-lbl{ margin:0 0 14px; }
 .cs-bullets{ display:flex; flex-direction:column; gap:2px; max-width:820px; }
 .cs-close{ font-style:italic;    max-width:820px; margin-top:18px; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
 
@@ -3789,7 +3877,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .chal-line{    margin:0; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
 
 /* ---- Slide 2: visual workflow ---- */
-.cs-wf-legend{ position:absolute; top:402px; left:var(--content-gutter); right:var(--content-gutter); display:flex; gap:24px; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
+.cs-wf-legend{ position:absolute; top:402px; left:var(--content-gutter); right:var(--content-gutter); display:flex; gap:24px; }
 .cs-wf-legend .dot{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
 .cs-wf-legend .dot.ltx{ background:var(--ltx-black); }
 .cs-wf-legend .dot.existing{ background:var(--ltx-black); }
@@ -3797,7 +3885,8 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .ns-stage.revealed .ns-caps{ opacity:1; transform:translateY(0); }
 .ns-caps .pill{   padding:4px 9px; border-radius:var(--radius-md); background:rgba(11,11,11,0.08);  white-space:nowrap; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
 .ns-stage.non-ltx .ns-caps .pill{ background:rgba(0,0,0,.06); color:var(--ltx-grey-muted); }
-.ns-stage.non-ltx.active .ns-node, .ns-stage.non-ltx.selected .ns-node, .ns-stage.non-ltx.done .ns-node{ border-color:var(--ltx-black) !important; color:var(--ltx-white) !important; background:var(--ltx-black) !important; box-shadow:none !important; }
+.ns-stage.non-ltx.active .ns-node, .ns-stage.non-ltx.selected .ns-node, .ns-stage.non-ltx.done .ns-node{ border-color:var(--ltx-black) !important; background:var(--ltx-black) !important; box-shadow:none !important; }
+.ns-stage.non-ltx.active .ns-node .index-num, .ns-stage.non-ltx.selected .ns-node .index-num, .ns-stage.non-ltx.done .ns-node .index-num{ color:var(--ltx-white) !important; }
 .ns-stage.non-ltx.active h4, .ns-stage.non-ltx.selected h4{ color:var(--ink) !important; }
 
 /* ---- Slide 3: results hero + exec summary ---- */
@@ -3806,7 +3895,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .cs-hero-stat .num{    font-variant-numeric:tabular-nums; font-size:var(--fs-h2); font-weight:400; letter-spacing:var(--ls-h2); line-height:var(--lh-small); color:var(--ltx-black); }
 .cs-hero-stat.cs-hero-text{ padding-top:62px; }
 .cs-hero-stat.cs-hero-text .num{ display:block;     font-variant-numeric:normal; font-size:var(--fs-h2); font-weight:400; letter-spacing:var(--ls-h2); line-height:var(--lh-small); color:var(--ltx-black); }
-.cs-hero-stat .lbl{      margin-top:8px; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
+.cs-hero-stat .lbl{ margin-top:8px; }
 
 .cs-secondary-row{ position:absolute; top:585px; left:var(--content-gutter); right:var(--content-gutter); display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
 .result-card{ padding:24px 22px; transition:transform .3s cubic-bezier(.16,1,.3,1), box-shadow .3s ease; }
@@ -3827,18 +3916,17 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 /* ---- Slide 1: editorial three-column challenge list (mature/enterprise, no cards/hover/lines) ---- */
 .chal-cols{ position:absolute; top:460px; left:var(--content-gutter); right:var(--content-gutter); display:flex; gap:64px; }
 .chal-col{ flex:1; border-top:2px solid var(--ink); padding-top:22px; }
-.chal-col-head{      margin:0 0 22px; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
+.chal-col-head{ margin:0 0 22px; }
 .chal-item{ display:flex; gap:16px; padding:18px 0; border-bottom:1px solid var(--line); }
 .chal-item:last-child{ border-bottom:none; padding-bottom:0; }
-.chal-item-num{ flex:0 0 auto; padding-top:2px;    color:var(--ltx-grey-line); font-variant-numeric:tabular-nums; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); }
+.chal-item .index-num{ flex:0 0 auto; padding-top:2px; }
 .chal-item p{ margin:0; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
 /* denser variant: used on "New in LTX 2.5" where one column (Built to Scale) holds
    6 short items instead of 2-3 — smaller type + tighter padding keeps it from
    overflowing the slide while the other columns stay visually consistent */
-.chal-cols-dense .chal-col-head{ margin-bottom:14px; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
+.chal-cols-dense .chal-col-head{ margin-bottom:14px; }
 .chal-cols-dense .chal-item{ padding:11px 0; }
 .chal-cols-dense .chal-item p{ font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
-.chal-cols-dense .chal-item-num{ font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
 
 /* ============ SLIDE 7: What’s new in LTX-2.5 — feature explorer ============ */
 .nx-slide .nx-head{ position:absolute; top:96px; left:var(--content-gutter); right:var(--content-gutter); }
@@ -3854,7 +3942,8 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .nx-tabs{ display:grid; grid-template-columns:repeat(4,1fr); flex:0 0 auto; border-bottom:1px solid var(--ltx-offwhite); }
 .nx-tab{
   position:relative; display:flex; align-items:center; gap:10px;
-  margin:0; padding:16px 18px; border:none; border-right:1px solid var(--ltx-offwhite);
+  margin:0; padding-block:var(--split-tab-pad-block, 1.5rem); padding-inline:1.125rem;
+  border:none; border-right:1px solid var(--ltx-offwhite);
   background:var(--ltx-white); font-family:var(--font); text-align:left; cursor:pointer;
   transition:background .25s ease;
 }
@@ -3866,10 +3955,8 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 }
 .nx-tab.is-on{ background:rgba(11,11,11,0.07); }
 .nx-tab.is-on::before{ transform:scaleX(1); }
-.nx-tab-num{
-    color:var(--ltx-grey-line); font-variant-numeric:tabular-nums;
-  transition:color .25s ease; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); }
-.nx-tab.is-on .nx-tab-num{ color:var(--ltx-black); }
+.nx-tab:hover .index-num{ color:var(--ltx-black); }
+.nx-tab.is-on .index-num{ color:var(--ltx-black); }
 .nx-tab-lbl{ flex:1 1 auto; color:var(--ltx-grey-light); }
 .nx-tab.is-on .nx-tab-lbl{ color:var(--ltx-black); font-weight:500; }
 .nx-tab-mark{
@@ -3881,26 +3968,42 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .nx-stage{ position:relative; flex:1 1 auto; min-height:0; }
 .nx-group{
   position:absolute; inset:0; display:grid; grid-template-columns:.92fr 1.18fr; gap:28px;
-  padding:28px 32px; opacity:0; pointer-events:none; transform:translateY(8px);
+  box-sizing:border-box;
+  padding:0 2rem 5rem;
+  align-items:center;
+  align-content:center;
+  opacity:0; pointer-events:none; transform:translateY(8px);
   transition:opacity .25s ease, transform .25s ease;
 }
 .nx-group.is-on{ opacity:1; pointer-events:auto; transform:none; z-index:1; }
-.nx-left{ position:relative; display:flex; flex-direction:column; min-width:0; padding-right:8px; }
-.nx-pattern{
-  position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:.45;
+.nx-left{ position:relative; display:flex; flex-direction:column; justify-content:center; min-width:0; padding-right:8px; }
+.nx-stage > .nx-prog{
+  position:absolute; z-index:5; left:2rem; bottom:1.75rem;
+  width:calc((100% - 4rem - 28px) * 0.92 / 2.1);
+  max-width:420px; margin:0; pointer-events:none;
 }
 .nx-cat{
   position:relative; z-index:1; margin:0 0 12px; }
 .nx-h{
   position:relative; z-index:1; margin:0 0 12px; max-width:420px; }
 .nx-prog{ position:relative; z-index:1; margin-top:auto; }
-.nx-prog-lbl{
-  display:block; margin:0 0 8px;   
-   font-variant-numeric:tabular-nums; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
+.nx-prog-lbl{ display:block; margin:0 0 8px; }
 .nx-ticks{ display:flex; gap:6px; }
-.nx-tick{ flex:1; height:2px; background:var(--ltx-grey-line); border-radius:2px; }
-.nx-tick.is-on{ background:var(--ltx-slate-dark); }
-.nx-cards{ display:grid; grid-template-columns:1fr 1fr; gap:12px; align-content:start; }
+.nx-tick{
+  position:relative; flex:1; height:2px; overflow:hidden;
+  background:var(--ltx-grey-line); border-radius:2px;
+}
+.nx-tick::after{
+  content:''; position:absolute; inset:0;
+  background:var(--ltx-slate-dark);
+  transform:scaleX(0); transform-origin:left center;
+  transition:transform 0.38s var(--ease-out-soft);
+}
+.nx-tick.is-on::after{ transform:scaleX(1); }
+@media (prefers-reduced-motion:reduce){
+  .nx-tick::after{ transition-duration:0.001ms; }
+}
+.nx-cards{ display:grid; grid-template-columns:1fr 1fr; gap:12px; align-content:center; }
 .nx-card{
   position:relative; background:var(--ltx-white); border:1px solid var(--ltx-grey-line); border-radius:var(--radius-md);
   padding:18px 18px 28px; min-height:148px;
@@ -3909,7 +4012,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .nx-card:hover{ background:rgba(11,11,11,0.07); border-color:var(--ltx-black); }
 .nx-card-cat{ margin:0 0 8px; }
 .nx-card h3.heading-style-h5{ margin:0 0 8px; }
-.nx-card p.text-size-tiny{ margin:0; }
+.nx-card p.text-size-regular{ margin:0; }
 .nx-card-arrow{
   position:absolute; right:14px; bottom:12px; color:var(--ltx-black);  
   transition:transform .25s ease; font-size:var(--fs-regular); font-weight:400; line-height:1; }
@@ -4235,17 +4338,17 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 2: Agenda -->
-<section class="site-section content-container" data-section="0" data-label="Agenda">
+<section class="site-section content-container agenda-slide" data-section="0" data-label="Agenda">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <div class="agenda-wrap">
-    <div class="agenda-row" data-goto-section="1"><span class="n heading-style-h3">01</span><span class="t heading-style-h3">Who We Are</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-    <div class="agenda-row" data-goto-section="2"><span class="n heading-style-h3">02</span><span class="t heading-style-h3">What LTX Can Do</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-    <div class="agenda-row" data-goto-section="3"><span class="n heading-style-h3">03</span><span class="t heading-style-h3">Use Cases &amp; Workflows</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-    <div class="agenda-row" data-goto-section="4"><span class="n heading-style-h3">04</span><span class="t heading-style-h3">Why LTX Wins</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-    <div class="agenda-row" data-goto-section="5"><span class="n heading-style-h3">05</span><span class="t heading-style-h3">Ways to Access LTX</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-    <div class="agenda-row" data-goto-section="6"><span class="n heading-style-h3">06</span><span class="t heading-style-h3">Next Steps</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-    <div class="agenda-row" data-goto-section="7" style="border-bottom:none;"><span class="n heading-style-h3">07</span><span class="t heading-style-h3">Commercial Partnerships</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+    <div class="agenda-row" data-goto-section="1"><span class="index-num">01</span><h3 class="t heading-style-h3">Who We Are</h3><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+    <div class="agenda-row" data-goto-section="2"><span class="index-num">02</span><h3 class="t heading-style-h3">What LTX Can Do</h3><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+    <div class="agenda-row" data-goto-section="3"><span class="index-num">03</span><h3 class="t heading-style-h3">Use Cases &amp; Workflows</h3><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+    <div class="agenda-row" data-goto-section="4"><span class="index-num">04</span><h3 class="t heading-style-h3">Why LTX Wins</h3><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+    <div class="agenda-row" data-goto-section="5"><span class="index-num">05</span><h3 class="t heading-style-h3">Ways to Access LTX</h3><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+    <div class="agenda-row" data-goto-section="6"><span class="index-num">06</span><h3 class="t heading-style-h3">Next Steps</h3><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+    <div class="agenda-row" data-goto-section="7" style="border-bottom:none;"><span class="index-num">07</span><h3 class="t heading-style-h3">Commercial Partnerships</h3><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
   </div>
 </section>
 
@@ -4304,7 +4407,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     </article>
 
     <article class="about-block chapter-block" id="aboutIndustries" data-track-block="who:industries">
-      <h1 class="title heading-style-h1">One model,<br>far more than video</h1>
+      <h2 class="title heading-style-h1">One model,<br>far more than video</h2>
       <p class="section-sub text-size-large text-balanced">The same understanding of the world powers any industry that needs to model how things move and behave.</p>
       <div class="about-industries-layout split-layout ltx-surface">
         <div class="industry-tabs-menu split-tab-list" id="industryGrid" role="tablist" aria-label="Industries">
@@ -4337,7 +4440,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <article class="about-block chapter-block" id="aboutWorld" data-track-block="who:world-model">
       <div class="about-world-layout">
         <div class="about-world-intro">
-          <h1 class="wm-hero heading-style-h1 text-balanced">LTX is building toward a World Model</h1>
+          <h2 class="wm-hero heading-style-h1 text-balanced">LTX is building toward a World Model</h2>
           <p class="section-sub text-size-large text-balanced">From generating video to understanding motion, physics, and how the world changes over time.</p>
         </div>
         <div class="about-world-body split-layout">
@@ -4370,7 +4473,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
             <line class="wm-spoke" data-node="physical-ai" x1="320" y1="320" x2="95" y2="340"></line>
             <circle class="wm-core-ring" cx="320" cy="320" r="74"></circle>
           </svg>
-          <div class="wm-core">World<br>Model</div>
+          <div class="wm-core chart-label is-caps">World<br>Model</div>
           <div class="wm-node" data-node="video" style="left:50%; top:8%;"><span class="wm-node-dot"></span><span class="wm-node-lbl">Video</span></div>
           <div class="wm-node" data-node="audio" style="left:86%; top:23%;"><span class="wm-node-dot"></span><span class="wm-node-lbl">Audio</span></div>
           <div class="wm-node" data-node="motion" style="left:95%; top:54%;"><span class="wm-node-dot"></span><span class="wm-node-lbl">Motion</span></div>
@@ -4382,7 +4485,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
           </div>
         </div>
         <div class="wm-bridge">
-          <div class="wm-bridge-kicker">One foundation. Three application layers.</div>
+          <div class="wm-bridge-kicker chart-label is-caps">One foundation. Three application layers.</div>
           <div class="wm-bridge-items">
             <span class="wm-bridge-item">Creative Production</span>
             <span class="wm-bridge-item">Real-Time Experiences</span>
@@ -4400,29 +4503,29 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="topbar" aria-hidden="true"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule" aria-hidden="true"></div>
   <div class="ctrl-head">
-    <h1 class="title ctrl-title heading-style-h1">From dependency to control</h1>
+    <h2 class="title ctrl-title heading-style-h1">From dependency to control</h2>
     <p class="section-sub text-size-large text-balanced">Closed platforms create dependency. Open weights give you control over your model, data, and infrastructure.</p>
   </div>
   <div class="ctrl-shell split-layout ltx-surface">
     <nav class="ctrl-nav split-tab-list" aria-label="Choose what you want to control">
-      <div class="ctrl-nav-kicker section-name is-grey-medium">Choose what you want to control</div>
+      <div class="ctrl-nav-kicker chart-label is-caps">Choose what you want to control</div>
       <div class="ctrl-nav-item split-tab is-on" role="tab" tabindex="0" aria-selected="true" data-topic="deploy" data-track="ctrl:deployment">
-        <span class="ctrl-nav-num">01</span>
+        <span class="index-num">01</span>
         <h5 class="heading-style-h5">Deployment</h5>
         <span class="ctrl-nav-arrow" aria-hidden="true">&rarr;</span>
       </div>
       <div class="ctrl-nav-item split-tab" role="tab" tabindex="-1" aria-selected="false" data-topic="custom" data-track="ctrl:customization">
-        <span class="ctrl-nav-num">02</span>
+        <span class="index-num">02</span>
         <h5 class="heading-style-h5">Customization</h5>
         <span class="ctrl-nav-arrow" aria-hidden="true">&rarr;</span>
       </div>
       <div class="ctrl-nav-item split-tab" role="tab" tabindex="-1" aria-selected="false" data-topic="data" data-track="ctrl:data-ip">
-        <span class="ctrl-nav-num">03</span>
+        <span class="index-num">03</span>
         <h5 class="heading-style-h5">Data &amp; IP</h5>
         <span class="ctrl-nav-arrow" aria-hidden="true">&rarr;</span>
       </div>
       <div class="ctrl-nav-item split-tab" role="tab" tabindex="-1" aria-selected="false" data-topic="own" data-track="ctrl:ownership">
-        <span class="ctrl-nav-num">04</span>
+        <span class="index-num">04</span>
         <h5 class="heading-style-h5">Ownership</h5>
         <span class="ctrl-nav-arrow" aria-hidden="true">&rarr;</span>
       </div>
@@ -4448,8 +4551,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         </div>
       </div>
       <div class="ctrl-copy" id="ctrlCopy">
-        <p class="ctrl-kicker section-name is-grey-medium">To control</p>
-        <h2 class="ctrl-h heading-style-h3 text-balanced">You control how it&rsquo;s deployed</h2>
+        <p class="ctrl-kicker chart-label is-caps">To control</p>
+        <h3 class="ctrl-h heading-style-h3 text-balanced">You control how it&rsquo;s deployed</h3>
         <p class="ctrl-lead section-sub text-size-large text-balanced">Run and integrate the model on your terms.</p>
         <p class="ctrl-body text-size-regular">Run the model where you choose and plug it into your stack without tying the workflow to someone else&rsquo;s roadmap.</p>
       </div>
@@ -4462,34 +4565,34 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 <section class="site-section content-container pgx-slide" data-section="1" data-label="Production-grade model">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
-  <h1 class="title heading-style-h1">Production-grade model</h1>
+  <h2 class="title heading-style-h1">Production-grade model</h2>
   <p class="pgx-sub section-sub text-size-large text-balanced">Built for synchronized generation, customization, deployment, and complex creative control.</p>
 
   <div class="pgx-block">
   <div class="pgx-specs">
     <div class="dash-metrics">
-      <div class="metric"><span class="mval" data-count="22" data-prefix="~" data-suffix="B">~0B</span><span class="mlbl">Parameters</span></div>
-      <div class="metric"><span class="mval" data-count="50" data-suffix="">0</span><span class="mlbl">FPS</span></div>
-      <div class="metric"><span class="mval" data-count="4" data-suffix="K">0K</span><span class="mlbl">Max resolution</span></div>
-      <div class="metric"><span class="mval" data-count="20" data-suffix="s">0s</span><span class="mlbl">Fast mode</span></div>
+      <div class="metric"><span class="mval" data-count="22" data-prefix="~" data-suffix="B">~0B</span><span class="mlbl chart-label">Parameters</span></div>
+      <div class="metric"><span class="mval" data-count="50" data-suffix="">0</span><span class="mlbl chart-label">FPS</span></div>
+      <div class="metric"><span class="mval" data-count="4" data-suffix="K">0K</span><span class="mlbl chart-label">Max resolution</span></div>
+      <div class="metric"><span class="mval" data-count="20" data-suffix="s">0s</span><span class="mlbl chart-label">Fast mode</span></div>
     </div>
   </div>
 
   <div class="pgx-explorer split-layout">
-  <nav class="pgx-nav" id="prodNav" aria-label="Model capabilities">
-    <div class="pgx-item is-on" data-cap="av" tabindex="0" role="button" aria-pressed="true">
+  <nav class="pgx-nav split-tab-list" id="prodNav" aria-label="Model capabilities">
+    <div class="pgx-item split-tab is-on" data-cap="av" tabindex="0" role="button" aria-pressed="true">
       <h4>Joint Audio-Video Generation</h4>
       <p>Synchronized, not stitched.</p>
     </div>
-    <div class="pgx-item" data-cap="lora" tabindex="0" role="button" aria-pressed="false">
+    <div class="pgx-item split-tab" data-cap="lora" tabindex="0" role="button" aria-pressed="false">
       <h4>LoRA Customization</h4>
       <p>Adapt the model to your brand, character, style, or domain.</p>
     </div>
-    <div class="pgx-item" data-cap="weights" tabindex="0" role="button" aria-pressed="false" data-track="pgx:open-weights">
+    <div class="pgx-item split-tab" data-cap="weights" tabindex="0" role="button" aria-pressed="false" data-track="pgx:open-weights">
       <h4>Open Weights</h4>
       <p>Self-host, fine-tune, and control where the model runs.</p>
     </div>
-    <div class="pgx-item" data-cap="prompts" tabindex="0" role="button" aria-pressed="false">
+    <div class="pgx-item split-tab" data-cap="prompts" tabindex="0" role="button" aria-pressed="false">
       <h4>Understands Longer Prompts</h4>
       <p>Keeps complex, multi-part creative direction together.</p>
     </div>
@@ -4500,34 +4603,34 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="pgx-panel is-on" data-cap="av">
         <div class="pgx-av" id="pgxAv">
           <div class="pgx-av-rel">
-            <div class="pgx-av-cue">What you see</div>
+            <div class="pgx-av-cue chart-label">What you see</div>
             <div class="pgx-av-row">
-              <span class="pgx-av-lbl">VIDEO</span>
+              <span class="pgx-av-lbl chart-label">Video</span>
               <div class="pgx-av-lane pgx-av-video">
                 <div class="pgx-shot" data-beat="walk">
-                  <span class="pgx-shot-lbl">Step</span>
+                  <span class="pgx-shot-lbl chart-label is-on-media">Step</span>
                   <img src="../sales-deck-original/assets/av-frame-walk.jpg" alt="">
                 </div>
                 <div class="pgx-shot" data-beat="talk">
-                  <span class="pgx-shot-lbl">Speaks</span>
+                  <span class="pgx-shot-lbl chart-label is-on-media">Speaks</span>
                   <img src="../sales-deck-original/assets/av-frame-talk.jpg" alt="">
                 </div>
                 <div class="pgx-shot" data-beat="scene">
-                  <span class="pgx-shot-lbl">Scene Builds</span>
+                  <span class="pgx-shot-lbl chart-label is-on-media">Scene builds</span>
                   <img src="../sales-deck-original/assets/av-frame-scene.jpg" alt="">
                 </div>
               </div>
             </div>
             <div class="pgx-av-link" aria-hidden="true">↕</div>
             <div class="pgx-av-row">
-              <span class="pgx-av-lbl">AUDIO</span>
+              <span class="pgx-av-lbl chart-label">Audio</span>
               <div class="pgx-av-lane pgx-av-audio">
-                <span class="pgx-ev walk" data-beat="walk">FOOTSTEPS</span>
-                <span class="pgx-ev talk" data-beat="talk">DIALOGUE</span>
-                <span class="pgx-ev scene" data-beat="scene">SCORE</span>
+                <span class="pgx-ev chart-label walk" data-beat="walk">Footsteps</span>
+                <span class="pgx-ev chart-label talk" data-beat="talk">Dialogue</span>
+                <span class="pgx-ev chart-label scene" data-beat="scene">Score</span>
               </div>
             </div>
-            <div class="pgx-av-cue">What you hear</div>
+            <div class="pgx-av-cue chart-label">What you hear</div>
             <div class="pgx-av-guides" aria-hidden="true"><span></span><span></span></div>
             <div class="pgx-av-headwrap"><div class="pgx-av-head"></div></div>
           </div>
@@ -4537,44 +4640,48 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 
       <div class="pgx-panel" data-cap="lora">
         <div class="pgx-lora">
-          <div class="pgx-node">Base Model<em>Production foundation</em></div>
+          <div class="pgx-node chart-label">Base model<em>Production foundation</em></div>
           <div class="pgx-wire" style="--d:.05s"></div>
           <div class="pgx-lora-mid">
-            <div class="pgx-node">Custom LoRA<em>Adapter, not a retrain</em></div>
+            <div class="pgx-node chart-label">Custom LoRA<em>Adapter, not a retrain</em></div>
             <div class="pgx-chips" id="pgxChips">
-              <button type="button" class="pgx-chip is-on" data-out="Character">Character</button>
-              <button type="button" class="pgx-chip" data-out="Style">Style</button>
-              <button type="button" class="pgx-chip" data-out="Brand">Brand</button>
-              <button type="button" class="pgx-chip" data-out="Domain">Domain</button>
+              <button type="button" class="pgx-chip ltx-chip is-on" data-out="Character">Character</button>
+              <button type="button" class="pgx-chip ltx-chip" data-out="Style">Style</button>
+              <button type="button" class="pgx-chip ltx-chip" data-out="Brand">Brand</button>
+              <button type="button" class="pgx-chip ltx-chip" data-out="Domain">Domain</button>
             </div>
           </div>
           <div class="pgx-wire" style="--d:.22s"></div>
-          <div class="pgx-node pgx-out">Production Output<em id="pgxLoraOut">Character-consistent</em></div>
+          <div class="pgx-node pgx-out chart-label">Production output<em id="pgxLoraOut">Character-consistent</em></div>
         </div>
         <p class="pgx-note">Adapt LTX to your proprietary characters, styles, assets, and domains without retraining from scratch.</p>
       </div>
 
       <div class="pgx-panel" data-cap="weights">
         <div class="pgx-own">
-          <div class="pgx-spoke">Own GPU</div>
-          <div class="pgx-spoke">Private Cloud</div>
-          <div class="pgx-spoke">On-Prem</div>
-          <div class="pgx-spoke">Enterprise Infrastructure</div>
-          <div class="pgx-hub">LTX Model</div>
+          <div class="pgx-spoke chart-label">Own GPU</div>
+          <div class="pgx-spoke chart-label">Private cloud</div>
+          <div class="pgx-spoke chart-label">On-prem</div>
+          <div class="pgx-spoke chart-label">Enterprise infrastructure</div>
+          <div class="pgx-hub chart-label is-caps">LTX model</div>
         </div>
-        <div class="pgx-own-meta"><span>Fine-tune</span><span>Self-host</span><span>Control your data</span></div>
+        <div class="pgx-own-meta">
+          <span class="chart-label">Fine-tune</span>
+          <span class="chart-label">Self-host</span>
+          <span class="chart-label">Control your data</span>
+        </div>
         <p class="pgx-note">Run LTX where you choose, fine-tune it on your data, and keep control of the infrastructure around it.</p>
       </div>
 
       <div class="pgx-panel" data-cap="prompts">
         <p class="pgx-prompt">&ldquo;<span class="pgx-mark" data-k="char">A woman</span> walks through a <span class="pgx-mark" data-k="env">rain-soaked Tokyo alley at night</span>, <span class="pgx-mark" data-k="cam">handheld camera</span>, <span class="pgx-mark" data-k="env">neon reflections</span>, <span class="pgx-mark" data-k="motion">slow push-in</span>, <span class="pgx-mark" data-k="light">cinematic lighting</span>, <span class="pgx-mark" data-k="cont">maintaining the same character and wardrobe across the shot</span>.&rdquo;</p>
         <div class="pgx-keys">
-          <span class="pgx-key">Character</span>
-          <span class="pgx-key">Environment</span>
-          <span class="pgx-key">Camera</span>
-          <span class="pgx-key">Motion</span>
-          <span class="pgx-key">Lighting</span>
-          <span class="pgx-key">Continuity</span>
+          <span class="pgx-key chart-label" data-k="char">Character</span>
+          <span class="pgx-key chart-label" data-k="env">Environment</span>
+          <span class="pgx-key chart-label" data-k="cam">Camera</span>
+          <span class="pgx-key chart-label" data-k="motion">Motion</span>
+          <span class="pgx-key chart-label" data-k="light">Lighting</span>
+          <span class="pgx-key chart-label" data-k="cont">Continuity</span>
         </div>
         <p class="pgx-note">A custom text encoder helps LTX hold complex creative direction together across longer, multi-part prompts.</p>
       </div>
@@ -4589,76 +4696,71 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <div class="nx-head">
-    <h1 class="title nx-title heading-style-h1">What&rsquo;s new in LTX-2.5</h1>
+    <h2 class="title nx-title heading-style-h1">What&rsquo;s new in LTX-2.5</h2>
     <p class="section-sub text-size-large text-balanced">The world model the world builds on.</p>
   </div>
   <div class="nx-shell">
     <div class="nx-tabs" role="tablist" aria-label="LTX-2.5 feature groups">
       <button type="button" class="nx-tab is-on" data-tab="prod" role="tab" aria-selected="true" data-track="ltx25:real-production">
-        <span class="nx-tab-num">01</span>
+        <span class="index-num">01</span>
         <span class="nx-tab-lbl text-size-small">Real Production</span>
         <span class="nx-tab-mark" aria-hidden="true"></span>
       </button>
       <button type="button" class="nx-tab" data-tab="world" role="tab" aria-selected="false" data-track="ltx25:world-consistency">
-        <span class="nx-tab-num">02</span>
+        <span class="index-num">02</span>
         <span class="nx-tab-lbl text-size-small">World Consistency</span>
         <span class="nx-tab-mark" aria-hidden="true"></span>
       </button>
       <button type="button" class="nx-tab" data-tab="adapt" role="tab" aria-selected="false" data-track="ltx25:deep-adaptation">
-        <span class="nx-tab-num">03</span>
+        <span class="index-num">03</span>
         <span class="nx-tab-lbl text-size-small">Deep Adaptation</span>
         <span class="nx-tab-mark" aria-hidden="true"></span>
       </button>
       <button type="button" class="nx-tab" data-tab="scale" role="tab" aria-selected="false" data-track="ltx25:scale">
-        <span class="nx-tab-num">04</span>
+        <span class="index-num">04</span>
         <span class="nx-tab-lbl text-size-small">Scale</span>
         <span class="nx-tab-mark" aria-hidden="true"></span>
       </button>
     </div>
     <div class="nx-stage">
+      <div class="nx-prog" id="nxProg" aria-live="polite">
+        <span class="nx-prog-lbl index-num" id="nxProgLbl">01 / 04</span>
+        <div class="nx-ticks" id="nxProgTicks">
+          <span class="nx-tick is-on" data-i="0"></span>
+          <span class="nx-tick" data-i="1"></span>
+          <span class="nx-tick" data-i="2"></span>
+          <span class="nx-tick" data-i="3"></span>
+        </div>
+      </div>
       <div class="nx-group is-on" data-tab="prod">
         <div class="nx-left">
-          <svg class="nx-pattern" viewBox="0 0 420 420" preserveAspectRatio="xMinYMin slice" aria-hidden="true">
-            <g fill="none" stroke="#0b0b0b" stroke-opacity=".06" stroke-width="1">
-              <path d="M20 20 H400 M20 80 H400 M20 140 H400 M20 200 H400 M20 260 H400 M20 320 H400 M20 380 H400"></path>
-              <path d="M20 20 V400 M80 20 V400 M140 20 V400 M200 20 V400 M260 20 V400 M320 20 V400 M380 20 V400"></path>
-            </g>
-            <g fill="none" stroke="#0b0b0b" stroke-opacity=".14" stroke-width="1">
-              <circle cx="70" cy="70" r="46"></circle>
-              <circle cx="70" cy="70" r="86"></circle>
-            </g>
-          </svg>
-          <p class="nx-cat section-name is-grey-medium">Built for real production</p>
-          <h2 class="nx-h heading-style-h3 text-balanced">Production-ready from the first frame.</h2>
+<p class="nx-cat chart-label is-caps">Built for real production</p>
+          <h2 class="nx-h heading-style-h2 text-balanced">Production-ready from the first frame.</h2>
           <p class="section-sub text-size-large text-balanced">Higher-quality output built for professional production workflows.</p>
-          <div class="nx-prog">
-            <span class="nx-prog-lbl">01 / 04</span>
-            <div class="nx-ticks"><span class="nx-tick is-on"></span><span class="nx-tick"></span><span class="nx-tick"></span><span class="nx-tick"></span></div>
-          </div>
         </div>
         <div class="nx-cards">
           <article class="nx-card">
-            <p class="nx-card-cat section-name is-grey-medium">Workflow</p>
+            <p class="nx-card-cat chart-label is-caps">Workflow</p>
             <h3 class="heading-style-h5">Native EXR Workflow</h3>
-            <p class="text-size-tiny text-color-secondary">Cinema-grade EXR in ACES and DaVinci Wide Gamut, without a lossy round-trip.</p>
+            <p class="text-size-regular text-color-secondary">Cinema-grade EXR in ACES and DaVinci Wide Gamut, without a lossy round-trip.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
           <article class="nx-card">
-            <p class="nx-card-cat section-name is-grey-medium">Quality</p>
+            <p class="nx-card-cat chart-label is-caps">Quality</p>
             <h3 class="heading-style-h5">Diffusion Video Decoder</h3>
-            <p class="text-size-tiny text-color-secondary">Sharper faces, clearer text, and fewer motion artifacts.</p>
+            <p class="text-size-regular text-color-secondary">Sharper faces, clearer text, and fewer motion artifacts.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
           <article class="nx-card">
-            <p class="nx-card-cat section-name is-grey-medium">Efficiency</p>
+            <p class="nx-card-cat chart-label is-caps">Efficiency</p>
             <h3 class="heading-style-h5">Diffusion Fidelity Rendering</h3>
-            <p class="text-size-tiny text-color-secondary">More detail where it matters, with compute adapted to each scene.</p>
+            <p class="text-size-regular text-color-secondary">More detail where it matters, with compute adapted to each scene.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
           <article class="nx-card">
-            <p class="nx-card-cat section-name is-grey-medium">Deployment</p>
+            <p class="nx-card-cat chart-label is-caps">Deployment</p>
             <h3 class="heading-style-h5">Better Distilled Model</h3>
-            <p class="text-size-tiny text-color-secondary">Near-full quality that can run on everyday GPUs.</p>
+            <p class="text-size-regular text-color-secondary">Near-full quality that can run on everyday GPUs.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
         </div>
@@ -4666,35 +4768,21 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 
       <div class="nx-group" data-tab="world">
         <div class="nx-left">
-          <svg class="nx-pattern" viewBox="0 0 420 420" preserveAspectRatio="xMinYMin slice" aria-hidden="true">
-            <g fill="none" stroke="#0b0b0b" stroke-opacity=".06" stroke-width="1">
-              <path d="M20 20 H400 M20 80 H400 M20 140 H400 M20 200 H400 M20 260 H400 M20 320 H400 M20 380 H400"></path>
-              <path d="M20 20 V400 M80 20 V400 M140 20 V400 M200 20 V400 M260 20 V400 M320 20 V400 M380 20 V400"></path>
-            </g>
-            <g fill="none" stroke="#0b0b0b" stroke-opacity=".14" stroke-width="1">
-              <circle cx="70" cy="70" r="46"></circle>
-              <circle cx="70" cy="70" r="86"></circle>
-            </g>
-          </svg>
-          <p class="nx-cat section-name is-grey-medium">Built to hold a world together</p>
-          <h2 class="nx-h heading-style-h3 text-balanced">More continuity across every shot.</h2>
+<p class="nx-cat chart-label is-caps">Built to hold a world together</p>
+          <h2 class="nx-h heading-style-h2 text-balanced">More continuity across every shot.</h2>
           <p class="section-sub text-size-large text-balanced">Keep complex scenes, subjects, and actions consistent throughout a generation.</p>
-          <div class="nx-prog">
-            <span class="nx-prog-lbl">02 / 04</span>
-            <div class="nx-ticks"><span class="nx-tick is-on"></span><span class="nx-tick is-on"></span><span class="nx-tick"></span><span class="nx-tick"></span></div>
-          </div>
         </div>
         <div class="nx-cards">
           <article class="nx-card">
-            <p class="nx-card-cat section-name is-grey-medium">Generation</p>
+            <p class="nx-card-cat chart-label is-caps">Generation</p>
             <h3 class="heading-style-h5">Native Multishot</h3>
-            <p class="text-size-tiny text-color-secondary">Generate multiple connected shots with consistent characters, environments, and visual language.</p>
+            <p class="text-size-regular text-color-secondary">Generate multiple connected shots with consistent characters, environments, and visual language.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
           <article class="nx-card">
-            <p class="nx-card-cat section-name is-grey-medium">Prompting</p>
+            <p class="nx-card-cat chart-label is-caps">Prompting</p>
             <h3 class="heading-style-h5">Custom Gemma 4 12B Text Encoder</h3>
-            <p class="text-size-tiny text-color-secondary">Better understanding of multi-subject and multi-action prompts.</p>
+            <p class="text-size-regular text-color-secondary">Better understanding of multi-subject and multi-action prompts.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
         </div>
@@ -4702,35 +4790,21 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 
       <div class="nx-group" data-tab="adapt">
         <div class="nx-left">
-          <svg class="nx-pattern" viewBox="0 0 420 420" preserveAspectRatio="xMinYMin slice" aria-hidden="true">
-            <g fill="none" stroke="#0b0b0b" stroke-opacity=".06" stroke-width="1">
-              <path d="M20 20 H400 M20 80 H400 M20 140 H400 M20 200 H400 M20 260 H400 M20 320 H400 M20 380 H400"></path>
-              <path d="M20 20 V400 M80 20 V400 M140 20 V400 M200 20 V400 M260 20 V400 M320 20 V400 M380 20 V400"></path>
-            </g>
-            <g fill="none" stroke="#0b0b0b" stroke-opacity=".14" stroke-width="1">
-              <circle cx="70" cy="70" r="46"></circle>
-              <circle cx="70" cy="70" r="86"></circle>
-            </g>
-          </svg>
-          <p class="nx-cat section-name is-grey-medium">Built to be modified</p>
-          <h2 class="nx-h heading-style-h3 text-balanced">Make the model your own.</h2>
+<p class="nx-cat chart-label is-caps">Built to be modified</p>
+          <h2 class="nx-h heading-style-h2 text-balanced">Make the model your own.</h2>
           <p class="section-sub text-size-large text-balanced">Adapt, fine-tune, and deploy LTX for your domain, data, and workflows.</p>
-          <div class="nx-prog">
-            <span class="nx-prog-lbl">03 / 04</span>
-            <div class="nx-ticks"><span class="nx-tick is-on"></span><span class="nx-tick is-on"></span><span class="nx-tick is-on"></span><span class="nx-tick"></span></div>
-          </div>
         </div>
         <div class="nx-cards">
           <article class="nx-card">
-            <p class="nx-card-cat section-name is-grey-medium">Fine-tuning</p>
+            <p class="nx-card-cat chart-label is-caps">Fine-tuning</p>
             <h3 class="heading-style-h5">Pretrained Checkpoint for Deep Adaptation</h3>
-            <p class="text-size-tiny text-color-secondary">A raw foundation for building and training your own specialized world models.</p>
+            <p class="text-size-regular text-color-secondary">A raw foundation for building and training your own specialized world models.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
           <article class="nx-card">
-            <p class="nx-card-cat section-name is-grey-medium">Licensing</p>
+            <p class="nx-card-cat chart-label is-caps">Licensing</p>
             <h3 class="heading-style-h5">Cleaner Permissive Licensing</h3>
-            <p class="text-size-tiny text-color-secondary">A clearer path to fine-tune, deploy, commercialize, and redistribute.</p>
+            <p class="text-size-regular text-color-secondary">A clearer path to fine-tune, deploy, commercialize, and redistribute.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
         </div>
@@ -4738,41 +4812,27 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 
       <div class="nx-group" data-tab="scale">
         <div class="nx-left">
-          <svg class="nx-pattern" viewBox="0 0 420 420" preserveAspectRatio="xMinYMin slice" aria-hidden="true">
-            <g fill="none" stroke="#0b0b0b" stroke-opacity=".06" stroke-width="1">
-              <path d="M20 20 H400 M20 80 H400 M20 140 H400 M20 200 H400 M20 260 H400 M20 320 H400 M20 380 H400"></path>
-              <path d="M20 20 V400 M80 20 V400 M140 20 V400 M200 20 V400 M260 20 V400 M320 20 V400 M380 20 V400"></path>
-            </g>
-            <g fill="none" stroke="#0b0b0b" stroke-opacity=".14" stroke-width="1">
-              <circle cx="70" cy="70" r="46"></circle>
-              <circle cx="70" cy="70" r="86"></circle>
-            </g>
-          </svg>
-          <p class="nx-cat section-name is-grey-medium">Built to scale</p>
-          <h2 class="nx-h heading-style-h3 text-balanced">Better results with less friction.</h2>
+<p class="nx-cat chart-label is-caps">Built to scale</p>
+          <h2 class="nx-h heading-style-h2 text-balanced">Better results with less friction.</h2>
           <p class="section-sub text-size-large text-balanced">Improve generation quality, usability, and efficiency as production scales.</p>
-          <div class="nx-prog">
-            <span class="nx-prog-lbl">04 / 04</span>
-            <div class="nx-ticks"><span class="nx-tick is-on"></span><span class="nx-tick is-on"></span><span class="nx-tick is-on"></span><span class="nx-tick is-on"></span></div>
-          </div>
         </div>
         <div class="nx-cards">
           <article class="nx-card">
-            <p class="nx-card-cat section-name is-grey-medium">Quality</p>
+            <p class="nx-card-cat chart-label is-caps">Quality</p>
             <h3 class="heading-style-h5">Larger Dataset + RL Post-Training</h3>
-            <p class="text-size-tiny text-color-secondary">A higher take rate, fewer retries, and lower cost per usable shot.</p>
+            <p class="text-size-regular text-color-secondary">A higher take rate, fewer retries, and lower cost per usable shot.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
           <article class="nx-card">
-            <p class="nx-card-cat section-name is-grey-medium">Prompting</p>
+            <p class="nx-card-cat chart-label is-caps">Prompting</p>
             <h3 class="heading-style-h5">Dedicated Prompt Enhancer</h3>
-            <p class="text-size-tiny text-color-secondary">Get better results with less prompting expertise and no additional inference cost.</p>
+            <p class="text-size-regular text-color-secondary">Get better results with less prompting expertise and no additional inference cost.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
           <article class="nx-card">
-            <p class="nx-card-cat section-name is-grey-medium">Automation</p>
+            <p class="nx-card-cat chart-label is-caps">Automation</p>
             <h3 class="heading-style-h5">Auto Duration</h3>
-            <p class="text-size-tiny text-color-secondary">Let the length follow the scene automatically, with fewer manual controls.</p>
+            <p class="text-size-regular text-color-secondary">Let the length follow the scene automatically, with fewer manual controls.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
         </div>
@@ -4801,30 +4861,31 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
 
-  <nav class="cap-nav" aria-label="Capability explorer">
+  <nav class="cap-nav" aria-labelledby="capGroupCapabilities">
+    <h2 id="capGroupCapabilities" class="cap-nav__title heading-style-h4">Capabilities</h2>
     <div class="cap-nav-row">
-      <button type="button" class="cap-btn active" data-cap="keyframe">Multi-Keyframe</button>
+      <button type="button" class="cap-btn ltx-chip active" data-cap="keyframe">Multi-Keyframe</button>
       <span class="cap-dot" aria-hidden="true"></span>
-      <button type="button" class="cap-btn" data-cap="retake" data-track="cap:retake">Retake</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="retake" data-track="cap:retake">Retake</button>
       <span class="cap-dot" aria-hidden="true"></span>
-      <button type="button" class="cap-btn" data-cap="union">Union Control</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="union">Union Control</button>
       <span class="cap-dot" aria-hidden="true"></span>
-      <button type="button" class="cap-btn" data-cap="camera">Camera Control</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="camera">Camera Control</button>
       <span class="cap-dot" aria-hidden="true"></span>
-      <button type="button" class="cap-btn" data-cap="a2v">Audio-to-Video</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="a2v">Audio-to-Video</button>
       <span class="cap-dot" aria-hidden="true"></span>
-      <button type="button" class="cap-btn" data-cap="consistency">Character Consistency</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="consistency">Character Consistency</button>
     </div>
     <div class="cap-nav-row">
-      <button type="button" class="cap-btn" data-cap="lora">LoRA Trainer</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="lora">LoRA Trainer</button>
       <span class="cap-dot" aria-hidden="true"></span>
-      <button type="button" class="cap-btn" data-cap="extend">Extend</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="extend">Extend</button>
       <span class="cap-dot" aria-hidden="true"></span>
-      <button type="button" class="cap-btn" data-cap="lipdub" data-track="cap:lip-dub">Lip-Dub</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="lipdub" data-track="cap:lip-dub">Lip-Dub</button>
       <span class="cap-dot" aria-hidden="true"></span>
-      <button type="button" class="cap-btn" data-cap="inpaint">Inpainting</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="inpaint">Inpainting</button>
       <span class="cap-dot" aria-hidden="true"></span>
-      <button type="button" class="cap-btn" data-cap="outpaint">Outpainting</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="outpaint">Outpainting</button>
     </div>
   </nav>
 
@@ -4984,22 +5045,23 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
 
-  <nav class="cap-nav" aria-label="Post-production capabilities">
+  <nav class="cap-nav" aria-labelledby="capGroupPostProduction">
+    <h2 id="capGroupPostProduction" class="cap-nav__title heading-style-h4">Post-Production</h2>
     <div class="cap-nav-row">
-      <button type="button" class="cap-btn active" data-cap="native">Native Resolution</button>
+      <button type="button" class="cap-btn ltx-chip active" data-cap="native">Native Resolution</button>
       <span class="cap-dot" aria-hidden="true"></span>
-      <button type="button" class="cap-btn" data-cap="refine">Refine</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="refine">Refine</button>
       <span class="cap-dot" aria-hidden="true"></span>
-      <button type="button" class="cap-btn" data-cap="restore">Restore</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="restore">Restore</button>
       <span class="cap-dot" aria-hidden="true"></span>
-      <button type="button" class="cap-btn" data-cap="sdr">SDR to HDR</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="sdr">SDR to HDR</button>
     </div>
     <div class="cap-nav-row">
-      <button type="button" class="cap-btn" data-cap="hdr">Native HDR</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="hdr">Native HDR</button>
       <span class="cap-dot" aria-hidden="true"></span>
-      <button type="button" class="cap-btn" data-cap="layout">Layout to Render</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="layout">Layout to Render</button>
       <span class="cap-dot" aria-hidden="true"></span>
-      <button type="button" class="cap-btn" data-cap="alpha">Alpha Gen</button>
+      <button type="button" class="cap-btn ltx-chip" data-cap="alpha">Alpha Gen</button>
     </div>
   </nav>
 
@@ -5115,7 +5177,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 <section class="site-section content-container sys-init" data-section="2" data-label="Also Built For">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
-  <h1 class="title heading-style-h1">Also Built For</h1>
+  <h2 class="title heading-style-h1">Also Built For</h2>
 
   <div class="sys-field" style="position:absolute; top:400px; left:var(--content-gutter); right:var(--content-gutter); bottom:80px;">
     <svg class="sys-net" viewBox="0 0 1820 600" preserveAspectRatio="none">
@@ -5232,27 +5294,27 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="acc-path">
         <span class="acc-path-line" aria-hidden="true"></span>
         <button type="button" class="acc-item active" data-acc="multimodal" data-track="wf:multimodal">
-          <span class="acc-num">01</span>
+          <span class="acc-num index-num">01</span>
           <span class="acc-item-lbl">Multi-Modal Animation Controls</span>
         </button>
         <button type="button" class="acc-item" data-acc="animref" data-track="wf:anim-ref">
-          <span class="acc-num">02</span>
+          <span class="acc-num index-num">02</span>
           <span class="acc-item-lbl">Animation Reference</span>
         </button>
         <button type="button" class="acc-item" data-acc="blocking" data-track="wf:blocking">
-          <span class="acc-num">03</span>
+          <span class="acc-num index-num">03</span>
           <span class="acc-item-lbl">Blocking-to-Animation</span>
         </button>
         <button type="button" class="acc-item" data-acc="labpreview" data-track="wf:lab-preview">
-          <span class="acc-num">04</span>
+          <span class="acc-num index-num">04</span>
           <span class="acc-item-lbl">Lab Preview &mdash; 3D Guidance + Style Transfer + HDR</span>
         </button>
         <button type="button" class="acc-item" data-acc="3dguidance" data-track="wf:3d-guidance">
-          <span class="acc-num">05</span>
+          <span class="acc-num index-num">05</span>
           <span class="acc-item-lbl">3D Guidance + Multi KFs + Custom Pipeline</span>
         </button>
         <button type="button" class="acc-item" data-acc="hdrnative" data-track="wf:hdr-native">
-          <span class="acc-num">06</span>
+          <span class="acc-num index-num">06</span>
           <span class="acc-item-lbl">LTX HDR Native</span>
         </button>
       </div>
@@ -5358,7 +5420,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 <section class="site-section content-container adv-slide" data-section="4" data-label="The LTX Advantage">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
-  <h1 class="title heading-style-h1">The LTX Advantage</h1>
+  <h2 class="title heading-style-h1">The LTX Advantage</h2>
 
   <div class="adv-row" id="advRow">
     <div class="adv-card" data-adv="open">
@@ -5460,7 +5522,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 <section class="site-section content-container cs-slide" data-section="4" data-label="Customer Stories" data-no-sound="1">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
-  <h1 class="title heading-style-h1">Customer Stories</h1>
+  <h2 class="title heading-style-h1">Customer Stories</h2>
   <p class="cs-kicker">Real results from teams building with LTX.</p>
 
   <div class="cs-main">
@@ -5520,7 +5582,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 <section class="site-section content-container access-slide" data-section="5" data-access="licensing" data-label="Ways to Access LTX">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
-  <h1 class="title heading-style-h1">Ways to Access LTX</h1>
+  <h2 class="title heading-style-h1">Ways to Access LTX</h2>
   <div class="access-toggle ctrl-toggle" role="tablist" aria-label="Ways to access LTX">
     <span class="ctrl-toggle-thumb" aria-hidden="true"></span>
     <button type="button" class="ctrl-tog is-on" role="tab" aria-selected="true" data-pane="licensing" data-track="access:licensing">Licensing</button>
@@ -5586,42 +5648,42 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     </g>
   </svg>
 
-  <h1 class="title ns-title heading-style-h1" style="left:0; right:0; max-width:none;">Next steps:<br>Exploration to production</h1>
+  <h2 class="title ns-title heading-style-h1" style="left:0; right:0; max-width:none;">Next steps:<br>Exploration to production</h2>
   <p class="ns-intro">Our pilot is designed around your goals: helping your team validate, optimize, and confidently move into production.</p>
 
   <div class="ns-row" id="nsRow">
     <div class="ns-stage" data-i="0" data-track="steps:01">
-      <div class="ns-node"><span>01</span></div>
+      <div class="ns-node"><span class="index-num">01</span></div>
       <h4>Explore the Use Case</h4>
     </div>
     <div class="ns-seg" data-i="0"><span class="ns-seg-fill"></span></div>
     <div class="ns-stage" data-i="1" data-track="steps:02">
-      <div class="ns-node"><span>02</span></div>
+      <div class="ns-node"><span class="index-num">02</span></div>
       <h4>Align on Goals and Requirements</h4>
     </div>
     <div class="ns-seg" data-i="1"><span class="ns-seg-fill"></span></div>
     <div class="ns-stage" data-i="2" data-track="steps:03">
-      <div class="ns-node"><span>03</span></div>
+      <div class="ns-node"><span class="index-num">03</span></div>
       <h4>Define Success Criteria</h4>
     </div>
     <div class="ns-seg" data-i="2"><span class="ns-seg-fill"></span></div>
     <div class="ns-stage" data-i="3" data-track="steps:04">
-      <div class="ns-node"><span>04</span></div>
+      <div class="ns-node"><span class="index-num">04</span></div>
       <h4>Enable Your Teams</h4>
     </div>
     <div class="ns-seg" data-i="3"><span class="ns-seg-fill"></span></div>
     <div class="ns-stage" data-i="4" data-track="steps:05">
-      <div class="ns-node"><span>05</span></div>
+      <div class="ns-node"><span class="index-num">05</span></div>
       <h4>Test Workflows &amp; Customization</h4>
     </div>
     <div class="ns-seg" data-i="4"><span class="ns-seg-fill"></span></div>
     <div class="ns-stage" data-i="5" data-track="steps:06">
-      <div class="ns-node"><span>06</span></div>
+      <div class="ns-node"><span class="index-num">06</span></div>
       <h4>Optimize Inference &amp; Deployment</h4>
     </div>
     <div class="ns-seg" data-i="5"><span class="ns-seg-fill"></span></div>
     <div class="ns-stage" data-i="6" data-track="steps:07">
-      <div class="ns-node"><span>07</span></div>
+      <div class="ns-node"><span class="index-num">07</span></div>
       <h4>Define the Path to Production Licensing</h4>
     </div>
   </div>
@@ -5629,7 +5691,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="ns-panel" id="nsPanel">
     <span class="ns-panel-tag section-name-new"><span class="text-scramble">[</span><span class="section-name">Selected stage</span><span class="text-scramble">]</span></span>
     <div class="ns-panel-body">
-      <span class="ns-panel-num" id="nsPanelNum">01</span>
+      <span class="index-num" id="nsPanelNum">01</span>
       <div class="ns-panel-text">
         <h3 id="nsPanelTitle">Explore the Use Case</h3>
         <p id="nsPanelDesc">Explore the use case with your own content when available, or create new content together when needed.</p>
@@ -5657,7 +5719,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 <section class="site-section content-container commercial-hub" id="slideCommercialHub" data-section="6" data-label="Two commercial models">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
-  <h1 class="title heading-style-h1" style="max-width:1280px;">Two commercial models</h1>
+  <h2 class="title heading-style-h1" style="max-width:1280px;">Two commercial models</h2>
   <p class="text-size-xlarge" style="position:absolute; top:330px; left:var(--content-gutter); right:var(--content-gutter); margin:0;">Choose the commercial model that best matches your business.</p>
 
   <div class="grid price-grid hub-grid" id="priceGrid" style="top:410px; bottom:150px; grid-template-columns:1fr 1fr;">
@@ -5692,7 +5754,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <button type="button" class="back-to-hub ltx-but-base" data-goto-id="slideCommercialHub"><span>&larr;</span><span>Back to Commercial Models</span></button>
-  <h1 class="title heading-style-h1">Revenue Share</h1>
+  <h2 class="title heading-style-h1">Revenue Share</h2>
   <p class="section-sub text-size-large text-balanced" style="position:absolute; top:290px; left:var(--content-gutter); width:700px; margin:0;">We succeed when you succeed.<br>Instead of paying per use, you share a percentage of the revenue generated by your LTX-powered product.</p>
   <div style="position:absolute; top:445px; left:var(--content-gutter); width:700px;">
     <div style="display:flex; gap:16px; padding:10px 0; border-bottom:1px solid var(--line);"><span class="heading-style-h5" style="width:270px;flex:none;">Revenue share,<br>not per use</span><span class="text-size-regular">You share a percentage of the revenue generated by your LTX-powered product.</span></div>
@@ -5768,7 +5830,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <button type="button" class="back-to-hub ltx-but-base" data-goto-id="slideCommercialHub"><span>&larr;</span><span>Back to Commercial Models</span></button>
-  <h1 class="title heading-style-h1">Usage-Based</h1>
+  <h2 class="title heading-style-h1">Usage-Based</h2>
   <p class="text-size-xlarge" style="position:absolute; top:370px; left:var(--content-gutter); width:820px; margin:0;">Commit to a 12-month agreement with a minimum annual commitment of $150K. Instead of sharing revenue, you pay only for the usage you consume.</p>
 
   <div class="uf-wrap" id="ufWrap" style="position:absolute; top:480px; left:var(--content-gutter); right:var(--content-gutter);">
@@ -5995,7 +6057,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     for(var i = range.start; i <= range.end; i++){
       var slot = document.createElement('div');
       slot.className = 'screen';
-      if(sections[i].matches('.about-page, .section-hero-slide, .chapter-block, .pgx-slide')) slot.classList.add('layout-document');
+      if(sections[i].matches('.about-page, .section-hero-slide, .chapter-block, .pgx-slide, .agenda-slide')) slot.classList.add('layout-document');
       else slot.classList.add('layout-artboard');
       if(!sections[i].id) sections[i].id = 'section-' + i;
       slot.appendChild(sections[i]);
@@ -6056,16 +6118,17 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     return best;
   }
 
-  function renderChapterSubnav(){
+  function chapterSubnavVisible(){
     var ch = chapterIndex >= 0 ? MENU[chapterIndex] : null;
-    if(!ch || !ch.sub.length){
-      document.body.classList.remove('has-chapter-sub');
-      if(appnavSub) appnavSub.hidden = true;
-      syncChromeHeights();
-      return;
-    }
-    document.body.classList.add('has-chapter-sub');
-    if(appnavSub) appnavSub.hidden = false;
+    if(!ch || !ch.sub.length) return false;
+    var focus = chapterIndex >= 0 ? focusSlideInChapter(chapterIndex) : idx;
+    var focusSlide = sections[focus];
+    if(focusSlide && focusSlide.classList.contains('cover')) return false;
+    return true;
+  }
+  function syncBreadcrumbLabels(){
+    var ch = chapterIndex >= 0 ? MENU[chapterIndex] : null;
+    if(!ch || !ch.sub.length) return;
     if(crumbChapter){
       crumbChapter.textContent = chapterCrumb(ch);
       crumbChapter.onclick = function(){
@@ -6073,16 +6136,24 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         goTo(ch.idx, first && first.scroll ? first.scroll : null);
       };
     }
-    updateBreadcrumbs();
+    var focus = chapterIndex >= 0 ? focusSlideInChapter(chapterIndex) : idx;
+    var current = resolveCurrentSub(ch, focus);
+    if(crumbSection) crumbSection.textContent = current ? current.label : ch.sub[0].label;
+  }
+  function applyChapterSubnavVisibility(){
+    var show = chapterSubnavVisible();
+    document.body.classList.toggle('has-chapter-sub', show);
+    if(appnavSub) appnavSub.hidden = !show;
+    if(show) syncBreadcrumbLabels();
     syncChromeHeights();
+    return show;
+  }
+  function renderChapterSubnav(){
+    applyChapterSubnavVisibility();
   }
 
   function updateBreadcrumbs(){
-    var ch = chapterIndex >= 0 ? MENU[chapterIndex] : null;
-    if(!ch || !ch.sub.length) return;
-    var focus = focusSlideInChapter(chapterIndex);
-    var current = resolveCurrentSub(ch, focus);
-    if(crumbSection) crumbSection.textContent = current ? current.label : ch.sub[0].label;
+    if(chapterSubnavVisible()) syncBreadcrumbLabels();
   }
 
   var appnavItems = document.getElementById('appnavItems');
@@ -6125,7 +6196,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       menu.className = 'submenu';
       ch.sub.forEach(function(sub){
         var it = document.createElement('div');
-        it.className = 'sub-item text-size-tiny';
+        it.className = 'sub-item text-size-small';
         it.textContent = sub.label;
         it.setAttribute('data-idx', sub.idx);
         if(sub.scroll) it.setAttribute('data-scroll', sub.scroll);
@@ -6208,7 +6279,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   }
 
   function playAgendaIn(slide){
-    if(!slide) return;
+    if(!slide || !slide.classList.contains('agenda-slide')) return;
     var wrap = slide.querySelector('.agenda-wrap');
     if(!wrap) return;
     wrap.classList.remove('is-playing');
@@ -6300,7 +6371,24 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       }
       if(on) it.classList.add('current');
     });
-    updateBreadcrumbs();
+    applyChapterSubnavVisibility();
+    if(chapterSubnavVisible()) updateBreadcrumbs();
+    syncOverviewMedia(chapterIndex, focus);
+  }
+  function syncOverviewMedia(c, focus){
+    if(c !== 0) return;
+    var cover = sections[0];
+    var agenda = sections[1];
+    if(!cover || !cover.classList.contains('cover')) return;
+    if(focus === 0){
+      if(cover.classList.contains('active')) enterSlide(cover);
+    }else{
+      leaveSlide(cover);
+      deactivateSlideVideos(cover);
+    }
+    if(agenda && focus === 1 && agenda.classList.contains('active') && !agenda._siteEntered){
+      enterSlide(agenda);
+    }
   }
   function scrollToTarget(el, smooth, opts){
     if(!el) return;
@@ -6308,7 +6396,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var nav = readChromeTop();
     var mobile = window.matchMedia('(max-width:900px)').matches;
     var extra = (opts.chapterHero || !mobile) ? 0 : 16;
-    var top = el.getBoundingClientRect().top + window.scrollY - nav - extra;
+    var top;
+    top = el.getBoundingClientRect().top + window.scrollY - nav - extra;
     window.scrollTo({ top: Math.max(0, top), behavior: smooth ? 'smooth' : 'auto' });
   }
   function render(){
@@ -6351,6 +6440,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       requestAnimationFrame(function(){
         syncChromeHeights();
         scrollToTarget(target, smooth, { chapterHero: chapterHero });
+        syncOverviewMedia(chapterIndex, idx);
         var hash = scrollId || (slide && slide.id);
         if(hash && history.replaceState) history.replaceState(null, '', '#' + hash);
       });
@@ -6509,6 +6599,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     if(!slide) return;
     var tabs = slide.querySelectorAll('.nx-tab');
     var groups = slide.querySelectorAll('.nx-group');
+    var progLbl = slide.querySelector('#nxProgLbl');
+    var progTicks = slide.querySelectorAll('#nxProgTicks .nx-tick');
+    var tabOrder = ['prod', 'world', 'adapt', 'scale'];
     function show(tab){
       tabs.forEach(function(el){
         var on = el.getAttribute('data-tab') === tab;
@@ -6517,6 +6610,14 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       });
       groups.forEach(function(el){
         el.classList.toggle('is-on', el.getAttribute('data-tab') === tab);
+      });
+      var i = tabOrder.indexOf(tab);
+      if(i < 0) i = 0;
+      if(progLbl){
+        progLbl.textContent = String(i + 1).padStart(2, '0') + ' / 04';
+      }
+      progTicks.forEach(function(tick, j){
+        tick.classList.toggle('is-on', j <= i);
       });
     }
     tabs.forEach(function(tab){
@@ -6565,7 +6666,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var appnav = document.getElementById('appnav');
     var sub = document.getElementById('appnav-sub');
     if(appnav){
-      document.documentElement.style.setProperty('--topnav-h', appnav.offsetHeight + 'px');
+      var navBottom = appnav.getBoundingClientRect().bottom;
+      document.documentElement.style.setProperty('--topnav-h', Math.round(navBottom) + 'px');
     }
     var subH = 0;
     if(sub && !sub.hidden && document.body.classList.contains('has-chapter-sub')){
@@ -6603,7 +6705,11 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       slide.style.height = artH + 'px';
       slide.style.transform = 'scale(' + scale + ') translateY(' + (-cropTop) + 'px)';
       slide.style.setProperty('--artboard-scale', String(scale));
-      slot.style.height = Math.ceil((artH - cropTop) * scale) + 'px';
+      var slotH = Math.ceil((artH - cropTop) * scale);
+      if(slot.closest('#chapter-0') && slide.classList.contains('cover')){
+        slotH = Math.max(slotH, Math.ceil(window.innerHeight - readChromeTop()));
+      }
+      slot.style.height = slotH + 'px';
     });
     if(!mobile) scaleAboutGlobe();
   }
@@ -7232,7 +7338,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       var mark = s.logo
         ? '<img src="'+s.logo+'" alt="'+s.name+'">'
         : '<span class="cs-rail-name">'+s.name+'</span>';
-      btn.innerHTML = mark + '<span class="cs-rail-ind">'+s.industry+'</span>';
+      btn.innerHTML = mark + '<span class="cs-rail-ind chart-label">'+s.industry+'</span>';
       btn.addEventListener('click', function(){ show(idx, true); });
       track.appendChild(btn);
     });

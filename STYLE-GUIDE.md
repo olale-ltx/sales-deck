@@ -10,7 +10,7 @@ Carry the color, type, spacing, hairlines, buttons, media cards, numbered indexe
 
 | Piece | Use it for |
 |---|---|
-| `design/ltx.css` | Tokens, type classes, buttons, links, media cards, pills, indexes, quotes, tables |
+| `design/ltx.css` | Tokens, type classes, buttons, links, media cards, pills, indexes, chart labels, quotes, tables |
 | `design/ltx-logo-black.svg` | The LTX mark. On footage, invert it with `filter: brightness(0) invert(1)` |
 | `.ltx-page` on `<body>` | A scrolling page. Leave it off a fixed 1920×1080 stage |
 | `--fs-*-stage` | Type on a 1920×1080 canvas. The `vw` clamps are for the browser viewport |
@@ -24,14 +24,14 @@ Short sentences. Titles are statements, not shouty labels.
 Use three layers consistently:
 
 1. **Statement headlines** — sentence case. Slide H1/H2 that read as copy (often ending with a period): cover line, chapter intro blurbs, `.nx-h`, `.ctrl-h`, customer story `.cs-h`, section-hero intro `heading-style-h2`, and body text.
-2. **Eyebrows** — uppercase only, via CSS (`text-transform: uppercase` on `.section-name`, `.nx-cat`, `.nx-card-cat`, `.ctrl-kicker`, `.ctrl-nav-kicker`, `.wm-bridge-kicker`, `.pgx-av-cue`, metric `.mlbl`, etc.). Write the source string in sentence case; let CSS render caps.
+2. **Muted caps kickers** — **`.chart-label.is-caps`** (and Webflow **`.section-name`**, which shares the same tokens). Group lines (`.nx-cat`), control kickers, bridge copy, bracket chart tags, and card categories. Write source in sentence case; CSS uppercases. Diagram lane labels use plain **`.chart-label`** (sentence case in markup) unless they are a hub title (add **`.is-caps`**).
 3. **Short labels** — Title Case (site mega-menu style). Top nav and agenda chapters, tabs (`.nx-tab-lbl`, `.industry-tab__title`, `.pgx-item h4`, `.cap-btn` / `.cap-title`, workflow accordion labels, card titles on feature grids, licensing tiles, next-steps stages, commercial model names, and matching slide `data-label` values when they name a section.
 
 Chapter **section heroes** use Title Case for the big chapter name; the paragraph below stays a sentence-case statement.
 
 A lead can be one sentence per line on a wide layout (`<br>` between sentences, `text-wrap: balance`). On a narrow layout those breaks disappear and the lead becomes one paragraph.
 
-Numbers in a list are zero-padded (`01`) and `tabular-nums`. They are quieter than the title they sit beside.
+Numbers in a list are zero-padded (`01`), set in **`.index-num`** (Aeonik, `--fs-tiny`, `tabular-nums`, default `--ltx-grey-line`). They stay quieter than the title beside them; on hover or active row, match ink (see parent patterns below).
 
 ## Color
 
@@ -108,6 +108,12 @@ Values are the ltx.io site’s published classes. Clamps run from a 20rem viewpo
 | Regular | `.text-size-regular` | 1.03125rem | 1.1 | 0.01rem | 400 |
 | Small | `.text-size-small` | 0.9375rem | 1.1 | 0.01rem | 400 |
 | Tiny | `.text-size-tiny` | 0.8125rem | 1.1 | 0.002rem | 400 |
+| Index numeral | `.index-num` | 0.8125rem | 1.1 | 0.002rem | 400 |
+| Chart label | `.chart-label` | 0.8125rem | 1.1 | 0.002rem | 400 |
+
+`.index-num` uses the tiny scale plus Aeonik, `tabular-nums`, and default color `--ltx-grey-line` (not a general body class).
+
+`.chart-label` is the tiny scale, weight 400, `--ltx-grey-muted` — for diagram lanes, spec captions, and (with **`.is-caps`**) deck kickers. (The old name **viz-label** meant “visualization”; **chart-label** is clearer.)
 
 Line-height tokens: `--lh-tiny` 0.95, `--lh-compact` 1, `--lh-small` 1.1, `--lh-normal` 1.1, `--lh-medium` 1.3, `--lh-large` 1.4, `--lh-xlarge` 1.5. Supporting copy (regular, small, tiny, H5) uses `--lh-normal`. Multi-line body in slides often sets `--lh-medium` explicitly in component CSS.
 
@@ -115,9 +121,9 @@ Utilities with Webflow names: `.text-weight-light` (300), `.text-weight-normal` 
 
 Weights in use: 400 for display through H3, body, and buttons. 500 for H4–H6 and active labels. Do not use 700, 800, or 900.
 
-### Eyebrow
+### Section eyebrow (Webflow)
 
-Webflow component **page-name-eyebrow**, class `section-name-new`. Text is uppercase, light weight, and grey-medium. Brackets are hidden.
+Webflow component **page-name-eyebrow**, wrapper **`section-name-new`**. Brackets are hidden. Inner **`.section-name`** uses the same tokens as **`.chart-label.is-caps`** (tiny, 400, muted, uppercase).
 
 ```html
 <div class="section-name-new">
@@ -127,7 +133,24 @@ Webflow component **page-name-eyebrow**, class `section-name-new`. Text is upper
 </div>
 ```
 
-`.section-name`: `var(--fs-eyebrow)` (0.8125rem), weight 300, `var(--ls-eyebrow)` (0.08em), uppercase. `.text-scramble` remains in legacy markup but is hidden by the shared component. Use this for every eyebrow and small tag.
+In the deck, prefer explicit **`chart-label is-caps`** on kickers; keep **`section-name`** inside **`section-name-new`** for bracket chart tags.
+
+### Chart label (diagrams and spec strips)
+
+Class **`.chart-label`** in `design/ltx.css` for labels **inside** visuals: track names (`Video` / `Audio`), sync hints (`What you see`), captions under metric values, step tags on frames. Same scale as **`.text-size-tiny`**, weight **400**, `--ltx-grey-muted`. Default casing follows the source string; add **`.is-caps`** for uppercase kickers and hub titles.
+
+On footage or dark scrims, add **`.is-on-media`** (light type at ~72% white). Active/highlight states can override color in component CSS (e.g. live A/V beat → ink). A second line in the same box can sit in **`<em>`** (sentence case, same muted color; no extra uppercase).
+
+```html
+<span class="pgx-av-lbl chart-label">Video</span>
+<div class="pgx-av-cue chart-label">What you see</div>
+<span class="mlbl chart-label">Max resolution</span>
+<span class="pgx-shot-lbl chart-label is-on-media">Step</span>
+<p class="nx-card-cat chart-label is-caps">Generation</p>
+<p class="nx-cat chart-label is-caps">Built for real production</p>
+```
+
+The same tokens apply to legacy hooks in the deck (prefer adding `.chart-label` in markup): `.wm-node-lbl`, `.adv-bar-lbl`, `.adv-mlbl`, `.dash-metrics .mlbl`, `.pr-card-lbl`, `.pr-slider-scale span`, `.uf-tl-months span`, `.nx-prog-lbl`, `.cs-metric-lbl`, `.cs-rail-ind`, `.cs-section-lbl`, `.cs-hero-stat .lbl`, `.cs-wf-legend span`, `.chal-col-head`, `.compare-col .lbl`, `.example-strip .cell .lbl`. Exception: `.chal-cols-dense .chal-col-head` stays body-style row titles (not uppercase).
 
 ### Type in the sales deck
 
@@ -190,6 +213,7 @@ Padding that belongs to an open accordion lives on the open state only. A `0fr` 
 | Token | Value | Use |
 |---|---|---|
 | `--radius-sm` | 3px | Focus chips, small controls |
+| `--radius-chip` | 0.25rem | Bordered tag / filter chips (`.ltx-chip`) |
 | `--radius-btn` | 0.3rem | Buttons. This is not `--radius-sm` |
 | `--radius-md` | 0.5rem | Media cards, figures, code cards |
 | `--radius-pill` | 999px | Chapter pills |
@@ -208,11 +232,18 @@ grid-template-columns: var(--nav-num-col) minmax(0, 1fr);
 
 `--nav-num-col` is `calc(2ch + 0.08em)`. It only resolves to the right width when it is read on an element whose font-size is the number’s font-size. Sub-items indent with `padding-left: calc(var(--nav-num-col) + gap)` on that same font-size, so they line up with the title even when the title wraps.
 
-Inactive titles are muted. Hover and the active row go to ink. The active title is weight 500. Numerals stay subtle (`--color-text-subtle`) until the row is active.
+Inactive titles are muted. Hover and the active row go to ink. The active title is weight 500. Numerals use **`.index-num`** (same tokens as `.index__num` in the list pattern): default `--ltx-grey-line`, then `--ltx-black` / `--color-ink` when the row is hovered, selected, or `.is-on` (e.g. `.ctrl-nav-item:hover .index-num`, `.nx-tab.is-on .index-num`, `.agenda-row:hover .index-num`).
 
 Read-progress, when a long page has it, is a 1px black bar on the active row only (`transform: scaleX(var(--progress))`, origin left). It tracks scroll. It does not animate on click. The row borders stay thin.
 
-Class in `design/ltx.css`: `.index`, `.index__row`, `.index__num`, `.index__title`, `.is-active`.
+Classes in `design/ltx.css`: **`.index-num`** (standalone span in split tabs, agenda, feature lists); list markup **`.index`**, **`.index__row`**, **`.index__num`**, **`.index__title`**, **`.is-active`**.
+
+```html
+<span class="index-num">01</span>
+<h5 class="heading-style-h5">Deployment</h5>
+```
+
+Do not use `.index-num` for display-scale stats, divider chapter numbers, or panel counters (those keep their own heading scale).
 
 ## Buttons
 
@@ -229,6 +260,10 @@ Shared: padding `0.8rem 1.6rem 0.9rem` (extra pixel of padding under the label, 
 Group them with `.nav-ctas` (`display: flex; gap: 1rem`). In a narrow drawer, stack them full width with `--space-2xs` between. The ebook still uses its older `.ltx-btn` names for the same button.
 
 Primary is the forward action (Talk to Sales). Secondary is the lighter one (Try Now). External links use `target="_blank"` and `rel="noopener noreferrer"`.
+
+## Tag chips
+
+Class **`.ltx-chip`**: 1px `--color-border`, **`--radius-chip` (0.25rem)**, `--ltx-white` fill, `text-size-small` scale. Inactive label `--ltx-grey-light`; hover darkens border; **`.active` / `.is-on` / `aria-selected="true"`** uses black border and ink at weight 500. Wrap rows with `flex-wrap` and ~`0.5rem` gap (no dot separators). Used on capability tabs (`.cap-btn.ltx-chip`), production LoRA toggles (`.pgx-chip.ltx-chip`), and matching filters on ltx.io.
 
 ## Links
 
