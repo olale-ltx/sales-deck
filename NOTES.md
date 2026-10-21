@@ -8,7 +8,7 @@ Visual source of truth: `STYLE-GUIDE.md` and `design/ltx.css`. Behavior source o
 
 ## What this is
 
-A sales meeting deck built as a mini-website: one scrolling page per chapter. Two kinds of section live in a chapter. Flow sections (chapter heroes, Who We Are, dependency → control; slot class `.is-flow`) size themselves. Fixed-artboard slides are laid out on a 1920×1080 canvas and scaled as one unit to the content column by `syncDeckLayout()`. Under 900px the scale is off and every slide stacks in normal flow.
+A sales meeting deck built as a mini-website: one scrolling page per chapter. Two kinds of section live in a chapter. Flow sections (chapter heroes, Who We Are, dependency → control; slot class `.is-flow`) size themselves. Fixed-artboard slides are laid out on the 90rem × 1080 content area of the original 1920×1080 design (covers keep the full 1920 for the collage) and scaled as one unit to the content column by `syncDeckLayout()`. The content column has no max width in the deck, so it always lines up with the nav logo at the 3vw edge. Under 900px the scale is off and every slide stacks in normal flow.
 
 Live URL and the Apps Script contract are in `sales-deck-original/README.md`. Keep them. The form is lead capture, not access control. An API failure still lets the meeting continue.
 

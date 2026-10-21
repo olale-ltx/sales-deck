@@ -182,10 +182,10 @@ The deck is a mini-website: one scrollable chapter per top-nav item. Structure e
 |---|---|
 | `.page-wrapper` | Full-width chapter shell |
 | `.global-padding` / `.padding-global` | Horizontal inset for all deck content (`--content-pad-x`, 3vw) |
-| `.main-container` | Centered `--content-max` (90rem) column |
+| `.main-container` | Content column. Capped at `--content-max` (90rem) in `design/ltx.css`; the deck removes the cap so content always aligns with the nav logo |
 | `.deck-section` | One scroll section (about block, control slide, etc.) |
 
-Slides that still use absolute in-slide layout reference `--content-gutter` (= outer `--content-edge`) on the 1920-wide coordinate system; migrate those blocks into `.deck-section` flow over time.
+Fixed-artboard slides (absolute layout) are drawn on a 90rem × 1080 artboard, where `--content-gutter` resolves to 0, and scaled to the column. Covers use the full 1920 artboard with the gutter forced to 0. Migrate those slides into `.deck-section` flow over time.
 
 A scrolling page sits in `.container`: max-width `100rem`, horizontal padding `clamp(1rem, 3.5vw, 3rem)`.
 

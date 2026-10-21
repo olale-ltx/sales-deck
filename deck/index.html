@@ -88,6 +88,8 @@ html,body{
   max-width:100%;
   padding-inline:var(--content-pad-x, 3vw);
 }
+/* Content spans the full padded width so it always lines up with the nav logo. */
+.main-container{ max-width:none; }
 #deck{
   position:relative;
   width:100%; height:auto;
@@ -108,11 +110,16 @@ html,body{
     opacity:1; pointer-events:auto;
     transform:none;
   }
-  /* Fixed-artboard slides: laid out on the 1920×1080 canvas, scaled to the
-     content column by syncDeckLayout(). Flow slides (.is-flow) size themselves. */
+  /* Fixed-artboard slides: the 90rem content area of the 1920×1080 design,
+     scaled to the content column by syncDeckLayout(). Covers keep the full
+     artboard for the collage, with no side gutter. Flow slides (.is-flow) size themselves. */
   .screen:not(.is-flow) > .slide{
-    width:var(--canvas-w); height:var(--canvas-h);
+    width:var(--content-max); height:var(--canvas-h);
     transform-origin:0 0;
+  }
+  .screen:not(.is-flow) > .slide.cover{
+    width:var(--canvas-w);
+    --content-gutter:0px;
   }
   .slide.section-hero-slide{
     box-sizing:border-box;
@@ -962,7 +969,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   display:flex; align-items:center; gap:16px; width:100%;
   text-align:left; background:none; border:none; cursor:pointer;
   font-family:var(--font);    
-  padding:14px 16px 14px 8px; margin:0 -16px 0 -8px;
+  padding:14px 16px 14px 8px; margin:0 -16px 0 0;
   transition:color .25s ease, background .25s ease; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
 .acc-item::before{
   content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
@@ -1706,7 +1713,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .pr-chart-sub{ text-align:center;   margin:0 0 14px; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
 
 /* extremely faint animated diagonal data-flow lines behind the graph, reinforcing "growth" without competing with the curve — offset well below the card's title block so they trace behind the curve itself, not the text above it */
-.pr-bg-lines{ position:absolute; inset:110px 40px auto 40px; height:400px; pointer-events:none; }
+.pr-bg-lines{ position:absolute; inset:110px 40px auto 40px; width:calc(100% - 80px); height:400px; pointer-events:none; }
 .pr-bg-lines path{
   fill:none; stroke:var(--ltx-black); stroke-width:1; opacity:.05;
   stroke-dasharray:4 10;
@@ -6327,7 +6334,6 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     document.documentElement.style.setProperty('--subnav-h', subH + 'px');
   }
 
-  var CANVAS_W = 1920, CANVAS_H = 1080;
   function syncDeckLayout(){
     var mobile = window.matchMedia('(max-width:900px)').matches;
     document.querySelectorAll('.chapter.is-on .screen').forEach(function(slot){
@@ -6338,9 +6344,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         slide.style.transform = '';
         return;
       }
-      var scale = slot.clientWidth / CANVAS_W;
+      var scale = slot.clientWidth / slide.offsetWidth;
       slide.style.transform = 'scale(' + scale + ')';
-      slot.style.height = Math.ceil(CANVAS_H * scale) + 'px';
+      slot.style.height = Math.ceil(slide.offsetHeight * scale) + 'px';
     });
     if(!mobile) scaleAboutGlobe();
     syncChromeHeights();
