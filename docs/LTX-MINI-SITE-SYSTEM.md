@@ -8,7 +8,7 @@ How to build a chapter-based LTX site like `deck/index.html`. Read `STYLE-GUIDE.
 #stage
   header#appnav (+ #appnav-sub when chapter has sub-items)
   .global-padding.padding-global
-    #deck
+    #chapter-root
       .chapter.is-on
         .page-wrapper.content-container
           .main-container
@@ -48,7 +48,7 @@ Use only documented classes. Sizes resolve to `var(--fs-*)` clamps on `:root`.
 | Eyebrow | `.section-name-new` |
 | Button | `.ltx-but-base` / `.is-black` |
 
-Do not add deck-only `--fs-*` overrides on `.site-section`.
+Do not add page-only `--fs-*` overrides on `.site-section`.
 
 ## Nav behavior
 

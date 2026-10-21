@@ -127,7 +127,7 @@ Webflow component **page-name-eyebrow**, class `section-name-new`. Text is upper
 </div>
 ```
 
-`.section-name`: 0.9rem, weight 300, tracking 0.15em, uppercase. `.text-scramble` remains in legacy markup but is hidden by the shared component. Use this for every eyebrow and small tag.
+`.section-name`: `var(--fs-eyebrow)` (0.8125rem), weight 300, `var(--ls-eyebrow)` (0.08em), uppercase. `.text-scramble` remains in legacy markup but is hidden by the shared component. Use this for every eyebrow and small tag.
 
 ### Type in the sales deck
 
@@ -165,16 +165,19 @@ Use the scale. Do not invent a one-off `18px` gap when `--space-sm` or `--space-
 
 The deck is a mini-website: one scrollable chapter per top-nav item. Structure each chapter as:
 
-`#stage` → `.global-padding` (3vw inline) → `#deck` → `page-wrapper` → `main-container` → `.screen` / `.deck-section`
+`#stage` → `.global-padding` (3vw inline) → `#chapter-root` → `page-wrapper` → `main-container` → `.screen` / `.chapter-block`
 
 | Class | Role |
 |---|---|
 | `.page-wrapper` | Full-width chapter shell |
 | `.global-padding` / `.padding-global` | Horizontal inset for all deck content (`--content-pad-x`, 3vw) |
 | `.main-container` | Content column capped at `--content-max` (100rem), centered inside the 3vw padding; nav uses the same inset so the logo lines up with the column |
-| `.deck-section` | One scroll section (about block, control slide, etc.) |
+| `.chapter-block` | One scroll block inside a chapter (about article, control explorer, etc.) |
+| `.split-layout` | Shared **1fr \| 2fr** grid for tab list + stage (`--split-cols`, `--split-gap` 3rem). Use on Industries, World Model, control explorer, Production-grade explorer, etc. |
+| `.split-tab` / `.split-tab-list` | Vertical tab rail in a split layout (title + `.split-tab__text` body). Active/hover: **3px left rail** (`.industry-tab`, `.ctrl-nav-item`). Horizontal line variant archived in `docs/patterns/tab-indicator-horizontal-line.md`. |
+| `.ltx-surface` | White panel on off-white ground: `--ltx-white` (`#f9f9f9`), **no outer border** (keep tab hairlines inside), `--radius-md` (0.5rem). Typography and tab rows unchanged — do not flex-shrink tab copy. |
 
-Fixed-artboard slides (absolute layout) are drawn on a 90rem × 1080 artboard, where `--content-gutter` resolves to 0, and scaled to the column. Covers use the full 1920 artboard with the gutter forced to 0. Migrate those slides into `.deck-section` flow over time.
+Fixed-artboard slides (absolute layout) are drawn on a 90rem × 1080 artboard, where `--content-gutter` resolves to 0, and scaled to the column. Covers use the full 1920 artboard with the gutter forced to 0. Migrate those artboards into `.chapter-block` document flow over time.
 
 A scrolling page sits in `.container`: max-width `100rem`, horizontal padding `clamp(1rem, 3.5vw, 3rem)`.
 

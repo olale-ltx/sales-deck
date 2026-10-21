@@ -56,9 +56,10 @@ html,body{
 }
 ::selection{ background:var(--ltx-black); color:var(--ltx-white); }
 :focus-visible{ outline:2px solid var(--ltx-black); outline-offset:2px; }
-/* Typography: one system — design/ltx.css --fs-* clamps on :root. Use h1-display,
-   heading-style-h*, text-size-* everywhere. Artboard sections scale as a whole; do not pin
-   alternate --fs-* tokens per section type. */
+/* Typography: design/ltx.css only. Roles — display/h1: titles; h3: panel + agenda;
+   h5: cards/tabs/rows; section-sub + text-size-large: block subtext; text-size-regular: body;
+   text-size-small: nav/support; text-size-tiny: meta; section-name: eyebrows. Layout hooks
+   (section-sub, cap-desc, …) never set font-size. Artboard sections scale as a whole. */
 #stage{
   position:relative;
   min-height:100vh;
@@ -80,7 +81,7 @@ html,body{
   max-width:var(--content-max);
   margin-inline:auto;
 }
-#deck{
+#chapter-root{
   position:relative;
   width:100%; height:auto;
   overflow:visible;
@@ -103,7 +104,7 @@ html,body{
   /* Artboard sections: the 90rem content area of the 1920×1080 design, scaled
      by syncArtboardLayout() (band from --fit-top down). Covers keep the full 1920 width. */
   .main-container > .screen + .screen{ margin-top:var(--section-gap); }
-  .about-page .deck-sections > .about-block + .about-block{ margin-top:var(--section-gap); }
+  .about-page .chapter-blocks > .about-block + .about-block{ margin-top:var(--section-gap); }
   .screen.layout-artboard > .site-section{
     width:var(--artboard-w); height:var(--canvas-h);
     transform-origin:0 0;
@@ -120,18 +121,17 @@ html,body{
     padding:clamp(0.5rem, 0.8vw, 0.5rem) 0 0;
     background:var(--bg);
   }
-  .about-page .deck-sections > .about-block{
+  .about-page .chapter-blocks > .about-block{
     padding-block:0;
     border-bottom:none;
   }
-  .about-page .deck-sections > .about-block.who-chapter{
+  .about-page .chapter-blocks > .about-block.who-chapter{
     padding-top:clamp(0.5rem, 0.8vw, 1rem);
     padding-bottom:0;
   }
-  #aboutIndustries .about-lead{ margin-bottom:0; }
+  #aboutIndustries .section-sub{ margin-bottom:0; }
   #aboutIndustries .about-industries-layout{
     margin-top:clamp(1rem, 3vh, 1.75rem);
-    grid-template-columns:minmax(0,1fr) minmax(0,1.45fr);
     align-items:stretch;
   }
   /* Row height follows the 16:9 video; tabs share that height evenly. */
@@ -144,19 +144,70 @@ html,body{
   #aboutIndustries .industry-tabs-menu{
     align-self:stretch;
     position:relative; top:auto;
-    height:auto;
-    min-height:0;
+    min-height:100%;
   }
-  #aboutIndustries .industry-tab{
+  #aboutIndustries .industry-tabs-menu.split-tab-list > .industry-tab.split-tab{
     flex:1 1 0;
     min-height:0;
-    display:flex; align-items:center;
-    padding-block:0.5rem;
+    display:flex;
+    align-items:center;
+    padding-block:var(--split-tab-pad-block);
   }
   @media (max-height:860px){
-    #aboutIndustries .industry-tab:not(.is-on) .industry-tab__sub{ display:none; }
+    #aboutIndustries .industry-tab:not(.is-on) .split-tab__text p{ display:none; }
   }
-  #aboutWorld .wm-viz{ width:min(100%, 36rem); max-height:640px; justify-self:center; }
+  #aboutWorld .about-world-body{ align-items:stretch; }
+  #aboutWorld .wm-proofs{ align-self:stretch; min-height:100%; }
+  #aboutWorld .wm-proofs.split-tab-list > .wm-proof.split-tab{
+    flex:0 0 auto;
+    min-height:auto;
+    display:flex; align-items:center;
+    padding-block:var(--split-tab-pad-block);
+    padding-inline:1.25rem;
+  }
+  #aboutWorld .about-world-body .wm-viz{
+    width:100%; height:100%; max-height:none; justify-self:stretch;
+  }
+  #aboutWorld .wm-viz-stage{ max-height:640px; }
+  .screen.layout-document > .site-section.pgx-slide{
+    display:flex; flex-direction:column;
+    height:auto !important; width:100% !important; transform:none !important;
+    padding:48px 0 72px;
+  }
+  .screen.layout-document > .site-section.pgx-slide .title{
+    position:relative; top:auto; left:auto; right:auto; margin:0 0 18px;
+  }
+  .screen.layout-document > .site-section.pgx-slide .pgx-sub{
+    position:relative; top:auto; left:auto; right:auto; margin:0;
+    max-width:920px;
+  }
+  .screen.layout-document > .site-section.pgx-slide .pgx-block{ margin-top:4rem; }
+  .screen.layout-document > .site-section.pgx-slide .pgx-specs{
+    position:relative; top:auto; left:auto; right:auto; bottom:auto;
+    margin:0 0 2.5rem; padding:0;
+  }
+  .screen.layout-document > .site-section.pgx-slide .pgx-explorer{ min-width:0; }
+  .screen.layout-document > .site-section.pgx-slide .pgx-nav{
+    position:relative; top:auto; left:auto; width:auto; bottom:auto;
+    display:flex; flex-direction:column; justify-content:center; gap:8px;
+  }
+  .pgx-explorer > .pgx-nav{ align-self:stretch; justify-content:space-evenly; min-height:100%; }
+  .ctrl-shell > .ctrl-nav{ align-self:stretch; min-height:100%; }
+  .screen.layout-document > .site-section.pgx-slide .pgx-stage{
+    position:relative; top:auto; left:auto; right:auto; bottom:auto;
+    display:flex; flex-direction:column; min-height:min(420px, 52vh);
+  }
+  .screen.layout-document > .site-section.ctrl-slide{
+    display:flex; flex-direction:column;
+    height:auto !important; width:100% !important; transform:none !important;
+  }
+  .screen.layout-document > .site-section.ctrl-slide .ctrl-head{
+    position:relative; top:auto; left:auto; right:auto; margin:0;
+  }
+  .screen.layout-document > .site-section.ctrl-slide .ctrl-shell{
+    position:relative; top:auto; left:auto; right:auto; bottom:auto;
+    margin:4rem 0 var(--space-xl); min-height:min(540px, 72vh);
+  }
   .screen.layout-artboard > .site-section.nx-slide{ --fit-top:50; }
   .screen.layout-artboard > .site-section.pricing-sim,
   .screen.layout-artboard > .site-section.usage-flow{ --fit-top:80; }
@@ -271,27 +322,44 @@ body.divider-growing #appnav{
 body.divider-growing #stage{ background:var(--ltx-black); }
 
 /* cover / closing */
+.cover .cover-copy{
+  position:absolute; z-index:8;
+  left:var(--content-gutter); top:480px;
+  display:flex; flex-direction:column; align-items:flex-start;
+  max-width:1200px;
+  pointer-events:none;
+}
 .cover .logo-big{
-  position:absolute; top:480px; left:var(--content-gutter);
+  position:static;
   height:64px; width:auto; display:block;
+  margin:0 0 5rem;
 }
 .cover .headline{
-  position:absolute; left:var(--content-gutter); top:624px; width:944px;
-  margin:0;
-  font-size:var(--fs-display);
-  line-height:var(--lh-compact);
-  letter-spacing:var(--ls-display);
-  font-weight:400;
+  position:static;
+  width:100%; max-width:944px;
+  margin:0 0 0.75rem;
   color:var(--ink);
 }
 .cover .subhead{
-  position:absolute; left:var(--content-gutter); top:828px; width:1200px;
+  position:static;
+  width:100%; max-width:1200px;
   margin:0;
-  font-size:var(--fs-h4);
   font-weight:400;
-  letter-spacing:var(--ls-h4);
   line-height:var(--lh-medium);
   color:var(--ltx-black);
+}
+@media (min-width:901px){
+  .layout-artboard > .site-section.cover{
+    --artboard-scale:1;
+  }
+  .layout-artboard > .site-section.cover .h1-display{
+    font-size:calc(var(--fs-display) / var(--artboard-scale, 1));
+  }
+  .layout-artboard > .site-section.cover .subhead{
+    font-size:calc(var(--fs-h4) / var(--artboard-scale, 1));
+    letter-spacing:var(--ls-h4);
+  }
+  .cover .cover-copy--solo{ top:624px; }
 }
 .cover .logo-big, .cover .headline, .cover .subhead{
   z-index:8;
@@ -402,7 +470,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 
 .arrow-card{ padding:40px; position:relative; }
 .arrow-card .ic{   color:var(--ink-soft); display:block; margin-bottom:56px; font-size:var(--fs-regular); font-weight:400; line-height:1; }
-.arrow-card h3{   margin:0 0 20px; font-size:var(--fs-h5); font-weight:500; letter-spacing:var(--ls-h5); line-height:var(--lh-normal); color:var(--ltx-black); }
+.arrow-card h3.heading-style-h5{ margin:0 0 20px; }
 .arrow-card p{   margin:0; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
 
 .stat-card{ padding:0 40px; }
@@ -441,7 +509,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .video-mock .frame{ transition:filter .4s ease, background .4s ease; }
 .video-mock.state-b .frame{ filter:saturate(1.15) brightness(1.05); }
 .video-mock .hint{
-  position:absolute; bottom:24px; right:24px;  color:rgba(249,249,249,.4); font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; }
+  position:absolute; bottom:24px; right:24px;  color:rgba(249,249,249,.4); font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; }
 .video-mock .watermark{
   position:absolute; bottom:24px; left:24px;   color:var(--ltx-white); opacity:.85; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); }
 .video-mock .filmstrip{
@@ -512,7 +580,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .compare-col{ position:relative; overflow:hidden; border-radius:var(--radius); padding:32px 36px; }
 .compare-col.closed{ background:var(--bg-alt); border:1px solid var(--line); }
 .compare-col.open{ background:var(--card); }
-.compare-col .lbl{ position:relative; z-index:1; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+.compare-col .lbl{ position:relative; z-index:1; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 .compare-row{ position:relative; z-index:1; padding:16px 10px; margin:0 -10px; border-radius:6px; border-bottom:1px solid var(--line); transition:opacity .3s ease, background .3s ease, box-shadow .3s ease; }
 .compare-row:last-child{ border-bottom:none; }
 .compare-row h4{  margin:0 0 3px;  transition:color .3s ease; font-size:var(--fs-h5); font-weight:500; letter-spacing:var(--ls-h5); line-height:var(--lh-normal); color:var(--ltx-black); }
@@ -612,7 +680,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .cs-tag{
   position:absolute; top:18px; left:18px; z-index:4;
      
-  color:var(--ltx-white); background:rgba(11,11,11,.46); padding:6px 10px; border-radius:4px; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; }
+  color:var(--ltx-white); background:rgba(11,11,11,.46); padding:6px 10px; border-radius:4px; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; }
 .cs-play{
   position:absolute; left:auto; right:10px; top:50%; z-index:6;
   width:28px; height:28px; margin:0; padding:0;
@@ -711,7 +779,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   filter:brightness(0); opacity:.42; transition:opacity .25s ease;
 }
 .cs-rail-name{ font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
-.cs-rail-ind{ font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+.cs-rail-ind{ font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 .cs-rail-btn.is-on{
   border-color:var(--ltx-black); color:var(--ltx-black);
   box-shadow:inset 0 -2px 0 var(--ltx-black);
@@ -729,7 +797,6 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 /* pricing cards */
 .price-card{ padding:34px 38px; transition:opacity .35s ease, transform .35s cubic-bezier(.16,1,.3,1); }
 .price-card h3{    margin:0 0 10px; font-size:var(--fs-h5); font-weight:500; letter-spacing:var(--ls-h5); line-height:var(--lh-normal); color:var(--ltx-black); }
-.price-card .lead{   margin:0 0 18px; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
 .price-item{ display:flex; gap:12px; align-items:flex-start;   margin-bottom:11px; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
 .price-item .arrow{ color:var(--ltx-grey-muted); }
 
@@ -754,11 +821,9 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   transition:padding .25s ease, background .3s ease, box-shadow .3s ease;
 }
 .agenda-row .n{
-     
-   width:78px; flex:0 0 auto; transition:color .25s ease; font-size:var(--fs-h3); font-weight:400; letter-spacing:var(--ls-h3); line-height:var(--lh-compact); color:var(--ltx-grey-light); }
+  width:78px; flex:0 0 auto; transition:color .25s ease; color:var(--ltx-grey-light); font-variant-numeric:tabular-nums; }
 .agenda-row .t{
-     
-   white-space:nowrap; font-size:var(--fs-h3); font-weight:400; letter-spacing:var(--ls-h3); line-height:var(--lh-compact); color:var(--ltx-black); }
+  white-space:nowrap; color:var(--ltx-black); }
 .agenda-row .go{
   margin-left:auto; flex:0 0 auto;
   position:relative; width:1.15em; height:1em;
@@ -843,7 +908,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .example-strip{ position:absolute; left:var(--content-gutter); bottom:150px; display:flex; background:var(--card); border-radius:var(--radius); overflow:hidden; }
 .example-strip .cell{ padding:20px 26px; border-right:1px solid var(--line); }
 .example-strip .cell:last-child{ border-right:none; }
-.example-strip .cell .lbl{ font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+.example-strip .cell .lbl{ font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 .example-strip .cell .big{   margin:2px 0; font-size:var(--fs-h2); font-weight:400; letter-spacing:var(--ls-h2); line-height:var(--lh-small); color:var(--ltx-black); }
 .example-strip .cell .small{ font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
 
@@ -1041,11 +1106,11 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .acc-panel.active{ opacity:1; pointer-events:auto; z-index:1; }
 .acc-text{ flex:0 0 auto; margin:0 0 28px; }
 .acc-headline{    margin:0 0 18px; font-size:var(--fs-h3); font-weight:400; letter-spacing:var(--ls-h3); line-height:var(--lh-compact); color:var(--ltx-black); }
-.acc-sub{    margin:0; max-width:900px; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
+.acc-sub{ margin:0; max-width:900px; }
 .acc-badge{
   display:inline-block; margin-left:12px;   
     border:1px solid var(--ltx-black); border-radius:var(--radius-md);
-  padding:3px 8px; vertical-align:middle; position:relative; top:-4px; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+  padding:3px 8px; vertical-align:middle; position:relative; top:-4px; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 .acc-media{ flex:1 1 auto; position:relative; min-width:0; min-height:0; }
 .acc-video-frame{ position:absolute; inset:0; border-radius:var(--radius); overflow:hidden; background:var(--dark); }
 .acc-video-frame video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; background:var(--ltx-black); }
@@ -1196,16 +1261,6 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 
 .ns-eyebrow{ justify-content:center; }
 .ns-title{ text-align:center; }
-.ns-title-glow{
-  position:absolute; top:255px; left:50%; width:560px; height:80px; margin-left:-280px;
-  background:radial-gradient(ellipse at center, rgba(11,11,11,0.18), transparent 70%);
-  filter:blur(3px); pointer-events:none; opacity:0;
-}
-.site-section.active .ns-title-glow{
-  animation:nsGlowIn .8s ease forwards, nsGlowShift 6s ease-in-out .8s infinite alternate;
-}
-@keyframes nsGlowIn{ to{ opacity:1; } }
-@keyframes nsGlowShift{ 0%{ transform:translateX(-6px) scale(1); } 100%{ transform:translateX(6px) scale(1.04); } }
 
 .ns-intro{
   position:absolute; top:367px; left:0; right:0; margin:0 auto; max-width:940px;
@@ -1266,12 +1321,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 @keyframes nsPanelFade{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
 
 /* ============ SLIDE: Production-grade model — capability explorer ============ */
-.pgx-slide{
-  background-image:
-    linear-gradient(rgba(0,0,0,.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,.03) 1px, transparent 1px);
-  background-size:48px 48px;
-}
+.pgx-slide{ background:var(--bg); }
 .pgx-slide .title{ max-width:1100px; }
 .pgx-sub{
   position:absolute; top:279px; left:var(--content-gutter); right:var(--content-gutter);
@@ -1289,18 +1339,18 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   margin:0 0 6px;   
    transition:color .28s ease; font-size:var(--fs-h5); font-weight:500; letter-spacing:var(--ls-h5); line-height:var(--lh-normal); color:var(--ltx-black); }
 .pgx-item p{ margin:0;    max-width:560px; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
-.pgx-item.is-on, .pgx-item:hover{ opacity:1; }
-.pgx-item.is-on{ border-left-color:var(--ltx-black); background:linear-gradient(90deg, rgba(11,11,11,0.06), transparent 70%); }
+.pgx-item.is-on, .pgx-item:hover{ opacity:1; background:rgba(11,11,11,0.07); }
+.pgx-item.is-on{ border-left-color:var(--ltx-black); }
 .pgx-item.is-on h4, .pgx-item:hover h4{ color:var(--ltx-black); }
 
 .pgx-stage{
   position:absolute; top:490px; left:calc(var(--content-gutter) + 670px); right:var(--content-gutter); bottom:72px;
   display:flex; flex-direction:column;
 }
-.pgx-canvas{
+.pgx-canvas.ltx-surface{
   position:relative; flex:1; min-height:0;
-  border:1px solid var(--line); background:rgba(249,249,249,.55);
   overflow:hidden;
+  background:var(--ltx-white);
 }
 .pgx-panel{
   position:absolute; inset:0; padding:28px 32px 24px;
@@ -1324,14 +1374,14 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .pgx-slide .dash-metrics .mval,
 .pgx-slide .dash-metrics .mval{ font-size:var(--fs-h2); font-weight:400; letter-spacing:var(--ls-h2); line-height:var(--lh-small); color:var(--ltx-black); }
 .pgx-slide .dash-metrics .mlbl,
-.pgx-slide .dash-metrics .mlbl{ display:block;     margin-top:10px;  padding-bottom:0; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+.pgx-slide .dash-metrics .mlbl{ display:block;     margin-top:10px;  padding-bottom:0; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 
 /* State 1 — joint audio-video */
 .pgx-av{ position:relative; display:flex; flex-direction:column; gap:10px; }
 .pgx-av-rel{ position:relative; display:flex; flex-direction:column; gap:8px; }
 .pgx-av-cue{
       
-  padding-left:80px; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+  padding-left:80px; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 .pgx-av-link{
   padding-left:80px; height:16px; display:flex; align-items:center; justify-content:center;
    color:var(--ltx-grey-line); font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); }
@@ -1379,7 +1429,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .pgx-shot-lbl{
   position:absolute; top:6px; left:8px; z-index:1;
      
-  color:rgba(249,249,249,.72); font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; }
+  color:rgba(249,249,249,.72); font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; }
 .pgx-av.is-run .pgx-shot.is-live{
   opacity:1; filter:none;
   box-shadow:inset 0 0 0 2px var(--ltx-black);
@@ -1451,7 +1501,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .pgx-spoke:nth-child(4){ grid-column:2; grid-row:3; animation-delay:.24s; }
 @keyframes pgxSpoke{ to{ opacity:1; transform:none; } }
 .pgx-own-meta{
-  display:flex; justify-content:center; gap:22px; margin-top:18px; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+  display:flex; justify-content:center; gap:22px; margin-top:18px; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 
 /* State 4 — longer prompts */
 .pgx-prompt{
@@ -1474,7 +1524,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .pgx-keys{ display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
 .pgx-key{
      
-   border:1px solid var(--line); padding:5px 9px; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+   border:1px solid var(--line); padding:5px 9px; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 .pgx-panel.is-on .pgx-key{ animation:pgxKey 8s ease-in-out infinite; }
 .pgx-key:nth-child(1){ animation-delay:0s; }
 .pgx-key:nth-child(2){ animation-delay:1.1s; }
@@ -1826,18 +1876,10 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 
 /* combined Ways to Access slide: Licensing | API toggle */
 .access-slide .title{ max-width:1400px; }
-.access-toggle{
+.access-toggle.ctrl-toggle{
   position:absolute; top:338px; left:50%; transform:translateX(-50%);
-  display:inline-flex; background:var(--ltx-offwhite); border-radius:var(--radius-md); padding:4px; gap:2px; z-index:5;
+  z-index:5;
 }
-.access-toggle button{
-  padding:11px 32px; border-radius:var(--radius-md); border:none; background:transparent;
-  font-family:var(--font);   
-  cursor:pointer; transition:background .3s ease, color .3s ease, box-shadow .3s ease; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
-.access-toggle button.on{
-  background:var(--ltx-white); color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.1);
-}
-.access-toggle button[data-pane="api"].on{ color:var(--ltx-black); }
 .access-stage{ position:absolute; left:var(--content-gutter); right:var(--content-gutter); top:418px; bottom:70px; }
 .access-pane{
   position:absolute; inset:0;
@@ -1893,7 +1935,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .cap-panel.active{ opacity:1; pointer-events:auto; z-index:1; }
 .cap-text{ flex:0 0 460px; display:flex; flex-direction:column; min-width:0; }
 .cap-title{    margin:0 0 16px; font-size:var(--fs-h3); font-weight:400; letter-spacing:var(--ls-h3); line-height:var(--lh-compact); color:var(--ltx-black); }
-.cap-desc{    margin:0 0 20px; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
+.cap-desc{ margin:0 0 20px; max-width:560px; }
 .cap-caption{    margin-top:26px; white-space:pre-line; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
 .cap-extra{ list-style:none; margin:4px 0 0; padding:0; display:flex; flex-direction:column; gap:14px; }
 .cap-extra li{    padding-left:16px; position:relative; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
@@ -1964,8 +2006,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   position:relative; display:flex; align-items:center; gap:4px;
   padding:var(--appnav-pad-y) 16px;
   cursor:pointer; white-space:nowrap;
-  transition:color .25s ease; font-size:var(--fs-small); font-weight:400;
-  letter-spacing:var(--ls-small); line-height:1; color:var(--ltx-grey-medium);
+  transition:color .25s ease; color:var(--ltx-grey-medium);
 }
 .navitem .lbl .nav-chevron{
   flex:none; display:block;
@@ -1975,7 +2016,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .navitem:hover .lbl, .navitem.open .lbl{ color:var(--ltx-grey-medium); }
 .navitem:hover .lbl .nav-chevron, .navitem.open .lbl .nav-chevron{ transform:rotate(180deg); }
 .navitem.active .lbl{
-  color:var(--ltx-black); font-weight:700;
+  color:var(--ltx-black); font-weight:500;
 }
 .appnav-right{ display:flex; align-items:center; gap:14px; margin-left:8px; flex:0 0 auto; }
 .icon-btn{
@@ -2021,9 +2062,9 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   width:100%; min-width:0; margin:0; padding:0;
 }
 .chapter-breadcrumb{
-  display:flex; align-items:center; gap:10px; min-width:0; flex:0 1 auto;
+  display:flex; align-items:center; gap:8px; min-width:0; flex:0 1 auto;
   padding-left:16px;
-  font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:1;
+  font-weight:400; line-height:var(--lh-normal);
 }
 .chapter-breadcrumb__link{
   margin:0; padding:0; border:none; background:none; cursor:pointer;
@@ -2032,7 +2073,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 }
 .chapter-breadcrumb__link:hover{ color:var(--ltx-grey-medium); }
 .chapter-breadcrumb__sep{
-  flex:none; color:var(--ltx-grey-medium); font-size:var(--fs-tiny); user-select:none;
+  flex:none; color:var(--ltx-grey-medium); user-select:none;
 }
 .chapter-breadcrumb__current{
   color:var(--ltx-black); font-weight:400; white-space:nowrap;
@@ -2057,49 +2098,57 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 }
 .section-hero__scrim{
   position:absolute; inset:0; z-index:1; pointer-events:none;
-  background:
-    linear-gradient(to top, rgba(11,11,11,.55) 0%, rgba(11,11,11,.18) 42%, rgba(11,11,11,0) 72%),
-    linear-gradient(100deg, rgba(11,11,11,.32) 0%, rgba(11,11,11,0) 45%);
+  background:linear-gradient(100deg, rgba(11,11,11,.28) 0%, rgba(11,11,11,0) 48%);
+}
+.section-hero__text-fade{
+  position:absolute; left:0; right:0; bottom:0; z-index:1;
+  height:min(62%, 24rem); pointer-events:none;
+  background:linear-gradient(to top, rgba(11,11,11,.82) 0%, rgba(11,11,11,.52) 42%, rgba(11,11,11,0) 100%);
 }
 .section-hero__inner{
   position:relative; z-index:2;
+  display:flex; flex-direction:column; align-items:flex-start; gap:clamp(0.5rem, 1.1vw, 0.875rem);
   width:100%; padding:clamp(1.25rem, 2.2vw, 2.25rem);
   color:var(--ltx-white);
+  scroll-margin-top:calc(var(--chrome-top) + 16px);
 }
 .section-hero-slide .section-hero__title{
   margin:0 !important; max-width:none;
   color:var(--ltx-white); text-wrap:balance;
 }
-.section-hero-intro{
-  margin-top:var(--space-lg);
-  padding:0;
-  scroll-margin-top:calc(var(--chrome-top) + 16px);
-  text-align:left;
-}
-.section-hero-intro .heading-style-h2{
-  margin:0; max-width:60rem; color:var(--ltx-black); text-wrap:balance;
+.section-hero-slide .section-hero__inner .section-sub{
+  margin:0; max-width:60rem;
+  color:rgba(249,249,249,.9);
 }
 @media (max-width:720px){
   .section-hero{ min-height:17rem; aspect-ratio:auto; }
-  .section-hero-intro{ margin-top:var(--space-md); }
-  .section-hero-intro .heading-style-h2{ font-size:var(--fs-h3) !important; }
+  .section-hero__text-fade{ height:min(70%, 18rem); }
 }
 
-.about-page .deck-sections{
+.about-page .chapter-blocks{
   overflow:visible;
 }
-.deck-section{ scroll-margin-top:calc(var(--chrome-top) + 16px); }
+.chapter-block{ scroll-margin-top:calc(var(--chrome-top) + 16px); }
 .about-block{ padding:48px 0 72px; border-bottom:1px solid var(--line); }
-.deck-section{ padding-top:48px; padding-bottom:48px; }
-.deck-section:first-child{ padding-top:clamp(0.5rem, 0.8vw, 1rem); }
-.ctrl-slide.deck-section{ padding-bottom:var(--space-xl); }
+.chapter-block{ padding-top:48px; padding-bottom:48px; }
+.chapter-block:first-child{ padding-top:clamp(0.5rem, 0.8vw, 1rem); }
+.ctrl-slide.chapter-block{ padding-bottom:var(--space-xl); }
 .about-block:last-child{ border-bottom:none; padding-bottom:40px; }
 .about-block .title{
   position:relative; top:auto; left:auto; right:auto; margin:0 0 16px;
 }
 .about-block .title{ max-width:980px;}
-.about-lead{
-     max-width:920px; margin:0 0 36px; font-size:var(--fs-xlarge); font-weight:400; letter-spacing:var(--ls-xlarge); line-height:var(--lh-medium); color:var(--ltx-black); }
+/* Section subtext — layout only; type is .text-size-large (+ .text-balanced) from ltx.css */
+.section-sub{ margin:0; color:var(--ltx-black); }
+.about-block > .section-sub{ max-width:920px; margin:0 0 36px; }
+.ctrl-slide .ctrl-head > .section-sub{ max-width:760px; }
+.nx-slide .nx-head > .section-sub{ margin:0; }
+.nx-group .section-sub{ position:relative; z-index:1; max-width:380px; margin:0 0 28px; }
+#aboutWorld .about-world-intro .section-sub{ max-width:920px; margin:0; }
+.ctrl-copy .section-sub{ margin:0 0 16px; max-width:540px; }
+.hub-card .section-sub{ margin:0 0 18px; }
+/* Narrow tab rail — no balance (equal line lengths look wrong at ~1fr); pretty wrap only */
+.split-tab p.text-size-regular{ text-wrap:pretty; }
 .about-who-grid{
   display:grid; grid-template-columns:1.1fr .9fr; gap:48px; align-items:start;
 }
@@ -2144,8 +2193,6 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   position:relative !important; top:auto !important; left:auto !important; right:auto !important; margin:4px 0 20px !important;
   max-width:none; white-space:normal;
 }
-.who-lead{
-  margin:0; max-width:760px; font-size:var(--fs-xlarge); font-weight:400; letter-spacing:var(--ls-xlarge); line-height:var(--lh-medium); color:var(--ltx-black); }
 .who-mid{
   display:grid; grid-template-columns:minmax(240px,.85fr) minmax(320px,1.15fr);
   gap:48px; align-items:center; padding:48px 0 12px;
@@ -2176,8 +2223,28 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .who-logos{
   width:100vw; margin-left:calc(50% - 50vw); margin-top:8vh; padding:18px 0;
   overflow:hidden; background:transparent;
-  -webkit-mask-image:linear-gradient(90deg, transparent 0, var(--ltx-black) 6%, var(--ltx-black) 94%, transparent);
-  mask-image:linear-gradient(90deg, transparent 0, var(--ltx-black) 6%, var(--ltx-black) 94%, transparent);
+  -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+  mask-image:linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+  -webkit-mask-size:100% 100%;
+  mask-size:100% 100%;
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+}
+/* Edge softening to page ground (matches ltx.io logo rail) */
+.who-logos::before,
+.who-logos::after{
+  content:'';
+  position:absolute; top:0; bottom:0;
+  width:clamp(3rem, 8vw, 9rem);
+  z-index:2; pointer-events:none;
+}
+.who-logos::before{
+  left:0;
+  background:linear-gradient(90deg, var(--bg) 0%, transparent 100%);
+}
+.who-logos::after{
+  right:0;
+  background:linear-gradient(270deg, var(--bg) 0%, transparent 100%);
 }
 .who-logo-track{
   display:flex; width:max-content; will-change:transform; align-items:center;
@@ -2211,74 +2278,103 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .who-logo-track{ animation:none; }
   .who-proof-rule{ opacity:1; transform:none; }
 }
-.about-industries-layout{
+/* Tab + stage columns — tokens in design/ltx.css; defined here too so layout never depends on class alone */
+.about-industries-layout,
+.about-world-body,
+.pgx-explorer,
+.ctrl-shell{
   display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,1.75fr);
-  gap:2rem; align-items:stretch;
-  margin-top:28px;
-  background:var(--ltx-white);
-  padding:0.5rem;
-  border-radius:var(--radius-md);
-  overflow:hidden;
-  max-width:100%;
+  grid-template-columns:var(--split-cols, minmax(0, 1fr) minmax(0, 2fr));
+  gap:var(--split-gap, 3rem);
+  align-items:stretch;
+  min-width:0;
 }
+.about-industries-layout.ltx-surface{
+  margin-top:28px;
+  max-width:100%;
+  padding:0.5rem;
+  overflow:hidden;
+  background:var(--ltx-white);
+}
+.ctrl-shell.ltx-surface{
+  gap:0;
+  overflow:hidden;
+  background:var(--ltx-white);
+}
+/* Vertical split tabs — div + h5 + body (Industries, World Model, Control, …) */
+.split-tab-list{
+  --split-tab-pad-block:1.5rem;
+}
+.split-tab-list > .split-tab{
+  padding-block:var(--split-tab-pad-block);
+}
+.split-tab__text{ display:flex; flex-direction:column; gap:0.35rem; min-width:0; }
+.split-tab h5.heading-style-h5{
+  margin:0;
+  color:inherit;
+  transition:color 0.45s var(--ease-out-soft);
+}
+.split-tab p.text-size-regular{
+  margin:0;
+  color:var(--ltx-grey-muted);
+  transition:color 0.45s var(--ease-out-soft);
+}
+
 /* Industry tabs — vertical list (+ subtitle under title) */
 .industry-tabs-menu{
   display:flex; flex-direction:column; align-self:start; min-width:0;
   position:sticky; top:calc(var(--topnav-h) + 24px);
   background:transparent; border:none; overflow:hidden;
-  --industry-line-in:0.62s;
-  --industry-line-out:0.68s;
-  --industry-line-ease:cubic-bezier(0.37, 0.02, 0.14, 1);
 }
 .industry-tab{
   display:block; width:100%;
-  margin:0; padding:1rem 1.25rem;
+  margin:0; padding-inline:1.25rem;
+  box-sizing:border-box;
   border:0; border-bottom:1px solid var(--ltx-grey-line);
   background:transparent; cursor:pointer; text-align:left;
   font-family:var(--font-sans); font-weight:400; font-style:normal;
   color:var(--ltx-grey-light);
   position:relative;
-  transition:color 0.45s var(--ease-out-soft);
+  transition:color 0.45s var(--ease-out-soft), background 0.25s ease;
 }
-.industry-tab__line{
-  position:absolute; left:0; right:0; bottom:0;
-  height:1px;
-  background:var(--ltx-black);
-  transform:scaleX(0);
-  transform-origin:left center;
-  transition:transform var(--industry-line-in) var(--industry-line-ease);
+/* Left rail accent — same pattern as .ctrl-nav-item (horizontal line archived: docs/patterns/tab-indicator-horizontal-line.md) */
+.industry-tab::before,
+.ctrl-nav-item::before,
+.wm-proof::before{
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background:var(--ltx-black); transform:scaleY(0); transform-origin:center;
+  transition:transform 0.25s var(--ease-out-soft);
   pointer-events:none;
-  will-change:transform;
+}
+.industry-tab.is-on::before, .industry-tab:hover::before,
+.ctrl-nav-item.is-on::before, .ctrl-nav-item:hover::before,
+.wm-proof.is-on::before, .wm-proof:hover::before{ transform:scaleY(1); }
+/* Solid hover/active fill — chapter 1 tab rails */
+.about-page .industry-tab.is-on,
+.about-page .industry-tab:hover,
+.about-page .wm-proof.is-on,
+.about-page .wm-proof:hover{
+  background:rgba(11,11,11,0.07);
 }
 .industry-tab:last-child{ border-bottom:none; }
-.industry-tab:last-child .industry-tab__line{ display:none; }
-.industry-tab__text{ display:flex; flex-direction:column; gap:0.35rem; min-width:0; }
-.industry-tab .industry-tab__title.heading-style-h4{
-  color:inherit;
-  transition:color 0.45s var(--ease-out-soft);
-}
-.industry-tab__sub{
-  margin:0; font-family:inherit;
-  color:var(--ltx-grey-muted);
-  transition:color 0.45s var(--ease-out-soft);
-}
 .industry-tab.is-on{
   color:var(--ltx-black);
   border-bottom-color:transparent;
 }
 .industry-tab.is-on + .industry-tab{ border-top:none; }
-.industry-tab.is-on .industry-tab__sub{ color:var(--ltx-black); }
+.industry-tab.is-on p.text-size-regular{ color:var(--ltx-black); }
 .industry-tab:hover:not(.is-on){ color:var(--ltx-grey-medium); }
-.industry-tab:hover:not(.is-on) .industry-tab__sub{ color:var(--ltx-grey-light); }
+.industry-tab:hover:not(.is-on) p.text-size-regular{ color:var(--ltx-grey-light); }
 .industry-tab:focus-visible{
   outline:2px solid var(--ltx-black); outline-offset:-2px;
 }
 @media (prefers-reduced-motion:reduce){
-  .industry-tab, .industry-tab__title, .industry-tab__sub{
+  .industry-tab, .split-tab h5, .split-tab p{
     transition-duration:0.001ms;
   }
-  .industry-tab__line{ transition-duration:0.001ms; }
+  .industry-tab::before, .ctrl-nav-item::before, .wm-proof::before{
+    transition-duration:0.001ms; transform:scaleY(1);
+  }
 }
 .industry-stage{
   position:sticky; top:calc(var(--topnav-h) + 24px);
@@ -2313,41 +2409,57 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 }
 
 .about-world-layout{
-  display:grid; grid-template-columns:1fr 1.05fr; gap:48px; align-items:start;
+  display:flex; flex-direction:column; gap:4rem;
 }
+.about-world-intro{ min-width:0; }
+.about-world-body{ min-width:0; }
 #aboutWorld{ padding-top:28px; }
-.wm-kicker{
-  margin:0 0 6px; font-size:var(--fs-xlarge); font-weight:400; letter-spacing:var(--ls-xlarge); line-height:var(--lh-medium); color:var(--ltx-black); }
-.wm-hero{
-  margin:0 0 18px; font-size:var(--fs-h1); font-weight:400; letter-spacing:var(--ls-h1); line-height:var(--lh-compact); color:var(--ltx-black); }
-.wm-hero em{
-  font-style:normal; color:var(--ink);
+.wm-hero{ margin:0 0 18px; max-width:980px; }
+.wm-proofs{
+  display:flex; flex-direction:column; justify-content:space-evenly;
+  min-width:0; align-self:stretch;
 }
-.wm-support{
-  margin:0 0 16px;    max-width:560px; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
-.wm-body{
-  margin:0 0 28px;    max-width:540px; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
-.wm-proofs{ display:flex; flex-direction:column; }
 .wm-proof{
-  padding:14px 0 14px 14px; border-top:1px solid var(--line); cursor:default;
-  border-left:2px solid transparent; margin-left:-14px; padding-left:16px;
-  transition:border-color .2s ease, background .2s ease, opacity .2s ease;
+  position:relative; box-sizing:border-box;
+  width:100%; margin:0; padding-inline:1.25rem;
+  border:0; border-bottom:1px solid var(--ltx-grey-line);
+  cursor:default; text-align:left;
+  transition:color 0.45s var(--ease-out-soft), background 0.25s ease, opacity 0.2s ease;
 }
-.wm-proof:last-child{ border-bottom:1px solid var(--line); }
-.wm-proof h4{ margin:0 0 4px;    transition:color .2s ease; font-size:var(--fs-h5); font-weight:500; letter-spacing:var(--ls-h5); line-height:var(--lh-normal); color:var(--ltx-black); }
-.wm-proof p{ margin:0; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
+.wm-proof:last-child{ border-bottom:none; }
+.wm-proof.split-tab h5.heading-style-h5{ color:var(--ltx-black); }
+.wm-proof.split-tab p.text-size-regular{ line-height:var(--lh-medium); color:var(--ltx-grey-muted); }
 .wm-proofs:hover .wm-proof{ opacity:.38; }
 .wm-proofs:hover .wm-proof:hover,
-.wm-proof.is-on{ opacity:1 !important; background:rgba(11,11,11,0.04); border-left-color:var(--ltx-black); }
-.wm-proof:hover h4, .wm-proof.is-on h4{ color:var(--ltx-black); }
+.wm-proof.is-on{ opacity:1 !important; }
+.wm-proof.is-on p.text-size-regular, .wm-proof:hover p.text-size-regular{ color:var(--ltx-black); }
+.wm-proof:hover h5, .wm-proof.is-on h5{ color:var(--ltx-black); }
 
 .wm-viz{
-  position:relative; width:100%; aspect-ratio:1; max-height:640px;
-  background:
-    linear-gradient(rgba(0,0,0,.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,.035) 1px, transparent 1px);
-  background-size:36px 36px;
-  border-radius:var(--radius-md);
+  position:relative; width:100%; align-self:stretch;
+  display:flex; align-items:center; justify-content:center;
+  min-height:0; overflow:hidden;
+  --wm-grid-line-w:1px;
+  --wm-grid-line-color:rgba(11,11,11,.045);
+  --wm-grid-target:20px;
+  --wm-grid-cw:var(--wm-grid-target);
+  --wm-grid-ch:var(--wm-grid-target);
+  border:none;
+  border-radius:8px;
+}
+.wm-viz::before{
+  content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+  border-radius:inherit;
+  background-color:var(--ltx-offwhite);
+  background-image:
+    linear-gradient(var(--wm-grid-line-color) var(--wm-grid-line-w), transparent var(--wm-grid-line-w)),
+    linear-gradient(90deg, var(--wm-grid-line-color) var(--wm-grid-line-w), transparent var(--wm-grid-line-w));
+  background-size:var(--wm-grid-cw) var(--wm-grid-ch);
+  background-position:0 0;
+}
+.wm-viz-stage{
+  position:relative; z-index:1; flex:0 0 auto;
+  aspect-ratio:1; height:100%; width:auto; max-width:100%; max-height:640px;
 }
 .wm-viz-svg{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
 .wm-orbit{ fill:none; stroke:var(--ltx-grey-line); stroke-width:1; }
@@ -2365,8 +2477,9 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
   width:148px; height:148px; border-radius:50%;
   display:flex; align-items:center; justify-content:center; text-align:center;
-     
-    pointer-events:none; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+  pointer-events:none; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow);
+  line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light);
+}
 .wm-node{
   position:absolute; transform:translate(-50%,-50%);
   display:flex; flex-direction:column; align-items:center; gap:6px;
@@ -2378,8 +2491,10 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   transition:background .25s ease, transform .25s ease, box-shadow .25s ease;
 }
 .wm-node-lbl{
-     
-  white-space:nowrap; transition:color .25s ease; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
+  white-space:nowrap; transition:color .25s ease;
+  font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny);
+  line-height:var(--lh-normal); color:var(--ltx-grey-muted);
+}
 .wm-viz.is-focus .wm-node{ opacity:.28; }
 .wm-viz.is-focus .wm-node.on{ opacity:1; }
 .wm-node.on .wm-node-dot,
@@ -2400,12 +2515,12 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 }
 
 .wm-bridge{
-  grid-column:1 / -1; margin-top:8px; padding-top:22px;
+  margin-top:0; padding-top:22px;
   border-top:1px solid var(--line);
   display:flex; align-items:baseline; gap:28px; flex-wrap:wrap;
   position:relative; z-index:2; overflow:visible;
 }
-.wm-bridge-kicker{ font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+.wm-bridge-kicker{ font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 .wm-bridge-items{ display:flex; gap:0; align-items:center; flex-wrap:wrap; }
 .wm-bridge-item{
      padding:0 16px;
@@ -2420,50 +2535,40 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   position:relative; top:auto; left:auto; right:auto; margin:0 0 12px; max-width:none;
 }
 .ctrl-slide .ctrl-head{
-  position:relative; top:auto; left:auto; right:auto; margin:0 0 var(--space-md);
+  position:relative; top:auto; left:auto; right:auto; margin:0;
 }
 .ctrl-slide .ctrl-shell{
   position:relative; top:auto; left:auto; right:auto; bottom:auto;
-  min-height:min(540px, 72vh); margin:0 0 var(--space-xl);
+  min-height:min(540px, 72vh); margin:4rem 0 var(--space-xl);
 }
-.ctrl-slide .ctrl-head{ position:absolute; top:96px; left:var(--content-gutter); right:var(--content-gutter); }
 .ctrl-slide .eyebrow{ position:relative; top:auto; left:auto; }
 .ctrl-slide .ctrl-title{
   position:relative; top:auto; left:auto; right:auto; max-width:none; margin:6px 0 8px; white-space:normal;
 }
-.ctrl-sub{
-  margin:0; max-width:760px; font-size:var(--fs-xlarge); font-weight:400; letter-spacing:var(--ls-xlarge); line-height:var(--lh-medium); color:var(--ltx-black); }
-.ctrl-shell{
-  position:absolute; top:276px; left:var(--content-gutter); right:var(--content-gutter); bottom:78px;
-  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.75fr);
-  border:1px solid var(--ltx-grey-line); border-radius:var(--radius-md); background:var(--ltx-white); overflow:hidden;
-}
-.ctrl-nav{ background:var(--ltx-white); border-right:1px solid var(--ltx-offwhite); padding:22px 0 8px; display:flex; flex-direction:column; }
-.ctrl-nav-kicker{
-     
-   padding:0 22px 16px; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+.ctrl-nav{ background:var(--ltx-white); padding:22px 0 8px; display:flex; flex-direction:column; min-height:0; }
+.ctrl-nav-kicker{ padding:0 22px 16px; }
 .ctrl-nav-item{
   position:relative; display:flex; align-items:center; gap:14px;
-  width:100%; margin:0; padding:18px 20px 18px 22px; flex:1 1 auto;
+  width:100%; margin:0; padding-inline:22px 20px; flex:1 1 auto;
   border:none; border-top:1px solid var(--ltx-offwhite); background:transparent;
   font-family:var(--font); text-align:left; cursor:pointer;
   transition:background .25s ease;
-}
-.ctrl-nav-item::before{
-  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
-  background:var(--ltx-black); transform:scaleY(0); transform-origin:center;
-  transition:transform .25s ease;
+  color:var(--ltx-grey-light);
 }
 .ctrl-nav-item.is-on, .ctrl-nav-item:hover{ background:rgba(11,11,11,0.07); }
-.ctrl-nav-item.is-on::before, .ctrl-nav-item:hover::before{ transform:scaleY(1); }
 .ctrl-nav-num{
   flex:0 0 22px;   color:var(--ltx-grey-line);
   font-variant-numeric:tabular-nums; transition:color .25s ease; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); }
 .ctrl-nav-item.is-on .ctrl-nav-num, .ctrl-nav-item:hover .ctrl-nav-num{ color:var(--ltx-black); }
-.ctrl-nav-lbl{
-  flex:1 1 auto;   
-  transition:color .25s ease, font-weight .25s ease; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
-.ctrl-nav-item.is-on .ctrl-nav-lbl, .ctrl-nav-item:hover .ctrl-nav-lbl{ color:var(--ltx-black); font-weight:500; }
+.ctrl-nav-item h5.heading-style-h5{
+  flex:1 1 auto;
+  color:inherit;
+  transition:color .25s ease;
+}
+.ctrl-nav-item.is-on, .ctrl-nav-item:hover{ color:var(--ltx-black); }
+.ctrl-nav-item:focus-visible{
+  outline:2px solid var(--ltx-black); outline-offset:-2px;
+}
 .ctrl-nav-arrow{
   color:var(--ltx-grey-line);   transition:color .25s ease, transform .25s ease; font-size:var(--fs-regular); font-weight:400; line-height:1; }
 .ctrl-nav-item.is-on .ctrl-nav-arrow, .ctrl-nav-item:hover .ctrl-nav-arrow{ color:var(--ltx-black); transform:translateX(2px); }
@@ -2477,25 +2582,38 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 }
 .ctrl-panel-top{ display:flex; justify-content:flex-end; margin-bottom:28px; position:relative; z-index:1; }
 .ctrl-toggle{
-  display:inline-flex; align-items:center; background:var(--ltx-offwhite); border-radius:999px; padding:3px;
+  position:relative;
+  display:inline-flex; align-items:stretch; background:var(--ltx-offwhite); border-radius:999px; padding:3px;
+}
+.ctrl-toggle-thumb{
+  position:absolute; top:3px; bottom:3px; left:3px;
+  width:0; border-radius:999px;
+  background:var(--ltx-white); border:1.5px solid var(--ltx-black);
+  transition:transform 0.38s var(--ease-out-soft), width 0.38s var(--ease-out-soft);
+  pointer-events:none; z-index:0;
+  will-change:transform, width;
 }
 .ctrl-tog{
+  position:relative; z-index:1;
   appearance:none; border:1.5px solid transparent; background:transparent;
   border-radius:999px; padding:7px 16px; margin:0;
-  font-family:var(--font);    cursor:pointer;
-  transition:color .22s ease, border-color .22s ease, background .22s ease; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
-.ctrl-tog.is-on{ color:var(--ltx-black); border-color:var(--ltx-black); background:var(--ltx-white); }
+  font-family:var(--font); cursor:pointer;
+  transition:color 0.28s var(--ease-out-soft);
+  font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal);
+  color:var(--ltx-grey-muted);
+}
+.ctrl-tog.is-on{ color:var(--ltx-black); }
+@media (prefers-reduced-motion:reduce){
+  .ctrl-toggle-thumb{ transition-duration:0.001ms; }
+}
 .ctrl-copy{
   position:relative; z-index:1; flex:1 1 auto; max-width:620px;
   transition:opacity .25s ease;
 }
 .ctrl-copy.is-out{ opacity:0; }
-.ctrl-kicker{
-  margin:0 0 10px; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
-.ctrl-h{
-  margin:0 0 10px; font-size:var(--fs-h3); font-weight:400; letter-spacing:var(--ls-h3); line-height:var(--lh-compact); color:var(--ltx-black); }
-.ctrl-lead{ margin:0 0 16px; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
-.ctrl-body{ margin:0;    max-width:540px; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
+.ctrl-kicker{ margin:0 0 10px; }
+.ctrl-h{ margin:0 0 10px; }
+.ctrl-body{ margin:0; max-width:540px; }
 .ctrl-cta{
   position:relative; z-index:1; align-self:flex-start; gap:8px;
   margin-top:28px;
@@ -2507,13 +2625,17 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 @media (max-width:900px){
   .about-block{ padding:28px 0 40px; }
   .about-block .title{ font-size:36px !important; }
-  .about-lead{ font-size:18px !important; }
-  .about-who-grid, .about-industries-layout, .about-world-layout, .who-mid{
+  .about-industries-layout,
+  .about-world-body,
+  .pgx-explorer,
+  .ctrl-shell,
+  .split-layout,
+  .about-who-grid,
+  .who-mid{
     grid-template-columns:1fr; gap:20px;
   }
   .who-chapter{ min-height:0; padding:24px 0 40px; }
   .about-block .who-title{ font-size:40px !important; letter-spacing:-.5px; }
-  .who-lead{ font-size:18px !important; }
   .who-mid{ margin-top:28px; padding:24px 0 8px; }
   .who-num{ font-size:64px !important; letter-spacing:-2px; }
   .who-logos{ margin-top:28px; padding:12px 0; }
@@ -2524,17 +2646,24 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     position:relative; top:auto;
     width:100%; height:auto; aspect-ratio:16/9;
   }
-  .wm-hero{ font-size:48px !important; }
-  .wm-viz{ max-height:380px; }
+  .about-world-body .wm-viz{ aspect-ratio:1; max-height:380px; }
+  .about-world-body .wm-viz-stage{ width:100%; height:100%; max-height:none; }
+  .wm-proofs{ height:auto; justify-content:flex-start; }
+  #aboutWorld .wm-proofs.split-tab-list > .wm-proof.split-tab{
+    flex:0 0 auto; min-height:auto;
+  }
+  #aboutIndustries .industry-tabs-menu{ min-height:0; }
+  #aboutIndustries .industry-tabs-menu.split-tab-list > .industry-tab.split-tab{
+    flex:0 0 auto;
+    min-height:auto;
+  }
   .ctrl-slide .ctrl-head, .ctrl-shell{
     position:relative !important; top:auto !important; left:auto !important; right:auto !important; bottom:auto !important;
     transform:none !important;
   }
   .ctrl-title{ font-size:32px !important; }
-  .ctrl-sub{ font-size:16px !important; }
-  .ctrl-shell{ display:flex; flex-direction:column; margin:12px 0 24px; min-height:0; }
+  .ctrl-shell{ display:flex; flex-direction:column; gap:0; margin:12px 0 24px; min-height:0; }
   .ctrl-nav{ border-right:none; border-bottom:1px solid var(--ltx-offwhite); }
-  .ctrl-h{ font-size:26px !important; }
   .ctrl-pattern{ display:none; }
 }
 /* ============ SLIDE 23: "Also Built For" — system initialization ============ */
@@ -2621,11 +2750,11 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .navitem:nth-last-child(-n+2) .submenu{ left:auto; right:0; }
 .navitem.open .submenu{ opacity:1; visibility:visible; pointer-events:auto; transform:translateY(0); }
 .submenu .sub-item{
-  padding:10px 14px; border-radius:7px;  
-   cursor:pointer; white-space:nowrap; text-align:left;
-  transition:background .18s ease, color .18s ease; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-medium); }
+  padding:10px 14px; border-radius:7px;
+  cursor:pointer; white-space:nowrap; text-align:left;
+  transition:background .18s ease, color .18s ease; color:var(--ltx-grey-medium); }
 .submenu .sub-item:hover{ background:transparent; color:var(--ltx-grey-medium); }
-.submenu .sub-item.current{ color:var(--ltx-black); font-weight:700; background:rgba(11,11,11,0.05); }
+.submenu .sub-item.current{ color:var(--ltx-black); font-weight:500; background:rgba(11,11,11,0.05); }
 .agenda-row{ position:relative; }
 
 .logo-loop{
@@ -2830,7 +2959,6 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   }
   .example-strip{ position:relative !important; left:auto !important; bottom:auto !important; flex-wrap:wrap; margin:16px 0; }
 
-  .about-industries-layout{ grid-template-columns:1fr !important; gap:1.25rem !important; }
   .industry-tabs-menu{ position:relative !important; top:auto !important; }
   .industry-stage{
     position:relative !important; top:auto !important; align-self:auto !important;
@@ -2864,11 +2992,13 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .cap-media .video-mock, .cap-media .video-mock[data-variant-group]{ position:absolute !important; inset:0 !important; margin:0 !important; }
 
   /* Production-grade explorer: specs first, then nav + visual */
-  .pgx-sub, .pgx-nav, .pgx-stage, .pgx-specs{
+  .pgx-sub, .pgx-nav, .pgx-stage, .pgx-specs, .pgx-explorer, .pgx-block{
     position:relative !important; top:auto !important; left:auto !important; right:auto !important; bottom:auto !important;
     width:100% !important; inset:auto !important;
   }
-  .pgx-sub{ font-size:16px !important; margin:0 0 16px; }
+  .pgx-block{ margin-top:4rem; }
+  .pgx-explorer{ display:block; }
+  .pgx-sub{ margin:0; }
   .pgx-nav{ margin:0 0 16px; }
   .pgx-item{ padding:10px 8px 10px 14px; }
   .pgx-item h4{ font-size:18px; }
@@ -3047,7 +3177,6 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   }
   .nx-group.is-on{ display:grid !important; }
   .nx-cards{ grid-template-columns:1fr; }
-  .nx-h{ font-size:26px !important; }
   .nx-pattern{ display:none; }
 
   .kicker-body{ position:relative !important; top:auto; left:auto; right:auto; font-size:18px !important; max-width:100%; margin:0 0 14px; }
@@ -3095,7 +3224,6 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   #pw-box{ width:100%; max-width:360px; margin:auto; }
   #pw-box input, #pw-submit{ font-size:16px; min-height:44px; }
 
-  .ns-title-glow{ display:none; }
   .ns-intro, .ns-row, .ns-panel{
     position:relative !important; top:auto !important; left:auto !important; right:auto !important;
     width:100% !important; max-width:100% !important; margin:12px 0 !important;
@@ -3145,7 +3273,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     overflow-x:hidden;
     max-width:100%;
   }
-  #stage,#deck{
+  #stage,#chapter-root{
     overflow-x:visible;
     max-width:100%;
   }
@@ -3192,6 +3320,14 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     overflow:auto;
     background:var(--ltx-white);
   }
+  .site-section.cover .cover-copy{
+    position:relative; z-index:1;
+    display:flex; flex-direction:column; align-items:center;
+    width:100%; max-width:none;
+    top:auto; left:auto;
+    pointer-events:auto;
+    order:0;
+  }
   .site-section.cover .headline,
   .site-section.cover .subhead,
   .site-section.cover .logo-big{
@@ -3199,6 +3335,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     background:transparent;
     text-align:center;
   }
+  .site-section.cover .logo-big{ margin:0 auto 16px !important; }
   .site-section.cover::after{ display:none; }
   .site-section.cover .headline{
     font-size:36px !important; line-height:1.08 !important;
@@ -3335,9 +3472,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   }
   .logo-loop-set img{ height:24px; max-width:100%; width:auto; }
 
-  .industry-tab{ padding:0.85rem 1rem !important; }
-  .industry-tab__title{ font-size:1.05rem !important; }
-  .industry-tab__sub{ font-size:0.875rem !important; }
+  .industry-tab{ padding-inline:1rem !important; }
 
   /* World model: drop the Video → Physical AI globe labels on phones */
   .world-model .wm-globe-wrap,
@@ -3571,7 +3706,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .case-card.muted .hub-footer{ visibility:hidden; }
 
 .cs-lead{ position:absolute; top:330px; left:var(--content-gutter); right:var(--content-gutter);    margin:0; max-width:900px; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
-.cs-section-lbl{      margin:0 0 14px; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+.cs-section-lbl{      margin:0 0 14px; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 .cs-bullets{ display:flex; flex-direction:column; gap:2px; max-width:820px; }
 .cs-close{ font-style:italic;    max-width:820px; margin-top:18px; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
 
@@ -3608,7 +3743,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .cs-concl-card p{   margin:0; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
 
 /* ============ Case Study premium redesign — shared ============ */
-.cs-progress{ position:absolute; top:170px; left:var(--content-gutter); display:flex; align-items:center; gap:8px;      z-index:2; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+.cs-progress{ position:absolute; top:170px; left:var(--content-gutter); display:flex; align-items:center; gap:8px;      z-index:2; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 .cs-progress .step{ transition:color .3s ease; }
 .cs-progress .step.done{ color:var(--ltx-grey-muted); }
 .cs-progress .step.current{ color:var(--ltx-black); }
@@ -3649,7 +3784,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .cs-hero-stat .num{    font-variant-numeric:tabular-nums; font-size:var(--fs-h2); font-weight:400; letter-spacing:var(--ls-h2); line-height:var(--lh-small); color:var(--ltx-black); }
 .cs-hero-stat.cs-hero-text{ padding-top:62px; }
 .cs-hero-stat.cs-hero-text .num{ display:block;     font-variant-numeric:normal; font-size:var(--fs-h2); font-weight:400; letter-spacing:var(--ls-h2); line-height:var(--lh-small); color:var(--ltx-black); }
-.cs-hero-stat .lbl{      margin-top:8px; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+.cs-hero-stat .lbl{      margin-top:8px; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 
 .cs-secondary-row{ position:absolute; top:585px; left:var(--content-gutter); right:var(--content-gutter); display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
 .result-card{ padding:24px 22px; transition:transform .3s cubic-bezier(.16,1,.3,1), box-shadow .3s ease; }
@@ -3670,7 +3805,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 /* ---- Slide 1: editorial three-column challenge list (mature/enterprise, no cards/hover/lines) ---- */
 .chal-cols{ position:absolute; top:460px; left:var(--content-gutter); right:var(--content-gutter); display:flex; gap:64px; }
 .chal-col{ flex:1; border-top:2px solid var(--ink); padding-top:22px; }
-.chal-col-head{      margin:0 0 22px; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+.chal-col-head{      margin:0 0 22px; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 .chal-item{ display:flex; gap:16px; padding:18px 0; border-bottom:1px solid var(--line); }
 .chal-item:last-child{ border-bottom:none; padding-bottom:0; }
 .chal-item-num{ flex:0 0 auto; padding-top:2px;    color:var(--ltx-grey-line); font-variant-numeric:tabular-nums; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); }
@@ -3689,7 +3824,6 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .nx-title{
   position:relative; top:auto; left:auto; right:auto; max-width:none; margin:6px 0 8px; white-space:normal;
 }
-.nx-sub{ margin:0; font-size:var(--fs-xlarge); font-weight:400; letter-spacing:var(--ls-xlarge); line-height:var(--lh-medium); color:var(--ltx-black); }
 .nx-shell{
   position:absolute; top:236px; left:var(--content-gutter); right:var(--content-gutter); bottom:78px;
   display:flex; flex-direction:column;
@@ -3714,7 +3848,8 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     color:var(--ltx-grey-line); font-variant-numeric:tabular-nums;
   transition:color .25s ease; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); }
 .nx-tab.is-on .nx-tab-num{ color:var(--ltx-black); }
-.nx-tab-lbl{ flex:1 1 auto; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
+.nx-tab-lbl{ flex:1 1 auto; color:var(--ltx-grey-light); }
+.nx-tab.is-on .nx-tab-lbl{ color:var(--ltx-black); font-weight:500; }
 .nx-tab-mark{
   margin-left:auto; color:var(--ltx-grey-line);   
   transition:color .25s ease, transform .25s ease; font-size:var(--fs-regular); font-weight:400; line-height:1; }
@@ -3733,11 +3868,9 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:.45;
 }
 .nx-cat{
-  position:relative; z-index:1; margin:0 0 12px; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
+  position:relative; z-index:1; margin:0 0 12px; }
 .nx-h{
-  position:relative; z-index:1; margin:0 0 12px;  
-     max-width:420px; font-size:var(--fs-h3); font-weight:400; letter-spacing:var(--ls-h3); line-height:var(--lh-compact); color:var(--ltx-black); }
-.nx-lead{ position:relative; z-index:1; margin:0 0 28px;    max-width:380px; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
+  position:relative; z-index:1; margin:0 0 12px; max-width:420px; }
 .nx-prog{ position:relative; z-index:1; margin-top:auto; }
 .nx-prog-lbl{
   display:block; margin:0 0 8px;   
@@ -3752,10 +3885,9 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   transition:background .25s ease, border-color .25s ease;
 }
 .nx-card:hover{ background:rgba(11,11,11,0.07); border-color:var(--ltx-black); }
-.nx-card-cat{
-  margin:0 0 8px; font-size:0.9rem; font-weight:300; letter-spacing:0.15em; line-height:1.05; text-transform:uppercase; color:var(--ltx-grey-light); }
-.nx-card h3{ margin:0 0 8px; font-size:var(--fs-h5); font-weight:500; letter-spacing:var(--ls-h5); line-height:var(--lh-normal); color:var(--ltx-black); }
-.nx-card p{ margin:0; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
+.nx-card-cat{ margin:0 0 8px; }
+.nx-card h3.heading-style-h5{ margin:0 0 8px; }
+.nx-card p.text-size-tiny{ margin:0; }
 .nx-card-arrow{
   position:absolute; right:14px; bottom:12px; color:var(--ltx-black);  
   transition:transform .25s ease; font-size:var(--fs-regular); font-weight:400; line-height:1; }
@@ -3899,12 +4031,12 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     </div>
     <button type="submit" id="pw-submit" class="ltx-but-base is-black">Continue</button>
     <span id="pw-hint" role="status" aria-live="polite">Sales Deck · Internal</span>
-    <p id="pw-privacy">Your name, role, and how you use this deck — which sections you view and for how long — are recorded so we can follow up usefully. See the <a href="https://static.lightricks.com/legal/privacy-policy.pdf" target="_blank" rel="noopener noreferrer">privacy policy</a>.</p>
+    <p id="pw-privacy">Your name, role, and how you use this site — which sections you view and for how long — are recorded so we can follow up usefully. See the <a href="https://static.lightricks.com/legal/privacy-policy.pdf" target="_blank" rel="noopener noreferrer">privacy policy</a>.</p>
   </form>
 </div>
 <script>
 (function(){
-  // Lead capture, not access control — the deck markup is already in the DOM and
+  // Lead capture, not access control — chapter markup is already in the DOM and
   // devtools reveals it. See README.md in this folder.
   //
   // Apps Script web app bound to spreadsheet 1811-7KXo…NqFU. Codes live in its
@@ -4057,7 +4189,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   }
 
   form.addEventListener('submit', onSubmit);
-  // The deck binds Enter/arrow keys on window; keep them out of the form.
+  // The site binds Enter/arrow keys on window; keep them out of the form.
   form.addEventListener('keydown', function(e){ e.stopPropagation(); });
 
   var existingAuth = readAuth();
@@ -4068,14 +4200,16 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   }
 })();
 </script>
-<div id="stage"><div class="global-padding padding-global"><div id="deck">
+<div id="stage"><div class="global-padding padding-global"><div id="chapter-root">
 
 <!-- SLIDE 1 -->
 <section class="site-section content-container cover" data-section="0" data-label="Cover" data-no-sound="1">
-  <svg class="logo-big" viewBox="0 0 80 38" role="img" aria-label="LTX"><path fill-rule="evenodd" fill="#0b0b0b" d="M 50.08 9.33 L 50.08 11.58 L 56.83 21.42 L 56.92 22.33 L 49.00 33.75 L 49.33 35.42 L 50.50 35.92 L 58.17 35.75 L 63.33 29.33 L 67.17 34.67 L 68.58 35.83 L 76.42 35.92 L 77.75 35.25 L 77.75 33.50 L 69.83 22.17 L 71.00 19.58 L 76.92 11.25 L 77.08 10.00 L 76.58 9.17 L 68.42 9.00 L 63.75 14.83 L 63.00 14.58 L 59.08 9.08 L 51.50 8.92 Z M 3.33 9.08 L 2.67 10.42 L 2.67 33.08 L 3.00 34.75 L 4.67 35.92 L 24.50 35.92 L 25.58 35.50 L 26.25 34.50 L 26.25 28.58 L 25.50 27.50 L 13.67 27.33 L 13.00 26.75 L 12.92 10.67 L 12.25 9.58 L 11.25 8.92 Z M 29.25 2.83 L 28.33 4.00 L 28.33 8.42 L 27.42 9.00 L 23.92 9.08 L 22.92 10.50 L 23.17 16.25 L 24.17 17.00 L 27.50 17.00 L 28.25 17.67 L 28.17 25.83 L 29.00 30.08 L 30.58 32.58 L 33.58 34.83 L 38.25 35.83 L 45.00 35.75 L 46.00 34.67 L 46.00 28.42 L 44.33 27.25 L 40.42 27.33 L 38.75 26.50 L 38.08 24.83 L 38.08 17.50 L 38.67 17.00 L 44.58 17.00 L 45.17 16.67 L 45.75 15.58 L 45.75 10.42 L 44.25 8.92 L 38.50 8.92 L 38.08 8.42 L 38.08 3.58 L 37.33 2.83 Z"/></svg>
   <div class="collage" id="collage1"></div>
-  <h1 class="headline h1-display">The world model<br>the world builds on</h1>
-  <p class="subhead">Enterprise-grade production infrastructure.<br>Privately deployed. Deeply customized. Fully yours.</p>
+  <div class="cover-copy">
+    <svg class="logo-big" viewBox="0 0 80 38" role="img" aria-label="LTX"><path fill-rule="evenodd" fill="#0b0b0b" d="M 50.08 9.33 L 50.08 11.58 L 56.83 21.42 L 56.92 22.33 L 49.00 33.75 L 49.33 35.42 L 50.50 35.92 L 58.17 35.75 L 63.33 29.33 L 67.17 34.67 L 68.58 35.83 L 76.42 35.92 L 77.75 35.25 L 77.75 33.50 L 69.83 22.17 L 71.00 19.58 L 76.92 11.25 L 77.08 10.00 L 76.58 9.17 L 68.42 9.00 L 63.75 14.83 L 63.00 14.58 L 59.08 9.08 L 51.50 8.92 Z M 3.33 9.08 L 2.67 10.42 L 2.67 33.08 L 3.00 34.75 L 4.67 35.92 L 24.50 35.92 L 25.58 35.50 L 26.25 34.50 L 26.25 28.58 L 25.50 27.50 L 13.67 27.33 L 13.00 26.75 L 12.92 10.67 L 12.25 9.58 L 11.25 8.92 Z M 29.25 2.83 L 28.33 4.00 L 28.33 8.42 L 27.42 9.00 L 23.92 9.08 L 22.92 10.50 L 23.17 16.25 L 24.17 17.00 L 27.50 17.00 L 28.25 17.67 L 28.17 25.83 L 29.00 30.08 L 30.58 32.58 L 33.58 34.83 L 38.25 35.83 L 45.00 35.75 L 46.00 34.67 L 46.00 28.42 L 44.33 27.25 L 40.42 27.33 L 38.75 26.50 L 38.08 24.83 L 38.08 17.50 L 38.67 17.00 L 44.58 17.00 L 45.17 16.67 L 45.75 15.58 L 45.75 10.42 L 44.25 8.92 L 38.50 8.92 L 38.08 8.42 L 38.08 3.58 L 37.33 2.83 Z"/></svg>
+    <h1 class="headline h1-display">The world model<br>the world builds on</h1>
+    <p class="subhead heading-style-h4">Enterprise-grade production infrastructure.<br>Privately deployed. Deeply customized. Fully yours.</p>
+  </div>
 </section>
 
 <!-- SLIDE 2: Agenda -->
@@ -4083,13 +4217,13 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <div class="agenda-wrap">
-    <div class="agenda-row" data-goto-section="1"><span class="n">01</span><span class="t">Who We Are</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-    <div class="agenda-row" data-goto-section="2"><span class="n">02</span><span class="t">What LTX Can Do</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-    <div class="agenda-row" data-goto-section="3"><span class="n">03</span><span class="t">Use Cases &amp; Workflows</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-    <div class="agenda-row" data-goto-section="4"><span class="n">04</span><span class="t">Why LTX Wins</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-    <div class="agenda-row" data-goto-section="5"><span class="n">05</span><span class="t">Ways to Access LTX</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-    <div class="agenda-row" data-goto-section="6"><span class="n">06</span><span class="t">Next Steps</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-    <div class="agenda-row" data-goto-section="7" style="border-bottom:none;"><span class="n">07</span><span class="t">Commercial Partnerships</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+    <div class="agenda-row" data-goto-section="1"><span class="n heading-style-h3">01</span><span class="t heading-style-h3">Who We Are</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+    <div class="agenda-row" data-goto-section="2"><span class="n heading-style-h3">02</span><span class="t heading-style-h3">What LTX Can Do</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+    <div class="agenda-row" data-goto-section="3"><span class="n heading-style-h3">03</span><span class="t heading-style-h3">Use Cases &amp; Workflows</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+    <div class="agenda-row" data-goto-section="4"><span class="n heading-style-h3">04</span><span class="t heading-style-h3">Why LTX Wins</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+    <div class="agenda-row" data-goto-section="5"><span class="n heading-style-h3">05</span><span class="t heading-style-h3">Ways to Access LTX</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+    <div class="agenda-row" data-goto-section="6"><span class="n heading-style-h3">06</span><span class="t heading-style-h3">Next Steps</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+    <div class="agenda-row" data-goto-section="7" style="border-bottom:none;"><span class="n heading-style-h3">07</span><span class="t heading-style-h3">Commercial Partnerships</span><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
   </div>
 </section>
 
@@ -4099,32 +4233,31 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <header class="section-hero" aria-label="Who are we">
       <video class="section-hero__video" data-src="../sales-deck-original/videos/ed1f6b840edc8e5346333f4e9f618cc201a417b8.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
       <div class="section-hero__scrim" aria-hidden="true"></div>
-      <div class="section-hero__inner">
+      <div class="section-hero__text-fade" aria-hidden="true"></div>
+      <div class="section-hero__inner" id="aboutWho" data-track-block="who:about">
         <h1 class="section-hero__title h1-display">Who We Are</h1>
+        <p class="section-sub text-size-large text-balanced">We build open AI models that give you full control, from production-grade video to systems that understand and operate in the physical world.</p>
       </div>
     </header>
-    <div class="section-hero-intro" id="aboutWho" data-track-block="who:about">
-      <p class="heading-style-h2 text-balanced">We build open AI models that give you full control, from production-grade video to systems that understand and operate in the physical world.</p>
-    </div>
   </div>
 </section>
 
 <!-- SLIDE 4–6: Who we are (scrollable page) -->
 <section class="site-section content-container about-page scroll-page world-model" data-section="1" data-label="Who We Are">
-  <div class="deck-sections">
+  <div class="chapter-blocks">
 
-    <article class="about-block deck-section who-chapter" data-track-block="who:intro">
+    <article class="about-block chapter-block who-chapter" data-track-block="who:intro">
       <div class="who-mid">
         <div class="who-adopt who-reveal" data-reveal="1">
           <strong>Global Adoption</strong>
-          <p>Used by enterprises, developers, studios, and AI-native platforms around the world.</p>
+          <p class="text-size-regular">Used by enterprises, developers, studios, and AI-native platforms around the world.</p>
         </div>
         <div class="who-proof">
           <div class="big-stat big-stat-glossy who-num who-reveal" data-reveal="2" data-count="30" data-suffix="M+" data-defer="1">0M+</div>
           <span class="who-proof-rule" aria-hidden="true"></span>
           <div class="who-proof-copy who-reveal" data-reveal="2b">
             <strong>Downloads since January 2026</strong>
-            <p>One of the most downloaded open-weight models in the AI ecosystem.</p>
+            <p class="text-size-regular text-color-secondary">One of the most downloaded open-weight models in the AI ecosystem.</p>
           </div>
         </div>
       </div>
@@ -4148,35 +4281,29 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       </div>
     </article>
 
-    <article class="about-block deck-section" id="aboutIndustries" data-track-block="who:industries">
+    <article class="about-block chapter-block" id="aboutIndustries" data-track-block="who:industries">
       <h1 class="title heading-style-h1">One model,<br>far more than video</h1>
-      <p class="about-lead">The same understanding of the world powers any industry that needs to model how things move and behave.</p>
-      <div class="about-industries-layout">
-        <div class="industry-tabs-menu" id="industryGrid" role="tablist" aria-label="Industries">
-          <button type="button" class="industry-tab is-on" role="tab" aria-selected="true" data-video="../sales-deck-original/videos/ltx-robotics.mp4">
-            <span class="industry-tab__text"><span class="industry-tab__title heading-style-h4">Robotics</span><span class="industry-tab__sub text-size-regular">Train robots in simulation, then act in the real world.</span></span>
-            <span class="industry-tab__line" aria-hidden="true"></span>
-          </button>
-          <button type="button" class="industry-tab" role="tab" aria-selected="false" data-video="../sales-deck-original/videos/ltx-medical.mp4">
-            <span class="industry-tab__text"><span class="industry-tab__title heading-style-h4">Medical</span><span class="industry-tab__sub text-size-regular">Simulate and rehearse procedures safely.</span></span>
-            <span class="industry-tab__line" aria-hidden="true"></span>
-          </button>
-          <button type="button" class="industry-tab" role="tab" aria-selected="false" data-video="../sales-deck-original/videos/ltx-creative-applications.mp4">
-            <span class="industry-tab__text"><span class="industry-tab__title heading-style-h4">Creative Applications</span><span class="industry-tab__sub text-size-regular">Generate production-grade video, audio, and motion.</span></span>
-            <span class="industry-tab__line" aria-hidden="true"></span>
-          </button>
-          <button type="button" class="industry-tab" role="tab" aria-selected="false" data-video="../sales-deck-original/videos/ltx-gaming-and-3d.mp4">
-            <span class="industry-tab__text"><span class="industry-tab__title heading-style-h4">Gaming &amp; 3D</span><span class="industry-tab__sub text-size-regular">Generate playable, consistent environments on the fly.</span></span>
-            <span class="industry-tab__line" aria-hidden="true"></span>
-          </button>
-          <button type="button" class="industry-tab" role="tab" aria-selected="false" data-video="../sales-deck-original/videos/ltx-autonomous-driving.mp4">
-            <span class="industry-tab__text"><span class="industry-tab__title heading-style-h4">Autonomous Driving</span><span class="industry-tab__sub text-size-regular">Predict how a scene will unfold a moment ahead.</span></span>
-            <span class="industry-tab__line" aria-hidden="true"></span>
-          </button>
-          <button type="button" class="industry-tab" role="tab" aria-selected="false" data-video="../sales-deck-original/videos/ltx-defence.mp4">
-            <span class="industry-tab__text"><span class="industry-tab__title heading-style-h4">Defense</span><span class="industry-tab__sub text-size-regular">Model complex environments and interactions at operational scale.</span></span>
-            <span class="industry-tab__line" aria-hidden="true"></span>
-          </button>
+      <p class="section-sub text-size-large text-balanced">The same understanding of the world powers any industry that needs to model how things move and behave.</p>
+      <div class="about-industries-layout split-layout ltx-surface">
+        <div class="industry-tabs-menu split-tab-list" id="industryGrid" role="tablist" aria-label="Industries">
+          <div class="industry-tab split-tab is-on" role="tab" tabindex="0" aria-selected="true" data-video="../sales-deck-original/videos/ltx-robotics.mp4">
+            <div class="split-tab__text"><h5 class="heading-style-h5">Robotics</h5><p class="text-size-regular">Train robots in simulation, then act in the real world.</p></div>
+          </div>
+          <div class="industry-tab split-tab" role="tab" tabindex="-1" aria-selected="false" data-video="../sales-deck-original/videos/ltx-medical.mp4">
+            <div class="split-tab__text"><h5 class="heading-style-h5">Medical</h5><p class="text-size-regular">Simulate and rehearse procedures safely.</p></div>
+          </div>
+          <div class="industry-tab split-tab" role="tab" tabindex="-1" aria-selected="false" data-video="../sales-deck-original/videos/ltx-creative-applications.mp4">
+            <div class="split-tab__text"><h5 class="heading-style-h5">Creative Applications</h5><p class="text-size-regular">Generate production-grade video, audio, and motion.</p></div>
+          </div>
+          <div class="industry-tab split-tab" role="tab" tabindex="-1" aria-selected="false" data-video="../sales-deck-original/videos/ltx-gaming-and-3d.mp4">
+            <div class="split-tab__text"><h5 class="heading-style-h5">Gaming &amp; 3D</h5><p class="text-size-regular">Generate playable, consistent environments on the fly.</p></div>
+          </div>
+          <div class="industry-tab split-tab" role="tab" tabindex="-1" aria-selected="false" data-video="../sales-deck-original/videos/ltx-autonomous-driving.mp4">
+            <div class="split-tab__text"><h5 class="heading-style-h5">Autonomous Driving</h5><p class="text-size-regular">Predict how a scene will unfold a moment ahead.</p></div>
+          </div>
+          <div class="industry-tab split-tab" role="tab" tabindex="-1" aria-selected="false" data-video="../sales-deck-original/videos/ltx-defence.mp4">
+            <div class="split-tab__text"><h5 class="heading-style-h5">Defense</h5><p class="text-size-regular">Model complex environments and interactions at operational scale.</p></div>
+          </div>
         </div>
         <div class="industry-stage">
           <video class="industry-stage__video is-visible" data-industry-video muted loop playsinline preload="none" data-src="../sales-deck-original/videos/ltx-robotics.mp4"></video>
@@ -4185,32 +4312,29 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       </div>
     </article>
 
-    <article class="about-block deck-section" id="aboutWorld" data-track-block="who:world-model">
+    <article class="about-block chapter-block" id="aboutWorld" data-track-block="who:world-model">
       <div class="about-world-layout">
-        <div>
-          <p class="wm-kicker">LTX is building toward a</p>
-          <h1 class="wm-hero"><em>World Model</em></h1>
-          <p class="wm-support">From generating video to understanding motion, physics, and how the world changes over time.</p>
-          <div class="wm-proofs" id="wmProofs">
-            <div class="wm-proof" data-nodes="prediction">
-              <h4>Predicts what happens next</h4>
-              <p>Not just what the next frame looks like.</p>
+        <div class="about-world-intro">
+          <h1 class="wm-hero heading-style-h1 text-balanced">LTX is building toward a World Model</h1>
+          <p class="section-sub text-size-large text-balanced">From generating video to understanding motion, physics, and how the world changes over time.</p>
+        </div>
+        <div class="about-world-body split-layout">
+          <div class="wm-proofs split-tab-list" id="wmProofs">
+            <div class="wm-proof split-tab" data-nodes="prediction">
+              <div class="split-tab__text"><h5 class="heading-style-h5">Predicts what happens next</h5><p class="text-size-regular">Not just what the next frame looks like.</p></div>
             </div>
-            <div class="wm-proof" data-nodes="video,audio,motion,interaction,physics">
-              <h4>Understands multiple signals together</h4>
-              <p>Video, audio, motion, interaction, and physics.</p>
+            <div class="wm-proof split-tab" data-nodes="video,audio,motion,interaction,physics">
+              <div class="split-tab__text"><h5 class="heading-style-h5">Understands multiple signals together</h5><p class="text-size-regular">Video, audio, motion, interaction, and physics.</p></div>
             </div>
-            <div class="wm-proof" data-nodes="motion,interaction,physics,prediction">
-              <h4>Learns how the world changes over time</h4>
-              <p>Objects, environments, and actions stay connected across sequences.</p>
+            <div class="wm-proof split-tab" data-nodes="motion,interaction,physics,prediction">
+              <div class="split-tab__text"><h5 class="heading-style-h5">Learns how the world changes over time</h5><p class="text-size-regular">Objects, environments, and actions stay connected across sequences.</p></div>
             </div>
-            <div class="wm-proof" data-nodes="physical-ai,prediction">
-              <h4>Built for both digital and physical applications</h4>
-              <p>From creative production and real-time systems to physical AI.</p>
+            <div class="wm-proof split-tab" data-nodes="physical-ai,prediction">
+              <div class="split-tab__text"><h5 class="heading-style-h5">Built for both digital and physical applications</h5><p class="text-size-regular">From creative production and real-time systems to physical AI.</p></div>
             </div>
           </div>
-        </div>
-        <div class="wm-viz" id="wmViz">
+          <div class="wm-viz" id="wmViz">
+            <div class="wm-viz-stage">
           <svg class="wm-viz-svg" viewBox="0 0 640 640" aria-hidden="true">
             <circle class="wm-pulse" cx="320" cy="320" r="78"></circle>
             <circle class="wm-orbit" cx="320" cy="320" r="210"></circle>
@@ -4232,6 +4356,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
           <div class="wm-node" data-node="physics" style="left:50%; top:85.2%;"><span class="wm-node-dot"></span><span class="wm-node-lbl">Physics</span></div>
           <div class="wm-node" data-node="prediction" style="left:26.6%; top:78.1%;"><span class="wm-node-dot"></span><span class="wm-node-lbl">Prediction</span></div>
           <div class="wm-node" data-node="physical-ai" style="left:14.8%; top:53.1%;"><span class="wm-node-dot"></span><span class="wm-node-lbl">Physical AI</span></div>
+            </div>
+          </div>
         </div>
         <div class="wm-bridge">
           <div class="wm-bridge-kicker">One foundation. Three application layers.</div>
@@ -4248,36 +4374,36 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 7: From dependency to control -->
-<section class="site-section content-container ctrl-slide deck-section" data-section="1" data-label="From dependency to control">
+<section class="site-section content-container ctrl-slide chapter-block" data-section="1" data-label="From dependency to control">
   <div class="topbar" aria-hidden="true"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule" aria-hidden="true"></div>
   <div class="ctrl-head">
     <h1 class="title ctrl-title heading-style-h1">From dependency to control</h1>
-    <p class="ctrl-sub">Closed platforms create dependency. Open weights give you control over your model, data, and infrastructure.</p>
+    <p class="section-sub text-size-large text-balanced">Closed platforms create dependency. Open weights give you control over your model, data, and infrastructure.</p>
   </div>
-  <div class="ctrl-shell">
-    <nav class="ctrl-nav" aria-label="Choose what you want to control">
-      <div class="ctrl-nav-kicker">Choose what you want to control</div>
-      <button type="button" class="ctrl-nav-item is-on" data-topic="deploy" data-track="ctrl:deployment">
+  <div class="ctrl-shell split-layout ltx-surface">
+    <nav class="ctrl-nav split-tab-list" aria-label="Choose what you want to control">
+      <div class="ctrl-nav-kicker section-name is-grey-medium">Choose what you want to control</div>
+      <div class="ctrl-nav-item split-tab is-on" role="tab" tabindex="0" aria-selected="true" data-topic="deploy" data-track="ctrl:deployment">
         <span class="ctrl-nav-num">01</span>
-        <span class="ctrl-nav-lbl">Deployment</span>
+        <h5 class="heading-style-h5">Deployment</h5>
         <span class="ctrl-nav-arrow" aria-hidden="true">&rarr;</span>
-      </button>
-      <button type="button" class="ctrl-nav-item" data-topic="custom" data-track="ctrl:customization">
+      </div>
+      <div class="ctrl-nav-item split-tab" role="tab" tabindex="-1" aria-selected="false" data-topic="custom" data-track="ctrl:customization">
         <span class="ctrl-nav-num">02</span>
-        <span class="ctrl-nav-lbl">Customization</span>
+        <h5 class="heading-style-h5">Customization</h5>
         <span class="ctrl-nav-arrow" aria-hidden="true">&rarr;</span>
-      </button>
-      <button type="button" class="ctrl-nav-item" data-topic="data" data-track="ctrl:data-ip">
+      </div>
+      <div class="ctrl-nav-item split-tab" role="tab" tabindex="-1" aria-selected="false" data-topic="data" data-track="ctrl:data-ip">
         <span class="ctrl-nav-num">03</span>
-        <span class="ctrl-nav-lbl">Data &amp; IP</span>
+        <h5 class="heading-style-h5">Data &amp; IP</h5>
         <span class="ctrl-nav-arrow" aria-hidden="true">&rarr;</span>
-      </button>
-      <button type="button" class="ctrl-nav-item" data-topic="own" data-track="ctrl:ownership">
+      </div>
+      <div class="ctrl-nav-item split-tab" role="tab" tabindex="-1" aria-selected="false" data-topic="own" data-track="ctrl:ownership">
         <span class="ctrl-nav-num">04</span>
-        <span class="ctrl-nav-lbl">Ownership</span>
+        <h5 class="heading-style-h5">Ownership</h5>
         <span class="ctrl-nav-arrow" aria-hidden="true">&rarr;</span>
-      </button>
+      </div>
     </nav>
     <div class="ctrl-panel">
       <svg class="ctrl-pattern" viewBox="0 0 520 640" preserveAspectRatio="xMaxYCenter slice" aria-hidden="true">
@@ -4294,15 +4420,16 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       </svg>
       <div class="ctrl-panel-top">
         <div class="ctrl-toggle" role="tablist" aria-label="Platform type">
-          <button type="button" class="ctrl-tog" data-mode="closed">Closed Platform</button>
-          <button type="button" class="ctrl-tog is-on" data-mode="open">Open Weights</button>
+          <span class="ctrl-toggle-thumb" aria-hidden="true"></span>
+          <button type="button" class="ctrl-tog" data-mode="closed" role="tab" aria-selected="false">Closed Platform</button>
+          <button type="button" class="ctrl-tog is-on" data-mode="open" role="tab" aria-selected="true">Open Weights</button>
         </div>
       </div>
       <div class="ctrl-copy" id="ctrlCopy">
-        <p class="ctrl-kicker">To control</p>
-        <h2 class="ctrl-h">You control how it&rsquo;s deployed</h2>
-        <p class="ctrl-lead">Run and integrate the model on your terms.</p>
-        <p class="ctrl-body">Run the model where you choose and plug it into your stack without tying the workflow to someone else&rsquo;s roadmap.</p>
+        <p class="ctrl-kicker section-name is-grey-medium">To control</p>
+        <h2 class="ctrl-h heading-style-h3 text-balanced">You control how it&rsquo;s deployed</h2>
+        <p class="ctrl-lead section-sub text-size-large text-balanced">Run and integrate the model on your terms.</p>
+        <p class="ctrl-body text-size-regular">Run the model where you choose and plug it into your stack without tying the workflow to someone else&rsquo;s roadmap.</p>
       </div>
       <button type="button" class="ctrl-cta ltx-but-base is-black" id="ctrlCta">See how LTX works <span class="arr" aria-hidden="true">&rarr;</span></button>
     </div>
@@ -4314,8 +4441,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <h1 class="title heading-style-h1">Production-grade model</h1>
-  <p class="pgx-sub">Built for synchronized generation, customization, deployment, and complex creative control.</p>
+  <p class="pgx-sub section-sub text-size-large text-balanced">Built for synchronized generation, customization, deployment, and complex creative control.</p>
 
+  <div class="pgx-block">
   <div class="pgx-specs">
     <div class="dash-metrics">
       <div class="metric"><span class="mval" data-count="22" data-prefix="~" data-suffix="B">~0B</span><span class="mlbl">Parameters</span></div>
@@ -4325,6 +4453,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     </div>
   </div>
 
+  <div class="pgx-explorer split-layout">
   <nav class="pgx-nav" id="prodNav" aria-label="Model capabilities">
     <div class="pgx-item is-on" data-cap="av" tabindex="0" role="button" aria-pressed="true">
       <h4>Joint Audio-Video Generation</h4>
@@ -4345,7 +4474,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   </nav>
 
   <div class="pgx-stage">
-    <div class="pgx-canvas" id="pgxStage">
+    <div class="pgx-canvas ltx-surface" id="pgxStage">
       <div class="pgx-panel is-on" data-cap="av">
         <div class="pgx-av" id="pgxAv">
           <div class="pgx-av-rel">
@@ -4429,6 +4558,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       </div>
     </div>
   </div>
+  </div>
+  </div>
 </section>
 
 <!-- SLIDE 9b: What’s new in LTX-2.5 — interactive feature explorer -->
@@ -4437,28 +4568,28 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="rule"></div>
   <div class="nx-head">
     <h1 class="title nx-title heading-style-h1">What&rsquo;s new in LTX-2.5</h1>
-    <p class="nx-sub">The world model the world builds on.</p>
+    <p class="section-sub text-size-large text-balanced">The world model the world builds on.</p>
   </div>
   <div class="nx-shell">
     <div class="nx-tabs" role="tablist" aria-label="LTX-2.5 feature groups">
       <button type="button" class="nx-tab is-on" data-tab="prod" role="tab" aria-selected="true" data-track="ltx25:real-production">
         <span class="nx-tab-num">01</span>
-        <span class="nx-tab-lbl">Real Production</span>
+        <span class="nx-tab-lbl text-size-small">Real Production</span>
         <span class="nx-tab-mark" aria-hidden="true"></span>
       </button>
       <button type="button" class="nx-tab" data-tab="world" role="tab" aria-selected="false" data-track="ltx25:world-consistency">
         <span class="nx-tab-num">02</span>
-        <span class="nx-tab-lbl">World Consistency</span>
+        <span class="nx-tab-lbl text-size-small">World Consistency</span>
         <span class="nx-tab-mark" aria-hidden="true"></span>
       </button>
       <button type="button" class="nx-tab" data-tab="adapt" role="tab" aria-selected="false" data-track="ltx25:deep-adaptation">
         <span class="nx-tab-num">03</span>
-        <span class="nx-tab-lbl">Deep Adaptation</span>
+        <span class="nx-tab-lbl text-size-small">Deep Adaptation</span>
         <span class="nx-tab-mark" aria-hidden="true"></span>
       </button>
       <button type="button" class="nx-tab" data-tab="scale" role="tab" aria-selected="false" data-track="ltx25:scale">
         <span class="nx-tab-num">04</span>
-        <span class="nx-tab-lbl">Scale</span>
+        <span class="nx-tab-lbl text-size-small">Scale</span>
         <span class="nx-tab-mark" aria-hidden="true"></span>
       </button>
     </div>
@@ -4475,9 +4606,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
               <circle cx="70" cy="70" r="86"></circle>
             </g>
           </svg>
-          <p class="nx-cat">Built for real production</p>
-          <h2 class="nx-h">Production-ready from the first frame.</h2>
-          <p class="nx-lead">Higher-quality output built for professional production workflows.</p>
+          <p class="nx-cat section-name is-grey-medium">Built for real production</p>
+          <h2 class="nx-h heading-style-h3 text-balanced">Production-ready from the first frame.</h2>
+          <p class="section-sub text-size-large text-balanced">Higher-quality output built for professional production workflows.</p>
           <div class="nx-prog">
             <span class="nx-prog-lbl">01 / 04</span>
             <div class="nx-ticks"><span class="nx-tick is-on"></span><span class="nx-tick"></span><span class="nx-tick"></span><span class="nx-tick"></span></div>
@@ -4485,27 +4616,27 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         </div>
         <div class="nx-cards">
           <article class="nx-card">
-            <p class="nx-card-cat">Workflow</p>
-            <h3>Native EXR Workflow</h3>
-            <p>Cinema-grade EXR in ACES and DaVinci Wide Gamut, without a lossy round-trip.</p>
+            <p class="nx-card-cat section-name is-grey-medium">Workflow</p>
+            <h3 class="heading-style-h5">Native EXR Workflow</h3>
+            <p class="text-size-tiny text-color-secondary">Cinema-grade EXR in ACES and DaVinci Wide Gamut, without a lossy round-trip.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
           <article class="nx-card">
-            <p class="nx-card-cat">Quality</p>
-            <h3>Diffusion Video Decoder</h3>
-            <p>Sharper faces, clearer text, and fewer motion artifacts.</p>
+            <p class="nx-card-cat section-name is-grey-medium">Quality</p>
+            <h3 class="heading-style-h5">Diffusion Video Decoder</h3>
+            <p class="text-size-tiny text-color-secondary">Sharper faces, clearer text, and fewer motion artifacts.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
           <article class="nx-card">
-            <p class="nx-card-cat">Efficiency</p>
-            <h3>Diffusion Fidelity Rendering</h3>
-            <p>More detail where it matters, with compute adapted to each scene.</p>
+            <p class="nx-card-cat section-name is-grey-medium">Efficiency</p>
+            <h3 class="heading-style-h5">Diffusion Fidelity Rendering</h3>
+            <p class="text-size-tiny text-color-secondary">More detail where it matters, with compute adapted to each scene.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
           <article class="nx-card">
-            <p class="nx-card-cat">Deployment</p>
-            <h3>Better Distilled Model</h3>
-            <p>Near-full quality that can run on everyday GPUs.</p>
+            <p class="nx-card-cat section-name is-grey-medium">Deployment</p>
+            <h3 class="heading-style-h5">Better Distilled Model</h3>
+            <p class="text-size-tiny text-color-secondary">Near-full quality that can run on everyday GPUs.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
         </div>
@@ -4523,9 +4654,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
               <circle cx="70" cy="70" r="86"></circle>
             </g>
           </svg>
-          <p class="nx-cat">Built to hold a world together</p>
-          <h2 class="nx-h">More continuity across every shot.</h2>
-          <p class="nx-lead">Keep complex scenes, subjects, and actions consistent throughout a generation.</p>
+          <p class="nx-cat section-name is-grey-medium">Built to hold a world together</p>
+          <h2 class="nx-h heading-style-h3 text-balanced">More continuity across every shot.</h2>
+          <p class="section-sub text-size-large text-balanced">Keep complex scenes, subjects, and actions consistent throughout a generation.</p>
           <div class="nx-prog">
             <span class="nx-prog-lbl">02 / 04</span>
             <div class="nx-ticks"><span class="nx-tick is-on"></span><span class="nx-tick is-on"></span><span class="nx-tick"></span><span class="nx-tick"></span></div>
@@ -4533,15 +4664,15 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         </div>
         <div class="nx-cards">
           <article class="nx-card">
-            <p class="nx-card-cat">Generation</p>
-            <h3>Native Multishot</h3>
-            <p>Generate multiple connected shots with consistent characters, environments, and visual language.</p>
+            <p class="nx-card-cat section-name is-grey-medium">Generation</p>
+            <h3 class="heading-style-h5">Native Multishot</h3>
+            <p class="text-size-tiny text-color-secondary">Generate multiple connected shots with consistent characters, environments, and visual language.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
           <article class="nx-card">
-            <p class="nx-card-cat">Prompting</p>
-            <h3>Custom Gemma 4 12B Text Encoder</h3>
-            <p>Better understanding of multi-subject and multi-action prompts.</p>
+            <p class="nx-card-cat section-name is-grey-medium">Prompting</p>
+            <h3 class="heading-style-h5">Custom Gemma 4 12B Text Encoder</h3>
+            <p class="text-size-tiny text-color-secondary">Better understanding of multi-subject and multi-action prompts.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
         </div>
@@ -4559,9 +4690,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
               <circle cx="70" cy="70" r="86"></circle>
             </g>
           </svg>
-          <p class="nx-cat">Built to be modified</p>
-          <h2 class="nx-h">Make the model your own.</h2>
-          <p class="nx-lead">Adapt, fine-tune, and deploy LTX for your domain, data, and workflows.</p>
+          <p class="nx-cat section-name is-grey-medium">Built to be modified</p>
+          <h2 class="nx-h heading-style-h3 text-balanced">Make the model your own.</h2>
+          <p class="section-sub text-size-large text-balanced">Adapt, fine-tune, and deploy LTX for your domain, data, and workflows.</p>
           <div class="nx-prog">
             <span class="nx-prog-lbl">03 / 04</span>
             <div class="nx-ticks"><span class="nx-tick is-on"></span><span class="nx-tick is-on"></span><span class="nx-tick is-on"></span><span class="nx-tick"></span></div>
@@ -4569,15 +4700,15 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         </div>
         <div class="nx-cards">
           <article class="nx-card">
-            <p class="nx-card-cat">Fine-tuning</p>
-            <h3>Pretrained Checkpoint for Deep Adaptation</h3>
-            <p>A raw foundation for building and training your own specialized world models.</p>
+            <p class="nx-card-cat section-name is-grey-medium">Fine-tuning</p>
+            <h3 class="heading-style-h5">Pretrained Checkpoint for Deep Adaptation</h3>
+            <p class="text-size-tiny text-color-secondary">A raw foundation for building and training your own specialized world models.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
           <article class="nx-card">
-            <p class="nx-card-cat">Licensing</p>
-            <h3>Cleaner Permissive Licensing</h3>
-            <p>A clearer path to fine-tune, deploy, commercialize, and redistribute.</p>
+            <p class="nx-card-cat section-name is-grey-medium">Licensing</p>
+            <h3 class="heading-style-h5">Cleaner Permissive Licensing</h3>
+            <p class="text-size-tiny text-color-secondary">A clearer path to fine-tune, deploy, commercialize, and redistribute.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
         </div>
@@ -4595,9 +4726,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
               <circle cx="70" cy="70" r="86"></circle>
             </g>
           </svg>
-          <p class="nx-cat">Built to scale</p>
-          <h2 class="nx-h">Better results with less friction.</h2>
-          <p class="nx-lead">Improve generation quality, usability, and efficiency as production scales.</p>
+          <p class="nx-cat section-name is-grey-medium">Built to scale</p>
+          <h2 class="nx-h heading-style-h3 text-balanced">Better results with less friction.</h2>
+          <p class="section-sub text-size-large text-balanced">Improve generation quality, usability, and efficiency as production scales.</p>
           <div class="nx-prog">
             <span class="nx-prog-lbl">04 / 04</span>
             <div class="nx-ticks"><span class="nx-tick is-on"></span><span class="nx-tick is-on"></span><span class="nx-tick is-on"></span><span class="nx-tick is-on"></span></div>
@@ -4605,21 +4736,21 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         </div>
         <div class="nx-cards">
           <article class="nx-card">
-            <p class="nx-card-cat">Quality</p>
-            <h3>Larger Dataset + RL Post-Training</h3>
-            <p>A higher take rate, fewer retries, and lower cost per usable shot.</p>
+            <p class="nx-card-cat section-name is-grey-medium">Quality</p>
+            <h3 class="heading-style-h5">Larger Dataset + RL Post-Training</h3>
+            <p class="text-size-tiny text-color-secondary">A higher take rate, fewer retries, and lower cost per usable shot.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
           <article class="nx-card">
-            <p class="nx-card-cat">Prompting</p>
-            <h3>Dedicated Prompt Enhancer</h3>
-            <p>Get better results with less prompting expertise and no additional inference cost.</p>
+            <p class="nx-card-cat section-name is-grey-medium">Prompting</p>
+            <h3 class="heading-style-h5">Dedicated Prompt Enhancer</h3>
+            <p class="text-size-tiny text-color-secondary">Get better results with less prompting expertise and no additional inference cost.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
           <article class="nx-card">
-            <p class="nx-card-cat">Automation</p>
-            <h3>Auto Duration</h3>
-            <p>Let the length follow the scene automatically, with fewer manual controls.</p>
+            <p class="nx-card-cat section-name is-grey-medium">Automation</p>
+            <h3 class="heading-style-h5">Auto Duration</h3>
+            <p class="text-size-tiny text-color-secondary">Let the length follow the scene automatically, with fewer manual controls.</p>
             <span class="nx-card-arrow" aria-hidden="true">&rarr;</span>
           </article>
         </div>
@@ -4634,13 +4765,12 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <header class="section-hero" aria-label="What LTX can do">
       <video class="section-hero__video" data-src="../sales-deck-original/videos/bd791c9d7464903f57fb391fd73ab98831868e72.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
       <div class="section-hero__scrim" aria-hidden="true"></div>
-      <div class="section-hero__inner">
+      <div class="section-hero__text-fade" aria-hidden="true"></div>
+      <div class="section-hero__inner" id="chapterIntroCanDo">
         <h1 class="section-hero__title h1-display">What LTX Can Do</h1>
+        <p class="section-sub text-size-large text-balanced">From multi-keyframe control to inpainting and audio-to-video — explore production-grade open video capabilities.</p>
       </div>
     </header>
-    <div class="section-hero-intro" id="chapterIntroCanDo">
-      <p class="heading-style-h2 text-balanced">From multi-keyframe control to inpainting and audio-to-video — explore production-grade open video capabilities.</p>
-    </div>
   </div>
 </section>
 
@@ -4680,7 +4810,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel active" data-cap="keyframe">
       <div class="cap-text">
         <h2 class="cap-title">Multi-Keyframe</h2>
-        <p class="cap-desc">Define key poses and moments, then generate smooth in-between frames.</p>
+        <p class="cap-desc text-size-regular text-balanced">Define key poses and moments, then generate smooth in-between frames.</p>
         <p class="cap-caption">Precise motion between any&#10;visual states.</p>
       </div>
       <div class="cap-media">
@@ -4691,7 +4821,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="retake">
       <div class="cap-text">
         <h2 class="cap-title">Retake</h2>
-        <p class="cap-desc">Make targeted changes to existing videos without starting from scratch.</p>
+        <p class="cap-desc text-size-regular text-balanced">Make targeted changes to existing videos without starting from scratch.</p>
         <p class="cap-caption">Keeps the rest of&#10;the video intact.</p>
       </div>
       <div class="cap-media">
@@ -4707,7 +4837,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="union">
       <div class="cap-text">
         <h2 class="cap-title">Union Control</h2>
-        <p class="cap-desc">Restyle existing footage with IC-LoRAs, no reshoots needed.</p>
+        <p class="cap-desc text-size-regular text-balanced">Restyle existing footage with IC-LoRAs, no reshoots needed.</p>
         <p class="cap-caption">Depth / Pose / Canny</p>
       </div>
       <div class="cap-media">
@@ -4718,7 +4848,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="camera">
       <div class="cap-text">
         <h2 class="cap-title">Camera Control</h2>
-        <p class="cap-desc">Control camera movement with Dolly, Jib, and Static shots for cinematic results.</p>
+        <p class="cap-desc text-size-regular text-balanced">Control camera movement with Dolly, Jib, and Static shots for cinematic results.</p>
         <p class="cap-caption">Each preset is a LoRA that can stack&#10;with character or brand LoRAs.</p>
       </div>
       <div class="cap-media">
@@ -4734,7 +4864,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="a2v">
       <div class="cap-text">
         <h2 class="cap-title">Audio-to-Video</h2>
-        <p class="cap-desc">Turn any audio track into a fully generated video, with visuals driven entirely by sound.</p>
+        <p class="cap-desc text-size-regular text-balanced">Turn any audio track into a fully generated video, with visuals driven entirely by sound.</p>
         <p class="cap-caption">Audio defines scene structure,&#10;pacing and emotion.</p>
       </div>
       <div class="cap-media">
@@ -4745,7 +4875,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="consistency">
       <div class="cap-text">
         <h2 class="cap-title">Character Consistency</h2>
-        <p class="cap-desc">Maintain consistent characters, products, and objects across every generation using LoRAs and IC-LoRAs.</p>
+        <p class="cap-desc text-size-regular text-balanced">Maintain consistent characters, products, and objects across every generation using LoRAs and IC-LoRAs.</p>
         <p class="cap-caption">Locks face, wardrobe and&#10;micro-expressions across every shot.</p>
       </div>
       <div class="cap-media">
@@ -4761,7 +4891,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="lora">
       <div class="cap-text">
         <h2 class="cap-title">LoRA Trainer</h2>
-        <p class="cap-desc">Extend the model's capabilities with custom LoRAs and IC-LoRAs, tailored to your exact production needs.</p>
+        <p class="cap-desc text-size-regular text-balanced">Extend the model's capabilities with custom LoRAs and IC-LoRAs, tailored to your exact production needs.</p>
         <ul class="cap-extra">
           <li>Train video, audio and cross-modal tasks from one framework.</li>
           <li>No ML expertise needed: configs generated via natural language.</li>
@@ -4776,7 +4906,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="extend">
       <div class="cap-text">
         <h2 class="cap-title">Extend</h2>
-        <p class="cap-desc">Extend existing videos by generating seamless new frames that naturally continue the original scene.</p>
+        <p class="cap-desc text-size-regular text-balanced">Extend existing videos by generating seamless new frames that naturally continue the original scene.</p>
         <p class="cap-caption">Extension duration up to a&#10;total length of 60 seconds.</p>
       </div>
       <div class="cap-media">
@@ -4787,7 +4917,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="lipdub">
       <div class="cap-text">
         <h2 class="cap-title">Lip-Dub</h2>
-        <p class="cap-desc">Localize video across markets without re-filming talent.</p>
+        <p class="cap-desc text-size-regular text-balanced">Localize video across markets without re-filming talent.</p>
         <p class="cap-caption">Languages currently validated: English,&#10;French, Spanish, German, Russian.</p>
       </div>
       <div class="cap-media">
@@ -4802,7 +4932,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="inpaint">
       <div class="cap-text">
         <h2 class="cap-title">Inpainting</h2>
-        <p class="cap-desc">Edit or replace specific elements without regenerating the entire video.</p>
+        <p class="cap-desc text-size-regular text-balanced">Edit or replace specific elements without regenerating the entire video.</p>
         <p class="cap-caption">Remove, replace, or update&#10;any element in seconds.</p>
       </div>
       <div class="cap-media">
@@ -4817,7 +4947,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="outpaint">
       <div class="cap-text">
         <h2 class="cap-title">Outpainting</h2>
-        <p class="cap-desc">Expand videos beyond their original frame while preserving the original composition, motion, and quality.</p>
+        <p class="cap-desc text-size-regular text-balanced">Expand videos beyond their original frame while preserving the original composition, motion, and quality.</p>
         <p class="cap-caption">Reframe any ratio (16:9, 9:16, 1:1, 4:5),&#10;for up to 60 sec generations.</p>
       </div>
       <div class="cap-media">
@@ -4855,7 +4985,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel active" data-cap="native">
       <div class="cap-text">
         <h2 class="cap-title">Native Resolution</h2>
-        <p class="cap-desc">Work at full delivery resolution on one GPU. No downscaling, no proxy round-trip, and barely any increase in VRAM consumption.</p>
+        <p class="cap-desc text-size-regular text-balanced">Work at full delivery resolution on one GPU. No downscaling, no proxy round-trip, and barely any increase in VRAM consumption.</p>
         <p class="cap-caption">Full delivery resolution, at 4K.</p>
       </div>
       <div class="cap-media">
@@ -4869,7 +4999,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="refine">
       <div class="cap-text">
         <h2 class="cap-title">Refine</h2>
-        <p class="cap-desc">Sharpen blurry or pixelated footage for a crisp, detailed result.</p>
+        <p class="cap-desc text-size-regular text-balanced">Sharpen blurry or pixelated footage for a crisp, detailed result.</p>
         <p class="cap-caption">A sharper, more detailed result.</p>
       </div>
       <div class="cap-media">
@@ -4883,7 +5013,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="restore">
       <div class="cap-text">
         <h2 class="cap-title">Restore</h2>
-        <p class="cap-desc">Add vibrant color and modernize archival or faded video.</p>
+        <p class="cap-desc text-size-regular text-balanced">Add vibrant color and modernize archival or faded video.</p>
         <p class="cap-caption">Archival footage, restored.</p>
       </div>
       <div class="cap-media">
@@ -4897,7 +5027,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="sdr">
       <div class="cap-text">
         <h2 class="cap-title">SDR to HDR</h2>
-        <p class="cap-desc">Take any 8-bit SDR video input and turn it into HDR 16-bit EXR in ACEScg. Grade it, keep working with it, or encode it for HDR-enabled screens.</p>
+        <p class="cap-desc text-size-regular text-balanced">Take any 8-bit SDR video input and turn it into HDR 16-bit EXR in ACEScg. Grade it, keep working with it, or encode it for HDR-enabled screens.</p>
         <p class="cap-caption">SDR footage, opened into HDR.</p>
       </div>
       <div class="cap-media">
@@ -4911,7 +5041,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="hdr">
       <div class="cap-text">
         <h2 class="cap-title">Native HDR</h2>
-        <p class="cap-desc">Preserve the color and dynamic range of your input footage with 16-bit EXR in and out, in an ACES workflow. Your output stays ready for grading and finishing.</p>
+        <p class="cap-desc text-size-regular text-balanced">Preserve the color and dynamic range of your input footage with 16-bit EXR in and out, in an ACES workflow. Your output stays ready for grading and finishing.</p>
         <p class="cap-caption">HDR input compared with the HDR output.</p>
       </div>
       <div class="cap-media">
@@ -4925,7 +5055,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="layout">
       <div class="cap-text">
         <h2 class="cap-title">Layout to Render</h2>
-        <p class="cap-desc">Generate a polished render from 3D blocking, a prompt, or a reference image. Camera, composition, and frame alignment stay consistent, so the result fits the shot you planned.</p>
+        <p class="cap-desc text-size-regular text-balanced">Generate a polished render from 3D blocking, a prompt, or a reference image. Camera, composition, and frame alignment stay consistent, so the result fits the shot you planned.</p>
         <p class="cap-caption">From the 3D blocking to the finished plate.</p>
       </div>
       <div class="cap-media">
@@ -4939,7 +5069,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cap-panel" data-cap="alpha">
       <div class="cap-text">
         <h2 class="cap-title">Alpha Gen</h2>
-        <p class="cap-desc">Generate clean alpha mattes with soft edges and fine detail, preserving hair, smoke, and partial transparency so your elements are ready for compositing.</p>
+        <p class="cap-desc text-size-regular text-balanced">Generate clean alpha mattes with soft edges and fine detail, preserving hair, smoke, and partial transparency so your elements are ready for compositing.</p>
         <p class="cap-caption">The shot, then the matte.</p>
       </div>
       <div class="cap-media">
@@ -5060,13 +5190,12 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <header class="section-hero" aria-label="Use cases and workflows">
       <video class="section-hero__video" data-src="../sales-deck-original/videos/774a699d2505e4f77469e41acc9ca1ea0e1bc838.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
       <div class="section-hero__scrim" aria-hidden="true"></div>
-      <div class="section-hero__inner">
+      <div class="section-hero__text-fade" aria-hidden="true"></div>
+      <div class="section-hero__inner" id="chapterIntroUseCases">
         <h1 class="section-hero__title h1-display">Use Cases &amp; Workflows</h1>
+        <p class="section-sub text-size-large text-balanced">Use audio, image, and video conditioning together to iterate through real production workflows.</p>
       </div>
     </header>
-    <div class="section-hero-intro" id="chapterIntroUseCases">
-      <p class="heading-style-h2 text-balanced">Use audio, image, and video conditioning together to iterate through real production workflows.</p>
-    </div>
   </div>
 </section>
 
@@ -5111,7 +5240,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="acc-panel active" data-acc="multimodal">
         <div class="acc-text">
           <h2 class="acc-headline">Multi-Modal Animation Controls</h2>
-          <p class="acc-sub">Using audio, image and video conditioning simultaneously to iterate</p>
+          <p class="acc-sub text-size-regular text-balanced">Using audio, image and video conditioning simultaneously to iterate</p>
         </div>
         <div class="acc-media">
           <div class="acc-video-frame"><video data-src="../sales-deck-original/videos/ccff283ddb3a3d8fdc208748870925682a0fc6ce.mov" muted loop playsinline preload="none"></video></div>
@@ -5121,7 +5250,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="acc-panel" data-acc="animref">
         <div class="acc-text">
           <h2 class="acc-headline">Animation Reference</h2>
-          <p class="acc-sub">Design-centric workflows</p>
+          <p class="acc-sub text-size-regular text-balanced">Design-centric workflows</p>
         </div>
         <div class="acc-media">
           <div class="acc-video-frame"><video data-src="../sales-deck-original/videos/1142938c57ba501cb88a0aed3831582c5b5ab9c4.mp4" muted loop playsinline preload="none"></video></div>
@@ -5131,7 +5260,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="acc-panel" data-acc="blocking">
         <div class="acc-text">
           <h2 class="acc-headline">Blocking-to-Animation</h2>
-          <p class="acc-sub">Fine-tuned model (trained on pairs of 3D animatics + final output) + multi-KF interpolation</p>
+          <p class="acc-sub text-size-regular text-balanced">Fine-tuned model (trained on pairs of 3D animatics + final output) + multi-KF interpolation</p>
         </div>
         <div class="acc-media">
           <div class="acc-video-frame"><video data-src="../sales-deck-original/videos/d235f40361ff6b4aee03a76d29de3306f0dd455f.mp4" muted loop playsinline preload="none"></video></div>
@@ -5141,7 +5270,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="acc-panel" data-acc="labpreview">
         <div class="acc-text">
           <h2 class="acc-headline">Lab Preview &mdash; 3D Guidance + Style Transfer + HDR</h2>
-          <p class="acc-sub">Using ControlNet to render, preview, and direct with precision, all while retaining HDR throughout the pipeline.</p>
+          <p class="acc-sub text-size-regular text-balanced">Using ControlNet to render, preview, and direct with precision, all while retaining HDR throughout the pipeline.</p>
         </div>
         <div class="acc-media">
           <div class="acc-video-frame"><video data-src="../sales-deck-original/videos/0b5384ece65cc1c4eb2ec5af3a8e0c2770811153.mp4" muted loop playsinline preload="none"></video></div>
@@ -5151,7 +5280,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="acc-panel" data-acc="3dguidance">
         <div class="acc-text">
           <h2 class="acc-headline">3D Guidance + Multi KFs + Custom Pipeline</h2>
-          <p class="acc-sub">Precision shot-planning and direction inside familiar DCCs</p>
+          <p class="acc-sub text-size-regular text-balanced">Precision shot-planning and direction inside familiar DCCs</p>
         </div>
         <div class="acc-media">
           <div class="acc-video-frame"><video data-src="../sales-deck-original/videos/2812be34e63386be601248811bd851eefa2e268a.mp4" muted loop playsinline preload="none"></video></div>
@@ -5194,13 +5323,12 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <header class="section-hero" aria-label="Why LTX wins">
       <video class="section-hero__video" data-src="../sales-deck-original/videos/a59f3f9f3455c3889afb74406d368e37508a4d64.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
       <div class="section-hero__scrim" aria-hidden="true"></div>
-      <div class="section-hero__inner">
+      <div class="section-hero__text-fade" aria-hidden="true"></div>
+      <div class="section-hero__inner" id="chapterIntroWhy">
         <h1 class="section-hero__title h1-display">Why LTX Wins</h1>
+        <p class="section-sub text-size-large text-balanced">Open weights, efficient inference, and deployment paths built for teams that need control in production.</p>
       </div>
     </header>
-    <div class="section-hero-intro" id="chapterIntroWhy">
-      <p class="heading-style-h2 text-balanced">Open weights, efficient inference, and deployment paths built for teams that need control in production.</p>
-    </div>
   </div>
 </section>
 
@@ -5357,13 +5485,12 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <header class="section-hero" aria-label="Ways to access LTX">
       <video class="section-hero__video" data-src="../sales-deck-original/videos/62a80087694184a5f5ec54f7c3361c3b1c6c85fc.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
       <div class="section-hero__scrim" aria-hidden="true"></div>
-      <div class="section-hero__inner">
+      <div class="section-hero__text-fade" aria-hidden="true"></div>
+      <div class="section-hero__inner" id="chapterIntroAccess">
         <h1 class="section-hero__title h1-display">Ways to Access LTX</h1>
+        <p class="section-sub text-size-large text-balanced">License open weights for self-hosting, or integrate through a managed API — deploy the way your team works.</p>
       </div>
     </header>
-    <div class="section-hero-intro" id="chapterIntroAccess">
-      <p class="heading-style-h2 text-balanced">License open weights for self-hosting, or integrate through a managed API — deploy the way your team works.</p>
-    </div>
   </div>
 </section>
 
@@ -5372,9 +5499,10 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <h1 class="title heading-style-h1">Ways to Access LTX</h1>
-  <div class="access-toggle" role="tablist" aria-label="Ways to access LTX">
-    <button type="button" class="at-btn on" role="tab" aria-selected="true" data-pane="licensing" data-track="access:licensing">Licensing</button>
-    <button type="button" class="at-btn" role="tab" aria-selected="false" data-pane="api" data-track="access:api">API</button>
+  <div class="access-toggle ctrl-toggle" role="tablist" aria-label="Ways to access LTX">
+    <span class="ctrl-toggle-thumb" aria-hidden="true"></span>
+    <button type="button" class="ctrl-tog is-on" role="tab" aria-selected="true" data-pane="licensing" data-track="access:licensing">Licensing</button>
+    <button type="button" class="ctrl-tog" role="tab" aria-selected="false" data-pane="api" data-track="access:api">API</button>
   </div>
   <div class="access-stage">
     <div class="access-pane is-on is-playing" data-pane="licensing" role="tabpanel">
@@ -5436,7 +5564,6 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     </g>
   </svg>
 
-  <span class="ns-title-glow"></span>
   <h1 class="title ns-title heading-style-h1" style="left:0; right:0; max-width:none;">Next steps:<br>Exploration to production</h1>
   <p class="ns-intro">Our pilot is designed around your goals: helping your team validate, optimize, and confidently move into production.</p>
 
@@ -5495,13 +5622,12 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <header class="section-hero" aria-label="Commercial partnerships">
       <video class="section-hero__video" data-src="../sales-deck-original/videos/cc70166460a2f0abec06e779ebdfdcedaff841de.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
       <div class="section-hero__scrim" aria-hidden="true"></div>
-      <div class="section-hero__inner">
+      <div class="section-hero__text-fade" aria-hidden="true"></div>
+      <div class="section-hero__inner" id="chapterIntroCommercial">
         <h1 class="section-hero__title h1-display">Commercial Partnerships</h1>
+        <p class="section-sub text-size-large text-balanced">Choose the commercial model that best matches your business.</p>
       </div>
     </header>
-    <div class="section-hero-intro" id="chapterIntroCommercial">
-      <p class="heading-style-h2 text-balanced">Choose the commercial model that best matches your business.</p>
-    </div>
   </div>
 </section>
 
@@ -5514,8 +5640,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 
   <div class="grid price-grid hub-grid" id="priceGrid" style="top:410px; bottom:150px; grid-template-columns:1fr 1fr;">
     <div class="card price-card hub-card" data-target="slideRevenueShare" data-track="models:revshare">
-      <h3>Revenue Share</h3>
-      <p class="lead">Ideal for companies embedding LTX into commercial products.</p>
+      <h3 class="heading-style-h5">Revenue Share</h3>
+      <p class="section-sub text-size-large text-balanced">Ideal for companies embedding LTX into commercial products.</p>
       <div class="price-item"><span class="arrow">&rarr;</span><span>Annual commitment starting at $150K</span></div>
       <div class="price-item"><span class="arrow">&rarr;</span><span>Your commitment locks in your revenue-share rate</span></div>
       <div class="price-item"><span class="arrow">&rarr;</span><span>Rate improves automatically as you scale</span></div>
@@ -5526,8 +5652,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     </div>
 
     <div class="card price-card hub-card" data-target="slideUsageBased" data-track="models:usage">
-      <h3>Usage-Based</h3>
-      <p class="lead">Ideal for production teams with predictable workloads.</p>
+      <h3 class="heading-style-h5">Usage-Based</h3>
+      <p class="section-sub text-size-large text-balanced">Ideal for production teams with predictable workloads.</p>
       <div class="price-item"><span class="arrow">&rarr;</span><span>Annual commitment starting at $150K</span></div>
       <div class="price-item"><span class="arrow">&rarr;</span><span>Pay based on usage</span></div>
       <div class="price-item"><span class="arrow">&rarr;</span><span>Commercial terms improve with larger commitments</span></div>
@@ -5545,7 +5671,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="rule"></div>
   <button type="button" class="back-to-hub ltx-but-base" data-goto-id="slideCommercialHub"><span>&larr;</span><span>Back to Commercial Models</span></button>
   <h1 class="title heading-style-h1">Revenue Share</h1>
-  <p class="text-size-xlarge" style="position:absolute; top:290px; left:var(--content-gutter); width:700px; margin:0;">We succeed when you succeed.<br>Instead of paying per use, you share a percentage of the revenue generated by your LTX-powered product.</p>
+  <p class="section-sub text-size-large text-balanced" style="position:absolute; top:290px; left:var(--content-gutter); width:700px; margin:0;">We succeed when you succeed.<br>Instead of paying per use, you share a percentage of the revenue generated by your LTX-powered product.</p>
   <div style="position:absolute; top:445px; left:var(--content-gutter); width:700px;">
     <div style="display:flex; gap:16px; padding:10px 0; border-bottom:1px solid var(--line);"><span class="heading-style-h5" style="width:270px;flex:none;">Revenue share,<br>not per use</span><span class="text-size-regular">You share a percentage of the revenue generated by your LTX-powered product.</span></div>
     <div style="display:flex; gap:16px; padding:10px 0; border-bottom:1px solid var(--line);"><span class="heading-style-h5" style="width:270px;flex:none;">The more you grow, the lower your percentage</span><span class="text-size-regular">Better economics as you scale.</span></div>
@@ -5675,7 +5801,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 <!-- SLIDE 42: Thank you -->
 <section class="site-section content-container cover" data-section="6" data-label="Thank you">
   <div class="collage" id="collage2"></div>
-  <h1 class="headline h1-display">Thank you</h1>
+  <div class="cover-copy cover-copy--solo">
+    <h1 class="headline h1-display">Thank you</h1>
+  </div>
 </section>
 
 </div></div></div>
@@ -5693,7 +5821,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 <div id="appnav-sub" hidden>
   <div class="appnav-sub-inner">
     <svg class="applogo appnav-logo-spacer" viewBox="0 0 80 38" aria-hidden="true"><path fill-rule="evenodd" fill="#0b0b0b" d="M 50.08 9.33 L 50.08 11.58 L 56.83 21.42 L 56.92 22.33 L 49.00 33.75 L 49.33 35.42 L 50.50 35.92 L 58.17 35.75 L 63.33 29.33 L 67.17 34.67 L 68.58 35.83 L 76.42 35.92 L 77.75 35.25 L 77.75 33.50 L 69.83 22.17 L 71.00 19.58 L 76.92 11.25 L 77.08 10.00 L 76.58 9.17 L 68.42 9.00 L 63.75 14.83 L 63.00 14.58 L 59.08 9.08 L 51.50 8.92 Z M 3.33 9.08 L 2.67 10.42 L 2.67 33.08 L 3.00 34.75 L 4.67 35.92 L 24.50 35.92 L 25.58 35.50 L 26.25 34.50 L 26.25 28.58 L 25.50 27.50 L 13.67 27.33 L 13.00 26.75 L 12.92 10.67 L 12.25 9.58 L 11.25 8.92 Z M 29.25 2.83 L 28.33 4.00 L 28.33 8.42 L 27.42 9.00 L 23.92 9.08 L 22.92 10.50 L 23.17 16.25 L 24.17 17.00 L 27.50 17.00 L 28.25 17.67 L 28.17 25.83 L 29.00 30.08 L 30.58 32.58 L 33.58 34.83 L 38.25 35.83 L 45.00 35.75 L 46.00 34.67 L 46.00 28.42 L 44.33 27.25 L 40.42 27.33 L 38.75 26.50 L 38.08 24.83 L 38.08 17.50 L 38.67 17.00 L 44.58 17.00 L 45.17 16.67 L 45.75 15.58 L 45.75 10.42 L 44.25 8.92 L 38.50 8.92 L 38.08 8.42 L 38.08 3.58 L 37.33 2.83 Z"/></svg>
-    <nav class="chapter-breadcrumb" aria-label="Breadcrumb">
+    <nav class="chapter-breadcrumb text-size-tiny" aria-label="Breadcrumb">
       <button type="button" class="chapter-breadcrumb__link" id="crumbChapter"></button>
       <span class="chapter-breadcrumb__sep" aria-hidden="true">&gt;</span>
       <span class="chapter-breadcrumb__current" id="crumbSection"></span>
@@ -5704,8 +5832,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 
 <script>
 (function(){
-  var deck = document.getElementById('deck');
-  var sections = Array.prototype.slice.call(deck.querySelectorAll('.site-section'));
+  var chapterRoot = document.getElementById('chapter-root');
+  var sections = Array.prototype.slice.call(chapterRoot.querySelectorAll('.site-section'));
   var total = sections.length;
   var idx = 0;
 
@@ -5845,14 +5973,14 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     for(var i = range.start; i <= range.end; i++){
       var slot = document.createElement('div');
       slot.className = 'screen';
-      if(sections[i].matches('.about-page, .section-hero-slide, .deck-section')) slot.classList.add('layout-document');
+      if(sections[i].matches('.about-page, .section-hero-slide, .chapter-block, .pgx-slide')) slot.classList.add('layout-document');
       else slot.classList.add('layout-artboard');
       if(!sections[i].id) sections[i].id = 'section-' + i;
       slot.appendChild(sections[i]);
       main.appendChild(slot);
     }
     el.appendChild(pageWrap);
-    deck.appendChild(el);
+    chapterRoot.appendChild(el);
     return el;
   });
   var chapterIndex = -1;
@@ -5964,7 +6092,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     item.className = 'navitem';
 
     var lbl = document.createElement('div');
-    lbl.className = 'lbl';
+    lbl.className = 'lbl text-size-small';
     var navChevron = '<svg class="nav-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
     lbl.innerHTML = '<span>' + ch.label + '</span>' + (ch.sub.length ? navChevron : '');
     lbl.addEventListener('click', function(){ goTo(ch.idx); closeAllMenus(); });
@@ -5975,7 +6103,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       menu.className = 'submenu';
       ch.sub.forEach(function(sub){
         var it = document.createElement('div');
-        it.className = 'sub-item';
+        it.className = 'sub-item text-size-tiny';
         it.textContent = sub.label;
         it.setAttribute('data-idx', sub.idx);
         if(sub.scroll) it.setAttribute('data-scroll', sub.scroll);
@@ -6008,7 +6136,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   });
 
   // ---- agenda slide: click a chapter row to jump straight to that chapter ----
-  deck.querySelectorAll('[data-goto-section]').forEach(function(row){
+  chapterRoot.querySelectorAll('[data-goto-section]').forEach(function(row){
     var chapterIdx = parseInt(row.getAttribute('data-goto-section'), 10);
     row.addEventListener('click', function(){
       if(MENU[chapterIdx]) goTo(MENU[chapterIdx].idx);
@@ -6208,7 +6336,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   }
 
   (function(){
-    var slide = deck.querySelector('.ctrl-slide');
+    var slide = chapterRoot.querySelector('.ctrl-slide');
     if(!slide) return;
     var items = slide.querySelectorAll('.ctrl-nav-item');
     var togs = slide.querySelectorAll('.ctrl-tog');
@@ -6297,23 +6425,57 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         copyEl.classList.remove('is-out');
       }, 140);
     }
+    function setCtrlTopic(item){
+      topic = item.getAttribute('data-topic');
+      items.forEach(function(el){
+        var on = el === item;
+        el.classList.toggle('is-on', on);
+        el.setAttribute('aria-selected', on ? 'true' : 'false');
+        el.setAttribute('tabindex', on ? '0' : '-1');
+      });
+      renderCopy();
+    }
     items.forEach(function(item){
-      item.addEventListener('click', function(){
-        topic = item.getAttribute('data-topic');
-        items.forEach(function(el){ el.classList.toggle('is-on', el === item); });
-        renderCopy();
+      item.addEventListener('click', function(){ setCtrlTopic(item); });
+      item.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          setCtrlTopic(item);
+        }
       });
     });
+    var toggleEl = slide.querySelector('.ctrl-toggle');
+    var toggleThumb = toggleEl && toggleEl.querySelector('.ctrl-toggle-thumb');
+    function syncCtrlToggleThumb(){
+      if(!toggleEl || !toggleThumb) return;
+      var active = toggleEl.querySelector('.ctrl-tog.is-on') || togs[0];
+      if(!active) return;
+      var inset = 3;
+      toggleThumb.style.width = active.offsetWidth + 'px';
+      toggleThumb.style.transform = 'translateX(' + (active.offsetLeft - inset) + 'px)';
+    }
+    function setCtrlMode(tog){
+      mode = tog.getAttribute('data-mode');
+      togs.forEach(function(el){
+        var on = el === tog;
+        el.classList.toggle('is-on', on);
+        el.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      syncCtrlToggleThumb();
+      renderCopy();
+    }
     togs.forEach(function(tog){
-      tog.addEventListener('click', function(){
-        mode = tog.getAttribute('data-mode');
-        togs.forEach(function(el){ el.classList.toggle('is-on', el === tog); });
-        renderCopy();
-      });
+      tog.addEventListener('click', function(){ setCtrlMode(tog); });
     });
+    syncCtrlToggleThumb();
+    window.addEventListener('resize', syncCtrlToggleThumb);
+    if(typeof ResizeObserver !== 'undefined' && toggleEl){
+      var ro = new ResizeObserver(syncCtrlToggleThumb);
+      ro.observe(toggleEl);
+    }
     if(cta){
       cta.addEventListener('click', function(){
-        var pgx = deck.querySelector('.pgx-slide');
+        var pgx = chapterRoot.querySelector('.pgx-slide');
         var n = Array.prototype.indexOf.call(sections, pgx);
         if(n >= 0) goTo(n);
       });
@@ -6321,7 +6483,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   })();
 
   (function(){
-    var slide = deck.querySelector('.nx-slide');
+    var slide = chapterRoot.querySelector('.nx-slide');
     if(!slide) return;
     var tabs = slide.querySelectorAll('.nx-tab');
     var groups = slide.querySelectorAll('.nx-group');
@@ -6403,6 +6565,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         slide.style.transform = '';
         slide.style.width = '';
         slide.style.height = '';
+        slide.style.removeProperty('--artboard-scale');
         return;
       }
       var slotW = slot.clientWidth;
@@ -6417,6 +6580,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       slide.style.width = (slotW / scale) + 'px';
       slide.style.height = artH + 'px';
       slide.style.transform = 'scale(' + scale + ') translateY(' + (-cropTop) + 'px)';
+      slide.style.setProperty('--artboard-scale', String(scale));
       slot.style.height = Math.ceil((artH - cropTop) * scale) + 'px';
     });
     if(!mobile) scaleAboutGlobe();
@@ -6494,7 +6658,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     if(p && p.catch) p.catch(function(){});
   }
   function pauseAllDeckVideos(){
-    deck.querySelectorAll('video').forEach(function(vid){
+    chapterRoot.querySelectorAll('video').forEach(function(vid){
       if(isCoverCollageVideo(vid)) return;
       pauseVideo(vid);
     });
@@ -6524,7 +6688,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   function syncHeroVideoPauseUI(){
     var paused = heroVideosPaused();
     var label = paused ? 'Play hero videos' : 'Pause hero videos';
-    deck.querySelectorAll('.hero-play-toggle').forEach(function(btn){
+    chapterRoot.querySelectorAll('.hero-play-toggle').forEach(function(btn){
       btn.innerHTML = paused ? ICON_HERO_PLAY : ICON_HERO_PAUSE;
       btn.setAttribute('aria-label', label);
       btn.setAttribute('aria-pressed', paused ? 'true' : 'false');
@@ -6533,7 +6697,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   }
   function applyHeroVideoPauseState(){
     var paused = heroVideosPaused();
-    deck.querySelectorAll('.section-hero__video').forEach(function(vid){
+    chapterRoot.querySelectorAll('.section-hero__video').forEach(function(vid){
       if(paused) pauseVideo(vid);
       else if(isHeroVideoSlideInView(vid)) loadAndPlay(vid);
     });
@@ -6562,7 +6726,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   }
   function initHeroVideoPosters(){
     heroPostersUseAvif(function(useAvif){
-      deck.querySelectorAll('.section-hero__video[data-src]').forEach(function(vid){
+      chapterRoot.querySelectorAll('.section-hero__video[data-src]').forEach(function(vid){
         var base = heroPosterBaseFromVideo(vid);
         if(!base) return;
         vid.setAttribute('poster', base + (useAvif ? '.avif' : '.webp'));
@@ -6571,7 +6735,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   }
   function initHeroVideoPauseControls(){
     initHeroVideoPosters();
-    deck.querySelectorAll('.section-hero').forEach(function(hero){
+    chapterRoot.querySelectorAll('.section-hero').forEach(function(hero){
       if(hero.querySelector('.hero-play-toggle')) return;
       var btn = document.createElement('button');
       btn.type = 'button';
@@ -6602,7 +6766,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     // "Capability Explorer" (slide 11) and "Multi-Modal Animation Controls" (slide 14) —
     // every video within those two slides gets one. Removed everywhere else per request.
     var scope = '[data-label="Capability Explorer"] video[data-src], [data-label="Multi-Modal Animation Controls"] .acc-video-frame video[data-src], [data-label="Multi-Modal Animation Controls"] .acc-hero video[data-src]';
-    deck.querySelectorAll(scope).forEach(function(vid){
+    chapterRoot.querySelectorAll(scope).forEach(function(vid){
       if(vid._soundBtn) return;
       var parent = vid.parentElement;
       if(!parent) return;
@@ -6615,7 +6779,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         e.stopPropagation();
         var turningOn = vid.muted;
         // only one clip plays audio at a time
-        deck.querySelectorAll('video').forEach(function(v){
+        chapterRoot.querySelectorAll('video').forEach(function(v){
           if(v !== vid && !v.muted){ v.muted = true; updateSoundBtn(v); }
         });
         vid.muted = !turningOn;
@@ -6648,7 +6812,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   }
 
   // ---- capability explorers — click a CTA to swap the content panel in place ----
-  deck.querySelectorAll('.cap-nav').forEach(function(nav){
+  chapterRoot.querySelectorAll('.cap-nav').forEach(function(nav){
     var slide = nav.closest('.site-section');
     var stage = slide && slide.querySelector('.cap-stage');
     if(!stage) return;
@@ -6681,7 +6845,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     if(defaultBtn) activateCap(defaultBtn.getAttribute('data-cap'), false);
   });
 
-  deck.querySelectorAll('.pp-show').forEach(function(show){
+  chapterRoot.querySelectorAll('.pp-show').forEach(function(show){
     var pairs = [].slice.call(show.querySelectorAll('.pp-pair'));
     var names = (show.getAttribute('data-names') || '').split('|').filter(Boolean);
     var beforeLbl = show.getAttribute('data-before') || 'Before';
@@ -6741,9 +6905,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 
   // ---- slide 12: workflow navigator — click a step to crossfade the content ----
   (function(){
-    var nav = deck.querySelector('.acc-nav');
+    var nav = chapterRoot.querySelector('.acc-nav');
     if(!nav) return;
-    var stage = deck.querySelector('.acc-stage');
+    var stage = chapterRoot.querySelector('.acc-stage');
     var btns = nav.querySelectorAll('.acc-item');
     var panels = stage.querySelectorAll('.acc-panel');
     var hdrHero = stage.querySelector('.acc-hero video');
@@ -6816,7 +6980,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   // ---- The LTX Advantage — auto-play Open → Efficient → Deployable → Built with you ----
   var advSlideEnter, advSlideLeave;
   (function(){
-    var row = deck.querySelector('#advRow') || deck.querySelector('.adv-row');
+    var row = chapterRoot.querySelector('#advRow') || chapterRoot.querySelector('.adv-row');
     if(!row) return;
     var slideEl = row.closest('.site-section');
     var cards = Array.prototype.slice.call(row.querySelectorAll('.adv-card'));
@@ -6960,7 +7124,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   // ---- Customer stories — click the rail to switch the active case study ----
   var csStoriesEnter, csStoriesLeave;
   (function(){
-    var slide = deck.querySelector('.cs-slide');
+    var slide = chapterRoot.querySelector('.cs-slide');
     if(!slide) return;
     var stories = [
       {
@@ -7151,7 +7315,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   // independently hoverable for a milestone tooltip (dims the rest).
   var pricingSlideEnter, pricingSlideLeave;
   (function(){
-    var sim = deck.querySelector('#prSim');
+    var sim = chapterRoot.querySelector('#prSim');
     if(!sim) return;
     var slideEl = sim.closest('.site-section');
     var range = document.getElementById('prRange');
@@ -7273,7 +7437,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   // a pay-as-you-go zone for the final stretch, rather than just stopping.
   var usageSlideEnter, usageSlideLeave;
   (function(){
-    var wrap = deck.querySelector('#ufWrap');
+    var wrap = chapterRoot.querySelector('#ufWrap');
     if(!wrap) return;
     var slideEl = wrap.closest('.site-section');
     var nodes = wrap.querySelectorAll('.uf-node');
@@ -7385,7 +7549,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   // interaction with a dedicated content panel below.
   var nsSlideEnter, nsSlideLeave;
   (function(){
-    var row = deck.querySelector('#nsRow');
+    var row = chapterRoot.querySelector('#nsRow');
     if(!row) return;
     var slideEl = row.closest('.site-section');
     var stages = row.querySelectorAll('.ns-stage');
@@ -7481,7 +7645,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   // ---- industries: tab list (research-style) swaps video on the right ----
   var industrySlideEnter, industrySlideLeave;
   (function(){
-    var menu = deck.querySelector('#industryGrid');
+    var menu = chapterRoot.querySelector('#industryGrid');
     if(!menu) return;
     var slideEl = menu.closest('.site-section');
     var tabs = menu.querySelectorAll('.industry-tab');
@@ -7489,45 +7653,6 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var videoPool = stage ? stage.querySelectorAll('[data-industry-video]') : [];
     var timers = [];
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var menuStyle = getComputedStyle(menu);
-    function lineDur(token, fallback){
-      var n = parseFloat(menuStyle.getPropertyValue(token));
-      return isNaN(n) ? fallback : n;
-    }
-    var lineEase = menuStyle.getPropertyValue('--industry-line-ease').trim() || 'cubic-bezier(0.37, 0.02, 0.14, 1)';
-    var lineInSec = lineDur('--industry-line-in', 0.62);
-    var lineOutSec = lineDur('--industry-line-out', 0.68);
-
-    function tabLine(tab){
-      return tab && tab.querySelector('.industry-tab__line');
-    }
-    function setLineScale(line, scale, instant, durationSec){
-      if(!line) return;
-      if(instant || reduceMotion){
-        line.style.transition = 'none';
-      } else {
-        var dur = durationSec != null ? durationSec : (scale === 1 ? lineInSec : lineOutSec);
-        line.style.transition = 'transform ' + dur + 's ' + lineEase;
-      }
-      line.style.transformOrigin = 'left center';
-      line.style.transform = 'scaleX(' + scale + ')';
-      if(instant || reduceMotion){
-        line.offsetHeight;
-        line.style.transition = '';
-      }
-    }
-    function isLastIndustryTab(tab){
-      return tab && tab === tabs[tabs.length - 1];
-    }
-    function handoffLine(fromTab, toTab, instant){
-      if(fromTab && fromTab !== toTab && !isLastIndustryTab(fromTab)){
-        setLineScale(tabLine(fromTab), 0, instant, lineOutSec);
-      }
-      if(toTab && !isLastIndustryTab(toTab)){
-        setLineScale(tabLine(toTab), 1, instant, lineInSec);
-      }
-    }
-
     function visibleIndustryVideo(){
       if(!stage) return null;
       return stage.querySelector('.industry-stage__video.is-visible') || videoPool[0] || null;
@@ -7585,14 +7710,11 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     }
     function setActive(tab, opts){
       opts = opts || {};
-      var prev = menu.querySelector('.industry-tab.is-on');
-      if(!opts.skipLine && prev !== tab){
-        handoffLine(prev, tab, !!opts.instant);
-      }
       tabs.forEach(function(t){
         var on = t === tab;
         t.classList.toggle('is-on', on);
         t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.setAttribute('tabindex', on ? '0' : '-1');
       });
       swapIndustryVideo(tab.getAttribute('data-video'), !!opts.instant);
     }
@@ -7600,6 +7722,12 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       tab.addEventListener('mouseenter', function(){ setActive(tab); });
       tab.addEventListener('focus', function(){ setActive(tab); });
       tab.addEventListener('click', function(){ setActive(tab); });
+      tab.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          setActive(tab);
+        }
+      });
     });
     function resetIndustry(){
       timers.forEach(clearTimeout); timers = [];
@@ -7616,7 +7744,6 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       tabs.forEach(function(t){
         t.classList.remove('is-on');
         t.setAttribute('aria-selected', 'false');
-        setLineScale(tabLine(t), 0, true);
       });
     }
     industrySlideEnter = function(enteredSlide){
@@ -7774,10 +7901,10 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   // ---- Case Study: VFX Studios — Slide 2, before/after pipeline toggle ----
   var cs2SlideEnter, cs2SlideLeave;
   (function(){
-    var wrap = deck.querySelector('#pipeWrap');
+    var wrap = chapterRoot.querySelector('#pipeWrap');
     if(!wrap) return;
     var slideEl = wrap.closest('.site-section');
-    var toggle = deck.querySelector('#pipeToggle');
+    var toggle = chapterRoot.querySelector('#pipeToggle');
     var btns = toggle ? toggle.querySelectorAll('.pt-btn') : [];
     var views = wrap.querySelectorAll('.pipeline-view');
     var timers = [];
@@ -7808,15 +7935,15 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   // ---- Case Study: VFX Studios — Slide 3, flowing impact reveal ----
   var cs3SlideEnter, cs3SlideLeave;
   (function(){
-    var statEls = deck.querySelectorAll('.cs-hero-stat .num[data-count]');
-    var wrap = deck.querySelector('#impactWrap');
+    var statEls = chapterRoot.querySelectorAll('.cs-hero-stat .num[data-count]');
+    var wrap = chapterRoot.querySelector('#impactWrap');
     if(!statEls.length && !wrap) return;
     var slideEl = (statEls.length ? statEls[0] : wrap).closest('.site-section');
     var timers = [];
     var spine = wrap ? wrap.querySelector('.impact-spine') : null;
     var drops = wrap ? wrap.querySelectorAll('.impact-drop') : [];
     var outcomes = wrap ? wrap.querySelectorAll('.impact-outcome') : [];
-    var chain = deck.querySelector('#impactChain');
+    var chain = chapterRoot.querySelector('#impactChain');
 
     function animateStat(el){
       var target = parseFloat(el.getAttribute('data-count')) || 0;
@@ -7864,10 +7991,10 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   // ---- Case Study: Enterprise Tech & IT — Slide 2, before/after pipeline toggle ----
   var cs2TechSlideEnter, cs2TechSlideLeave;
   (function(){
-    var wrap = deck.querySelector('#pipeWrapTech');
+    var wrap = chapterRoot.querySelector('#pipeWrapTech');
     if(!wrap) return;
     var slideEl = wrap.closest('.site-section');
-    var toggle = deck.querySelector('#pipeToggleTech');
+    var toggle = chapterRoot.querySelector('#pipeToggleTech');
     var btns = toggle ? toggle.querySelectorAll('.pt-btn') : [];
     var views = wrap.querySelectorAll('.pipeline-view');
     var timers = [];
@@ -7898,15 +8025,15 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   // ---- Case Study: Enterprise Tech & IT — Slide 3, flowing impact reveal ----
   var cs3TechSlideEnter, cs3TechSlideLeave;
   (function(){
-    var statEls = deck.querySelectorAll('#csStat1Tech[data-count]');
-    var wrap = deck.querySelector('#impactWrapTech');
+    var statEls = chapterRoot.querySelectorAll('#csStat1Tech[data-count]');
+    var wrap = chapterRoot.querySelector('#impactWrapTech');
     if(!statEls.length && !wrap) return;
     var slideEl = (statEls.length ? statEls[0] : wrap).closest('.site-section');
     var timers = [];
     var spine = wrap ? wrap.querySelector('.impact-spine') : null;
     var drops = wrap ? wrap.querySelectorAll('.impact-drop') : [];
     var outcomes = wrap ? wrap.querySelectorAll('.impact-outcome') : [];
-    var chain = deck.querySelector('#impactChainTech');
+    var chain = chapterRoot.querySelector('#impactChainTech');
 
     function animateStat(el){
       var target = parseFloat(el.getAttribute('data-count')) || 0;
@@ -7955,10 +8082,20 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   var setAccessPane = function(){};
   var accessSlideEnter, accessSlideLeave;
   (function(){
-    var slide = deck.querySelector('.access-slide');
+    var slide = chapterRoot.querySelector('.access-slide');
     if(!slide) return;
-    var btns = slide.querySelectorAll('.access-toggle button');
+    var toggleEl = slide.querySelector('.access-toggle');
+    var toggleThumb = toggleEl && toggleEl.querySelector('.ctrl-toggle-thumb');
+    var btns = slide.querySelectorAll('.access-toggle .ctrl-tog');
     var panes = slide.querySelectorAll('.access-pane');
+    function syncAccessToggleThumb(){
+      if(!toggleEl || !toggleThumb) return;
+      var active = toggleEl.querySelector('.ctrl-tog.is-on') || btns[0];
+      if(!active) return;
+      var inset = 3;
+      toggleThumb.style.width = active.offsetWidth + 'px';
+      toggleThumb.style.transform = 'translateX(' + (active.offsetLeft - inset) + 'px)';
+    }
     function syncNav(){
       document.querySelectorAll('.submenu .sub-item[data-pane]').forEach(function(it){
         it.classList.toggle('current', sections[idx] === slide && it.getAttribute('data-pane') === slide.getAttribute('data-access'));
@@ -7970,9 +8107,10 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       if(slide._settleTimer) clearTimeout(slide._settleTimer);
       btns.forEach(function(b){
         var on = b.getAttribute('data-pane') === name;
-        b.classList.toggle('on', on);
+        b.classList.toggle('is-on', on);
         b.setAttribute('aria-selected', on ? 'true' : 'false');
       });
+      syncAccessToggleThumb();
       panes.forEach(function(p){
         var on = p.getAttribute('data-pane') === name;
         p.classList.toggle('is-on', on);
@@ -7995,6 +8133,12 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         setAccessPane(b.getAttribute('data-pane'), true);
       });
     });
+    syncAccessToggleThumb();
+    window.addEventListener('resize', syncAccessToggleThumb);
+    if(typeof ResizeObserver !== 'undefined' && toggleEl){
+      var accessToggleRo = new ResizeObserver(syncAccessToggleThumb);
+      accessToggleRo.observe(toggleEl);
+    }
     accessSlideEnter = function(entered){
       if(entered !== slide) return;
       var name = pendingAccessPane || slide.getAttribute('data-access') || 'licensing';
@@ -8009,7 +8153,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 
   // ---- "Back to Commercial Models" buttons on the two pricing detail slides ----
   // returning to the hub clears the remembered selection until the visitor picks again
-  deck.querySelectorAll('.back-to-hub').forEach(function(btn){
+  chapterRoot.querySelectorAll('.back-to-hub').forEach(function(btn){
     btn.addEventListener('click', function(){
       selectedModel = null;
       var target = document.getElementById(btn.getAttribute('data-goto-id'));
@@ -8020,7 +8164,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 
   // ---- slide: Two commercial models — click a card to zoom into its section ----
   (function(){
-    var hubCards = deck.querySelectorAll('.hub-card');
+    var hubCards = chapterRoot.querySelectorAll('.hub-card');
     if(!hubCards.length) return;
     var MODEL_BY_TARGET = { slideRevenueShare:'revenue', slideUsageBased:'usage' };
     hubCards.forEach(function(card){
@@ -8071,6 +8215,26 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var viz = document.getElementById('wmViz');
     var proofs = document.getElementById('wmProofs');
     if(!viz || !proofs) return;
+
+    function syncWmGrid(){
+      var target = parseFloat(getComputedStyle(viz).getPropertyValue('--wm-grid-target')) || 20;
+      var w = viz.clientWidth;
+      var h = viz.clientHeight;
+      if(w < 2 || h < 2) return;
+      var cols = Math.max(1, Math.round(w / target));
+      var rows = Math.max(1, Math.round(h / target));
+      viz.style.setProperty('--wm-grid-cw', (w / cols) + 'px');
+      viz.style.setProperty('--wm-grid-ch', (h / rows) + 'px');
+    }
+    syncWmGrid();
+    if(typeof ResizeObserver !== 'undefined'){
+      var gridRo = new ResizeObserver(syncWmGrid);
+      gridRo.observe(viz);
+      gridRo.observe(proofs);
+    }else{
+      window.addEventListener('resize', syncWmGrid);
+    }
+
     var nodes = viz.querySelectorAll('.wm-node');
     var spokes = viz.querySelectorAll('.wm-spoke');
     var proofEls = proofs.querySelectorAll('.wm-proof');
@@ -8113,8 +8277,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   // ---- slide: Production-grade model — capability explorer ----
   var pgxSlideEnter, pgxSlideLeave;
   (function(){
-    var nav = deck.querySelector('#prodNav');
-    var stage = deck.querySelector('#pgxStage');
+    var nav = chapterRoot.querySelector('#prodNav');
+    var stage = chapterRoot.querySelector('#pgxStage');
     if(!nav || !stage) return;
     var items = nav.querySelectorAll('.pgx-item');
     var panels = stage.querySelectorAll('.pgx-panel');

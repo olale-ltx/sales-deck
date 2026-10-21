@@ -104,6 +104,15 @@
   --space-xl: 4rem;
   --space-2xl: 6rem;
 
+  /* Tab list + stage: one track across document sections (Industries, World Model, …) */
+  --split-cols: minmax(0, 1fr) minmax(0, 2fr);
+  --split-gap: 3rem;
+
+  /* Eyebrows (.section-name) — slightly below legacy Webflow 0.9rem / 0.15em */
+  --fs-eyebrow: 0.8125rem;
+  --ls-eyebrow: 0.08em;
+  --lh-eyebrow: 1.05;
+
   --container-max: 100rem;
   --container-pad: clamp(1rem, 3.5vw, 3rem);
   --rail-width: 30%;
@@ -159,6 +168,21 @@
   width: 100%;
   max-width: var(--content-max, 100rem);
   margin-inline: auto;
+}
+
+.split-layout {
+  display: grid;
+  grid-template-columns: var(--split-cols);
+  gap: var(--split-gap);
+  align-items: stretch;
+  min-width: 0;
+}
+
+/* Panels on off-white ground: LTX white fill, no outer stroke, 0.5rem radius (tab hairlines stay) */
+.ltx-surface {
+  background: var(--ltx-white);
+  border: none;
+  border-radius: var(--radius-md);
 }
 
 /* --------------------------------------------------------------------------
@@ -226,7 +250,7 @@
   align-items: center;
   gap: 0;
   color: var(--ltx-grey-medium);
-  font-size: 0.9rem;
+  font-size: var(--fs-eyebrow);
   font-weight: 400;
   line-height: var(--lh-medium);
   text-wrap: balance;
@@ -234,16 +258,16 @@
 .section-name {
   margin: 0;
   font-family: var(--font-sans);
-  font-size: 0.9rem;
+  font-size: var(--fs-eyebrow);
   font-weight: 300;
-  line-height: 1.05;
-  letter-spacing: 0.15em;
+  line-height: var(--lh-eyebrow);
+  letter-spacing: var(--ls-eyebrow);
   text-transform: uppercase;
 }
 .text-scramble {
   display: none;
   font-family: var(--font-sans);
-  font-size: 0.9rem;
+  font-size: var(--fs-eyebrow);
   font-weight: 300;
   line-height: 1;
   letter-spacing: 0.3rem;

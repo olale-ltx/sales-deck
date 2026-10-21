@@ -24,7 +24,7 @@ Live URL and the Apps Script contract are in `sales-deck-original/README.md`. Ke
 - Divider slides (`.divider-grow`) auto-advance: video plays, the frame grows to fill the canvas, then the next slide. Skipped under 900px. Reduced motion waits and advances without the grow.
 - Commercial branch: choosing Revenue Share or Usage-Based sets `selectedModel`. Forward/back then skips the other model’s slide until you return to the hub.
 - Videos use `data-src` and load on first need. Hidden slides pause. `data-no-sound="1"` marks slides that stay silent.
-- Each chapter is a vertically scrollable page; sections within a chapter use `.screen` slots and `.deck-section` blocks.
+- Each chapter is a vertically scrollable page; sections within a chapter use `.screen` slots and `.chapter-block` blocks.
 
 ## Slide list
 

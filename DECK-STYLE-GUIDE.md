@@ -25,7 +25,7 @@ Applied on desktop. One role, one class, one color, one weight.
 | Slide title | `.heading-style-h1` | black | 400 | The one title on a content slide |
 | Panel heading | `.heading-style-h3` | black | 400 | The main heading inside a slide, under the title |
 | Card or row title | `.heading-style-h5` | black | 500 | Cards, list rows, tabs, stage names |
-| Lead | `.text-size-xlarge` | black | 400 | The sentence under a slide title |
+| Section subtext | `.text-size-large` + `.text-balanced` | black | 400 | Chapter intro, block lead under H1, control/LTX-2.5 taglines; layout via `.section-sub` only |
 | Body | `.text-size-regular` | black | 400 | Paragraphs |
 | Support | `.text-size-small` | grey-light | 400 | Secondary lines, nav labels |
 | Meta | `.text-size-tiny` | grey-muted | 400 | Captions, axis labels, footnotes, inactive numbers |
@@ -37,7 +37,7 @@ Applied on desktop. One role, one class, one color, one weight.
 | Secondary button | `.ltx-but-base` | black on transparent | 400 | The quieter action |
 | Quote | `.text-style-quote` | black | 400 | Customer quotes |
 
-Unused on purpose until a slide needs them: H4, H6, large, medium. Grey-medium drops out. `.is-small` drops out, so both buttons share one size.
+Unused on purpose until a slide needs them: H4, H6, medium. Grey-medium drops out. `.is-small` drops out, so both buttons share one size.
 
 ## Text styles in the deck now
 
@@ -124,7 +124,7 @@ Applied. A missing or wrong field gets a black border, focus moves to it, and th
 ## Decisions (confirmed 20 Oct 2026)
 
 1. Every content slide keeps one H1 title, including dense slides.
-2. The sentence under a title is always x-large.
+2. The sentence under a title is always `.text-size-large` (with `.section-sub` + `.text-balanced` for layout).
 3. The heading inside a panel is always H3.
 4. Card, row, and tab titles are always H5.
 5. Body is regular in black. Support is small in grey-light. Meta is tiny in grey-muted.

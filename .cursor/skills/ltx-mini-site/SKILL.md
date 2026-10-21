@@ -14,7 +14,9 @@ description: Build or refactor LTX chapter-based mini-websites (sales decks, lon
 ## Vocabulary
 
 - Say **section**, **chapter**, **mini-site** — not slide, deck mode, or presentation.
-- HTML: `<section class="site-section …">` inside `.screen`.
+- HTML: `<section class="site-section …">` inside `.screen`; chapter DOM lives in `#chapter-root`.
+- Scroll blocks in a chapter: `.chapter-block` (not `deck-section`).
+- Tab + stage explorers: `.split-layout` (1fr \| 2fr), `.split-tab-list` / `.split-tab` / `.split-tab__text`.
 - `.layout-document` = flow layout; `.layout-artboard` = scaled absolute layout (legacy, avoid for new work).
 
 ## Rules
@@ -34,5 +36,5 @@ description: Build or refactor LTX chapter-based mini-websites (sales decks, lon
 ## Do not
 
 - Reintroduce presentation modes, slide counters, or per-layout-type typography tokens.
-- Use `--fs-*-stage` overrides in the deck.
+- Use `--fs-*-stage` overrides in the mini-site.
 - Use font-weight 700+ or pink/green accent colors.
