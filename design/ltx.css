@@ -40,6 +40,8 @@
   --color-accent: var(--ltx-slate-dark);
 
   --content-max: 100rem;
+  /* Gap from chapter hero video (.section-hero-slide) to the next .screen slot */
+  --hero-to-content-gap: 4rem;
 
   --font-sans: "Aeonik", "Inter", Arial, system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;

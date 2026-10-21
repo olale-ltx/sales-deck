@@ -23,7 +23,7 @@ description: Build or refactor LTX chapter-based mini-websites (sales decks, lon
 
 - Reuse Webflow classes: `heading-style-h*`, `h1-display`, `text-size-*`, `section-name-new`, `ltx-but-base`.
 - New visual need → propose class + `STYLE-GUIDE.md` entry; do not add `#id` or single-use selectors without approval.
-- Spacing between major blocks: `var(--section-gap)` (12rem).
+- Spacing: `var(--section-gap)` (12rem) between `.screen` slots; `var(--hero-to-content-gap)` (4rem) after a `.section-hero-slide` to the next `.screen`.
 - Column: `--content-pad-x` + `--content-max` (100rem); nav inset must match (see `#appnav` padding in reference `deck/index.html`).
 - Leave `sales-deck-original/` unchanged.
 

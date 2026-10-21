@@ -10,5 +10,5 @@ This repo is a **chapter-based mini-website**, not a slide deck. Follow `docs/LT
 - Use **sections** (`.site-section`), not “slides.” No presentation modes or special type rules per layout kind.
 - Style only with documented Webflow classes (`heading-style-h*`, `h1-display`, `text-size-*`, `section-name-new`, `ltx-but-base`). New pattern = update the guide + agree the class.
 - Prefer **document layout** (`.layout-document`). **Artboard layout** (`.layout-artboard`) is legacy; do not extend it for new content without a migration plan.
-- Spacing: `--section-gap` between major sections. Column: 3vw padding, `--content-max` 100rem.
+- Spacing: `--section-gap` (12rem) between `.screen` slots; `--hero-to-content-gap` (4rem) from chapter hero video to the next `.screen`. Column: 3vw padding, `--content-max` 100rem.
 - Agent skill: `.cursor/skills/ltx-mini-site/SKILL.md`

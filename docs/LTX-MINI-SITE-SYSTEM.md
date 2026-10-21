@@ -33,6 +33,7 @@ How to build a chapter-based LTX site like `deck/index.html`. Read `STYLE-GUIDE.
 ## Spacing
 
 - Between consecutive `.screen` slots: `margin-top: var(--section-gap)` (12rem).
+- **After a chapter hero video:** the hero lives in its own `.screen` with `.section-hero-slide`; the next `.screen` (first body content) uses **`margin-top: var(--hero-to-content-gap)` (4rem)**, not `--section-gap`. Selector: `.screen:has(> .section-hero-slide) + .screen`.
 - Between blocks inside one About `.site-section`: `.about-block + .about-block { margin-top: var(--section-gap) }`.
 
 ## Typography (single system)
