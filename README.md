@@ -1,10 +1,29 @@
-# Sales deck
+# LTX mini-site (sales deck reference)
 
-New LTX web presentations in this folder use the visual language of the LoRA training guide, not the palette in `sales-deck-original/`.
+Chapter-based **mini-website** for LTX sales content—not a slide deck. This repo is the reference implementation for future LTX composite sites (decks, long presentations, rich documents).
 
-Read [STYLE-GUIDE.md](STYLE-GUIDE.md) before changing layout, type, or color. Shared CSS and the logo are in `design/`:
+## Start here
 
-- `design/ltx.css` — tokens and components
-- `design/ltx-logo-black.svg` — LTX mark
+| Doc | Purpose |
+|-----|---------|
+| [docs/LTX-MINI-SITE-GOALS.md](docs/LTX-MINI-SITE-GOALS.md) | Goals and non‑negotiables |
+| [docs/LTX-MINI-SITE-SYSTEM.md](docs/LTX-MINI-SITE-SYSTEM.md) | HTML anatomy, layout kinds, spacing |
+| [STYLE-GUIDE.md](STYLE-GUIDE.md) | Tokens, type, color (law) |
+| [design/ltx.css](design/ltx.css) | Shared CSS |
+| [DECK-STYLE-GUIDE.md](DECK-STYLE-GUIDE.md) | Class usage map for this site |
 
-`sales-deck-original/` is the previous 2026 deck (1920×1080 stage, lead form, slide tracking). Keep it as reference. Build the new presentation beside it.
+**Agent skill:** `.cursor/skills/ltx-mini-site/SKILL.md`
+
+## Run locally
+
+Serve the **repo root** (so `../sales-deck-original/` resolves):
+
+```bash
+python3 -m http.server 8790
+```
+
+Open [http://127.0.0.1:8790/deck/](http://127.0.0.1:8790/deck/)
+
+## Reference only
+
+`sales-deck-original/` — previous 2020s slide-stage deck; do not copy patterns from it.

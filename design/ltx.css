@@ -39,6 +39,8 @@
   --color-on-media: var(--ltx-white);
   --color-accent: var(--ltx-slate-dark);
 
+  --content-max: 100rem;
+
   --font-sans: "Aeonik", "Inter", Arial, system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
@@ -155,7 +157,7 @@
 
 .main-container {
   width: 100%;
-  max-width: var(--content-max, 90rem);
+  max-width: var(--content-max, 100rem);
   margin-inline: auto;
 }
 

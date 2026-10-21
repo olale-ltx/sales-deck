@@ -5,12 +5,12 @@ alwaysApply: true
 
 # LTX visual language
 
-Follow `STYLE-GUIDE.md` and `design/ltx.css`. Source is the LoRA training guide, not `sales-deck-original/`.
+Follow `docs/LTX-MINI-SITE-GOALS.md`, `STYLE-GUIDE.md`, and `design/ltx.css`. This is a mini-website (`.site-section`), not a slide deck. Source is the LoRA training guide, not `sales-deck-original/`.
 
 - Colors are the Webflow "LTX brand colors" set in `design/ltx.css`. Page ground is `--ltx-offwhite` (`#e7e8eb`). Ink is `--ltx-black` (`#0b0b0b`). No pink, green, or pure-white canvas. Accents are `--ltx-slate-dark` (current position) and `--ltx-slate-medium` (progress so far), on progress and position marks only. No purple. Active states are black.
 - Aeonik, then Inter. Display through H3 is weight 400. H4–H6 and active labels are 500. Do not use 700, 800, or 900.
 - Reuse Webflow class names: `heading-style-h*`, `h1-display`, `text-size-*`, `section-name-new` (eyebrow), `ltx-but-base` / `.is-black`. Do not invent a one-off style for a single element.
-- On a 1920×1080 stage use `--fs-*-stage`. Do not use the `vw` clamps there; those track the browser viewport.
+- In the sales deck, use `--fs-*` clamps and Webflow classes on every slide (no per-slide-type `--fs-*-stage` overrides). `--fs-*-stage` is only for a literal 1920×1080 canvas with no slide transform.
 - Hairlines are 1px `--color-border`. Footage sits in `.media-card` with `--scrim`.
 - Index numbers are zero-padded, `tabular-nums`, in a `--nav-num-col` track.
 - Motion uses `--ease-out-soft` and the transition tokens. Honor `prefers-reduced-motion`. In-page links jump; they do not smooth-scroll.
@@ -20,6 +20,6 @@ Follow `STYLE-GUIDE.md` and `design/ltx.css`. Source is the LoRA training guide,
 /* ❌ scaled slide title */
 .title { font-size: 70px; font-weight: 600; color: #111; }
 
-/* ✅ stage title */
-.title { font-size: var(--fs-h1-stage); font-weight: 400; letter-spacing: var(--ls-h1); color: var(--color-ink); }
+/* ✅ deck title */
+.title { font-size: var(--fs-h1); font-weight: 400; letter-spacing: var(--ls-h1); color: var(--color-ink); }
 ```

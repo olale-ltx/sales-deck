@@ -37,6 +37,8 @@
   --subnav-h:0px;
   --chrome-top:var(--topnav-h);
   --content-pad-x:3vw;
+  --content-max:100rem;
+  --section-gap:12rem;
 }
 body.has-chapter-sub{
   --chrome-top:calc(var(--topnav-h) + var(--subnav-h));
@@ -54,25 +56,9 @@ html,body{
 }
 ::selection{ background:var(--ltx-black); color:var(--ltx-white); }
 :focus-visible{ outline:2px solid var(--ltx-black); outline-offset:2px; }
-/* Fluid type from design/ltx.css (--fs-* clamps on :root). Flow slides use that scale.
-   Fixed 1920×1080 slides keep stage rem tokens so typography scales once with slide transform. */
-@media (min-width:901px){
-  .slide:not(.about-page):not(.section-hero-slide){
-    --fs-display:var(--fs-display-stage);
-    --fs-h1:var(--fs-h1-stage);
-    --fs-h2:var(--fs-h2-stage);
-    --fs-h3:var(--fs-h3-stage);
-    --fs-h4:var(--fs-h4-stage);
-    --fs-h5:var(--fs-h5-stage);
-    --fs-h6:var(--fs-h6-stage);
-    --fs-xlarge:var(--fs-xlarge-stage);
-    --fs-large:var(--fs-large-stage);
-    --fs-medium:var(--fs-medium-stage);
-    --fs-regular:var(--fs-regular-stage);
-    --fs-small:var(--fs-small-stage);
-    --fs-tiny:var(--fs-tiny-stage);
-  }
-}
+/* Typography: one system — design/ltx.css --fs-* clamps on :root. Use h1-display,
+   heading-style-h*, text-size-* everywhere. Artboard sections scale as a whole; do not pin
+   alternate --fs-* tokens per section type. */
 #stage{
   position:relative;
   min-height:100vh;
@@ -89,7 +75,11 @@ html,body{
   padding-inline:var(--content-pad-x, 3vw);
 }
 /* Content spans the full padded width so it always lines up with the nav logo. */
-.main-container{ max-width:none; }
+.main-container{
+  width:100%;
+  max-width:var(--content-max);
+  margin-inline:auto;
+}
 #deck{
   position:relative;
   width:100%; height:auto;
@@ -104,88 +94,93 @@ html,body{
   scroll-margin-top:var(--chrome-top);
 }
 @media (min-width:901px){
-  .screen > .slide{
+  .screen > .site-section{
     position:relative; inset:auto;
     width:100%; height:auto; min-height:0;
     opacity:1; pointer-events:auto;
     transform:none;
   }
-  /* Fixed-artboard slides: the 90rem content area of the 1920×1080 design, sized
-     and scaled by syncDeckLayout() so the band from --fit-top down fills one
-     section. Covers keep the full 1920 width for the collage. */
-  .screen:not(.is-flow) > .slide{
-    width:var(--content-max); height:var(--canvas-h);
+  /* Artboard sections: the 90rem content area of the 1920×1080 design, scaled
+     by syncArtboardLayout() (band from --fit-top down). Covers keep the full 1920 width. */
+  .main-container > .screen + .screen{ margin-top:var(--section-gap); }
+  .about-page .deck-sections > .about-block + .about-block{ margin-top:var(--section-gap); }
+  .screen.layout-artboard > .site-section{
+    width:var(--artboard-w); height:var(--canvas-h);
     transform-origin:0 0;
     --content-gutter:0px;
     --fit-top:130;
   }
-  .screen:not(.is-flow) > .slide.cover{
+  .screen.layout-artboard > .site-section.cover{
     width:var(--canvas-w);
     --fit-top:0;
   }
-  /* Flow slides fill one section. */
-  .slide.section-hero-slide{
+  .site-section.section-hero-slide{
     box-sizing:border-box;
-    display:flex; flex-direction:column;
-    height:var(--section-h, auto);
-    padding:clamp(0.5rem, 0.8vw, 0.5rem) 0 clamp(1.5rem, 2.4vw, 2.5rem);
+    height:auto;
+    padding:clamp(0.5rem, 0.8vw, 0.5rem) 0 0;
     background:var(--bg);
   }
-  .section-hero-slide .section-hero-block{
-    display:flex; flex-direction:column; flex:1 1 auto; min-height:0;
-  }
-  .section-hero-slide .section-hero{ flex:1 1 auto; min-height:0; aspect-ratio:auto; }
-  .section-hero-slide .section-hero-intro{ flex:none; }
-  .slide.ctrl-slide{
-    box-sizing:border-box;
-    min-height:var(--section-h, auto);
-  }
   .about-page .deck-sections > .about-block{
-    box-sizing:border-box;
-    min-height:var(--section-h, auto);
-    display:flex; flex-direction:column; justify-content:center;
-    padding-block:clamp(1.5rem, 4vh, 3rem);
+    padding-block:0;
+    border-bottom:none;
   }
-  .about-page .deck-sections > .about-block.who-chapter{ justify-content:flex-start; padding-top:clamp(0.5rem, 0.8vw, 1rem); }
-  /* Industries: the tab list stretches to the room left under the heading. */
-  #aboutIndustries{ height:var(--section-h, auto); }
+  .about-page .deck-sections > .about-block.who-chapter{
+    padding-top:clamp(0.5rem, 0.8vw, 1rem);
+    padding-bottom:0;
+  }
   #aboutIndustries .about-lead{ margin-bottom:0; }
   #aboutIndustries .about-industries-layout{
-    flex:1 1 auto; min-height:0; margin-top:clamp(1rem, 3vh, 1.75rem);
+    margin-top:clamp(1rem, 3vh, 1.75rem);
     grid-template-columns:minmax(0,1fr) minmax(0,1.45fr);
+    align-items:stretch;
   }
-  #aboutIndustries .industry-tabs-menu{ align-self:stretch; position:relative; top:auto; }
-  #aboutIndustries .industry-tab{ flex:1 0 auto; display:flex; align-items:center; padding-block:0.4rem; }
+  /* Row height follows the 16:9 video; tabs share that height evenly. */
+  #aboutIndustries .industry-stage{
+    position:relative; top:auto;
+    width:100%; height:auto;
+    aspect-ratio:16 / 9;
+    align-self:start;
+  }
+  #aboutIndustries .industry-tabs-menu{
+    align-self:stretch;
+    position:relative; top:auto;
+    height:auto;
+    min-height:0;
+  }
+  #aboutIndustries .industry-tab{
+    flex:1 1 0;
+    min-height:0;
+    display:flex; align-items:center;
+    padding-block:0.5rem;
+  }
   @media (max-height:860px){
     #aboutIndustries .industry-tab:not(.is-on) .industry-tab__sub{ display:none; }
   }
-  #aboutIndustries .industry-stage{ position:relative; top:auto; }
-  #aboutWorld{ padding-top:clamp(1.5rem, 4vh, 3rem); }
-  #aboutWorld .wm-viz{ width:min(100%, calc(var(--section-h, 100vh) - 13rem)); justify-self:center; }
-  .screen:not(.is-flow) > .slide.nx-slide{ --fit-top:50; }
-  .screen:not(.is-flow) > .slide.pricing-sim,
-  .screen:not(.is-flow) > .slide.usage-flow{ --fit-top:80; }
+  #aboutWorld .wm-viz{ width:min(100%, 36rem); max-height:640px; justify-self:center; }
+  .screen.layout-artboard > .site-section.nx-slide{ --fit-top:50; }
+  .screen.layout-artboard > .site-section.pricing-sim,
+  .screen.layout-artboard > .site-section.usage-flow{ --fit-top:80; }
 }
 @media (max-width:900px){
   .screen{ height:auto !important; overflow:visible; }
-  .slide.section-hero-slide{
+  .site-section.section-hero-slide{
     padding:0.5rem 0 8px !important;
   }
 }
 .content-container{
-  --content-max:90rem;
-  /* Legacy absolute in-slide blocks: outer 90rem edge. Flow sections use .main-container. */
-  --content-edge:max(0px, calc((100% - var(--content-max)) / 2));
+  /* Artboard coordinate system (1440px artboard). Layout column cap is :root --content-max. */
+  --artboard-w:90rem;
+  --content-edge:max(0px, calc((100% - var(--artboard-w)) / 2));
   --content-gutter:var(--content-edge);
 }
-.slide{
+.site-section{
   position:relative;
   width:100%;
   background:var(--bg);
   color:var(--ink);
   z-index:1;
 }
-.slide.dark{ background:var(--dark); color:var(--ltx-white); }
+.site-section.dark{ background:var(--dark); color:var(--ltx-white); }
 
 /* ---------- shared building blocks ---------- */
 .topbar{
@@ -197,7 +192,7 @@ html,body{
   height:36px;
 }
 .logo{ font-size:var(--fs-h5); font-weight:500; letter-spacing:var(--ls-h5); line-height:var(--lh-normal); color:var(--ltx-black); }
-.slide.dark .logo{ color:var(--ltx-grey-light); }
+.site-section.dark .logo{ color:var(--ltx-grey-light); }
 .date{ font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
 .rule{
   position:absolute; top:83px; left:var(--content-gutter); right:var(--content-gutter); height:1px;
@@ -242,7 +237,7 @@ html,body{
 .divider-footer .lbl{ font-size:var(--fs-display); font-weight:400; letter-spacing:var(--ls-display); line-height:var(--lh-compact); color:var(--ltx-black); }
 
 /* Divider slides: video plays in-frame, then expands to fill the canvas and dissolves into the next slide */
-.slide.divider-grow .divider-visual{
+.site-section.divider-grow .divider-visual{
   z-index:12;
   transition:
     top .62s cubic-bezier(.16,1,.3,1),
@@ -251,20 +246,20 @@ html,body{
     height .62s cubic-bezier(.16,1,.3,1),
     border-radius .62s cubic-bezier(.16,1,.3,1);
 }
-.slide.divider-grow .divider-visual video{
+.site-section.divider-grow .divider-visual video{
   position:absolute; inset:0;
   width:100%; height:100%; object-fit:cover;
 }
-.slide.divider-grow .divider-footer{
+.site-section.divider-grow .divider-footer{
   z-index:5;
   transition:opacity .4s ease;
 }
-.slide.divider-grow.is-growing .divider-visual{
+.site-section.divider-grow.is-growing .divider-visual{
   top:0; left:0; right:0; height:100%;
   border-radius:0;
 }
-.slide.divider-grow.is-growing .divider-footer{ opacity:0; }
-.slide.active.divider-grow.is-dissolving{
+.site-section.divider-grow.is-growing .divider-footer{ opacity:0; }
+.site-section.active.divider-grow.is-dissolving{
   opacity:0;
   transition:opacity .45s ease;
 }
@@ -283,15 +278,26 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .cover .headline{
   position:absolute; left:var(--content-gutter); top:624px; width:944px;
   margin:0;
+  font-size:var(--fs-display);
+  line-height:var(--lh-compact);
+  letter-spacing:var(--ls-display);
+  font-weight:400;
+  color:var(--ink);
 }
 .cover .subhead{
-  position:absolute; left:var(--content-gutter); top:872px; width:1200px;
-     margin:0; font-size:var(--fs-xlarge); font-weight:400; letter-spacing:var(--ls-xlarge); line-height:var(--lh-medium); color:var(--ltx-black); }
+  position:absolute; left:var(--content-gutter); top:828px; width:1200px;
+  margin:0;
+  font-size:var(--fs-h4);
+  font-weight:400;
+  letter-spacing:var(--ls-h4);
+  line-height:var(--lh-medium);
+  color:var(--ltx-black);
+}
 .cover .logo-big, .cover .headline, .cover .subhead{
   z-index:8;
   pointer-events:none;
 }
-.slide.cover::after{
+.site-section.cover::after{
   content:'';
   position:absolute; left:-120px; top:0; bottom:0; width:calc(58% + 120px);
   background:linear-gradient(90deg, #e7e8eb 0, #e7e8eb 18%, rgba(231,232,235,.93) 46%, rgba(231,232,235,.72) 70%, rgba(231,232,235,.28) 88%, rgba(231,232,235,0) 100%);
@@ -328,13 +334,13 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .collage .tile video{
   width:100%; height:100%; object-fit:cover; display:block;
 }
-.slide.active .cover-row.to-right .cover-row-track{ animation:coverMarqueeRight 42s linear infinite; }
-.slide.active .cover-row.to-left .cover-row-track{ animation:coverMarqueeLeft 38s linear infinite; }
-.slide.active .cover-row[data-band="a"] .cover-row-track{ animation-duration:44s; }
-.slide.active .cover-row[data-band="b"] .cover-row-track{ animation-duration:36s; }
-.slide.active .cover-row[data-band="c"] .cover-row-track{ animation-duration:42s; }
-.slide.active .cover-row[data-band="d"] .cover-row-track{ animation-duration:34s; }
-.slide.active .cover-row[data-band="e"] .cover-row-track{ animation-duration:40s; }
+.site-section.active .cover-row.to-right .cover-row-track{ animation:coverMarqueeRight 42s linear infinite; }
+.site-section.active .cover-row.to-left .cover-row-track{ animation:coverMarqueeLeft 38s linear infinite; }
+.site-section.active .cover-row[data-band="a"] .cover-row-track{ animation-duration:44s; }
+.site-section.active .cover-row[data-band="b"] .cover-row-track{ animation-duration:36s; }
+.site-section.active .cover-row[data-band="c"] .cover-row-track{ animation-duration:42s; }
+.site-section.active .cover-row[data-band="d"] .cover-row-track{ animation-duration:34s; }
+.site-section.active .cover-row[data-band="e"] .cover-row-track{ animation-duration:40s; }
 @keyframes coverMarqueeLeft{
   from{ transform:translateX(0); }
   to{ transform:translateX(-50%); }
@@ -785,26 +791,26 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 }
 .agenda-row:not(:hover) .go-i.is-out{ transform:translateX(0); }
 .agenda-row:not(:hover) .go-i.is-in{ transform:translateX(-130%); }
-.slide.active .agenda-wrap.is-playing .agenda-row{
+.site-section.active .agenda-wrap.is-playing .agenda-row{
   animation:agendaItemIn .5s cubic-bezier(.16,1,.3,1) forwards;
 }
-.slide.active .agenda-wrap.is-playing .agenda-row .go{
+.site-section.active .agenda-wrap.is-playing .agenda-row .go{
   animation:agendaGoReveal .42s cubic-bezier(.16,1,.3,1) forwards;
 }
-.slide.active .agenda-wrap.is-playing .agenda-row:nth-child(1){ animation-delay:.04s; }
-.slide.active .agenda-wrap.is-playing .agenda-row:nth-child(1) .go{ animation-delay:.2s; }
-.slide.active .agenda-wrap.is-playing .agenda-row:nth-child(2){ animation-delay:.26s; }
-.slide.active .agenda-wrap.is-playing .agenda-row:nth-child(2) .go{ animation-delay:.42s; }
-.slide.active .agenda-wrap.is-playing .agenda-row:nth-child(3){ animation-delay:.48s; }
-.slide.active .agenda-wrap.is-playing .agenda-row:nth-child(3) .go{ animation-delay:.64s; }
-.slide.active .agenda-wrap.is-playing .agenda-row:nth-child(4){ animation-delay:.7s; }
-.slide.active .agenda-wrap.is-playing .agenda-row:nth-child(4) .go{ animation-delay:.86s; }
-.slide.active .agenda-wrap.is-playing .agenda-row:nth-child(5){ animation-delay:.92s; }
-.slide.active .agenda-wrap.is-playing .agenda-row:nth-child(5) .go{ animation-delay:1.08s; }
-.slide.active .agenda-wrap.is-playing .agenda-row:nth-child(6){ animation-delay:1.14s; }
-.slide.active .agenda-wrap.is-playing .agenda-row:nth-child(6) .go{ animation-delay:1.3s; }
-.slide.active .agenda-wrap.is-playing .agenda-row:nth-child(7){ animation-delay:1.36s; }
-.slide.active .agenda-wrap.is-playing .agenda-row:nth-child(7) .go{ animation-delay:1.52s; }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(1){ animation-delay:.04s; }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(1) .go{ animation-delay:.2s; }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(2){ animation-delay:.26s; }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(2) .go{ animation-delay:.42s; }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(3){ animation-delay:.48s; }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(3) .go{ animation-delay:.64s; }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(4){ animation-delay:.7s; }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(4) .go{ animation-delay:.86s; }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(5){ animation-delay:.92s; }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(5) .go{ animation-delay:1.08s; }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(6){ animation-delay:1.14s; }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(6) .go{ animation-delay:1.3s; }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(7){ animation-delay:1.36s; }
+.site-section.active .agenda-wrap.is-playing .agenda-row:nth-child(7) .go{ animation-delay:1.52s; }
 @keyframes agendaItemIn{
   from{ opacity:0; transform:translateY(18px); }
   to{ opacity:1; transform:none; }
@@ -846,8 +852,8 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   from{ opacity:0; transform:translateY(14px); }
   to{ opacity:1; transform:translateY(0); }
 }
-.slide .story-in{ opacity:0; }
-.slide.active .story-in{
+.site-section .story-in{ opacity:0; }
+.site-section.active .story-in{
   animation:storyIn .6s cubic-bezier(.16,1,.3,1) forwards;
 }
 
@@ -906,8 +912,8 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 /* final statement — emphasis drifts from "realistic videos" to "Physical AI" */
 @keyframes phFadeFrom{ from{ color:var(--ltx-black); } to{ color:var(--ltx-grey-muted); } }
 @keyframes phEmphasizeTo{ from{ color:var(--ltx-black); font-weight:500; } to{ color:var(--ltx-black); font-weight:500; } }
-.slide.active .ph-from{ animation:phFadeFrom 1s ease forwards; animation-delay:1.5s; }
-.slide.active .ph-to{ animation:phEmphasizeTo 1s ease forwards; animation-delay:1.8s; }
+.site-section.active .ph-from{ animation:phFadeFrom 1s ease forwards; animation-delay:1.5s; }
+.site-section.active .ph-to{ animation:phEmphasizeTo 1s ease forwards; animation-delay:1.8s; }
 
 /* ============ SLIDE 7: expandable problem cards ============ */
 .grid{ position:absolute; overflow:visible; }
@@ -1185,7 +1191,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 
 /* ============ SLIDE: Next steps — animated exploration-to-production journey ============ */
 .ns-bg-grid{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:0; }
-.slide.active .ns-bg-grid{ animation:nsGridIn 1.2s ease forwards; animation-delay:.1s; }
+.site-section.active .ns-bg-grid{ animation:nsGridIn 1.2s ease forwards; animation-delay:.1s; }
 @keyframes nsGridIn{ to{ opacity:1; } }
 
 .ns-eyebrow{ justify-content:center; }
@@ -1195,7 +1201,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   background:radial-gradient(ellipse at center, rgba(11,11,11,0.18), transparent 70%);
   filter:blur(3px); pointer-events:none; opacity:0;
 }
-.slide.active .ns-title-glow{
+.site-section.active .ns-title-glow{
   animation:nsGlowIn .8s ease forwards, nsGlowShift 6s ease-in-out .8s infinite alternate;
 }
 @keyframes nsGlowIn{ to{ opacity:1; } }
@@ -1492,7 +1498,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 
 /* ============ SLIDE: LTX as a World Model — rotating wireframe globe hero ============ */
 .wm-bg-grid{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:0; }
-.slide.active .wm-bg-grid{ animation:wmGridIn 1.2s ease forwards; animation-delay:.1s; }
+.site-section.active .wm-bg-grid{ animation:wmGridIn 1.2s ease forwards; animation-delay:.1s; }
 @keyframes wmGridIn{ to{ opacity:1; } }
 
 .wm-msg{
@@ -1529,15 +1535,15 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   stroke:var(--ltx-grey-muted); stroke-width:1.2; opacity:.5; stroke-dasharray:1500; stroke-dashoffset:1500;
   transform-origin:1220px 570px;
 }
-.slide.active .wm-lat ellipse{ animation:wmDraw 1.4s ease forwards; }
-.slide.active .wm-lat ellipse:nth-child(1){ animation-delay:.1s; }
-.slide.active .wm-lat ellipse:nth-child(2){ animation-delay:.22s; }
-.slide.active .wm-lat ellipse:nth-child(3){ animation-delay:.22s; }
-.slide.active .wm-lat ellipse:nth-child(4){ animation-delay:.34s; }
-.slide.active .wm-lat ellipse:nth-child(5){ animation-delay:.34s; }
-.slide.active .wm-merid-1{ animation:wmDraw 1.4s ease .2s forwards, wmRotate 16s linear 2.6s infinite; }
-.slide.active .wm-merid-2{ animation:wmDraw 1.4s ease .32s forwards, wmRotate 16s linear 7.93s infinite; }
-.slide.active .wm-merid-3{ animation:wmDraw 1.4s ease .44s forwards, wmRotate 16s linear 13.27s infinite; }
+.site-section.active .wm-lat ellipse{ animation:wmDraw 1.4s ease forwards; }
+.site-section.active .wm-lat ellipse:nth-child(1){ animation-delay:.1s; }
+.site-section.active .wm-lat ellipse:nth-child(2){ animation-delay:.22s; }
+.site-section.active .wm-lat ellipse:nth-child(3){ animation-delay:.22s; }
+.site-section.active .wm-lat ellipse:nth-child(4){ animation-delay:.34s; }
+.site-section.active .wm-lat ellipse:nth-child(5){ animation-delay:.34s; }
+.site-section.active .wm-merid-1{ animation:wmDraw 1.4s ease .2s forwards, wmRotate 16s linear 2.6s infinite; }
+.site-section.active .wm-merid-2{ animation:wmDraw 1.4s ease .32s forwards, wmRotate 16s linear 7.93s infinite; }
+.site-section.active .wm-merid-3{ animation:wmDraw 1.4s ease .44s forwards, wmRotate 16s linear 13.27s infinite; }
 @keyframes wmDraw{ to{ stroke-dashoffset:0; } }
 @keyframes wmRotate{
   0%{ transform:scaleX(1); }
@@ -1550,38 +1556,38 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .wm-nodes circle{
   fill:var(--ltx-grey-muted); opacity:0; transform-box:fill-box; transform-origin:center; transform:scale(.3);
 }
-.slide.active .wm-nodes circle{ animation:wmNodeIn .5s cubic-bezier(.16,1,.3,1) forwards; }
-.slide.active .wm-nodes circle:nth-child(1){ animation-delay:1.5s; }
-.slide.active .wm-nodes circle:nth-child(2){ animation-delay:1.62s; }
-.slide.active .wm-nodes circle:nth-child(3){ animation-delay:1.74s; }
-.slide.active .wm-nodes circle:nth-child(4){ animation-delay:1.86s; }
-.slide.active .wm-nodes circle:nth-child(5){ animation-delay:1.98s; }
-.slide.active .wm-nodes circle:nth-child(6){ animation-delay:2.1s; }
-.slide.active .wm-nodes circle:nth-child(7){ animation-delay:2.22s; }
+.site-section.active .wm-nodes circle{ animation:wmNodeIn .5s cubic-bezier(.16,1,.3,1) forwards; }
+.site-section.active .wm-nodes circle:nth-child(1){ animation-delay:1.5s; }
+.site-section.active .wm-nodes circle:nth-child(2){ animation-delay:1.62s; }
+.site-section.active .wm-nodes circle:nth-child(3){ animation-delay:1.74s; }
+.site-section.active .wm-nodes circle:nth-child(4){ animation-delay:1.86s; }
+.site-section.active .wm-nodes circle:nth-child(5){ animation-delay:1.98s; }
+.site-section.active .wm-nodes circle:nth-child(6){ animation-delay:2.1s; }
+.site-section.active .wm-nodes circle:nth-child(7){ animation-delay:2.22s; }
 @keyframes wmNodeIn{ from{ opacity:0; transform:scale(.3); } to{ opacity:1; transform:scale(1); } }
 
 .wm-node-links path{ stroke:var(--ltx-grey-line); stroke-width:1; opacity:.5; stroke-dasharray:220; stroke-dashoffset:220; }
-.slide.active .wm-node-links path{ animation:wmDrawShort .6s ease forwards; }
-.slide.active .wm-node-links path:nth-child(1){ animation-delay:2.3s; }
-.slide.active .wm-node-links path:nth-child(2){ animation-delay:2.38s; }
-.slide.active .wm-node-links path:nth-child(3){ animation-delay:2.46s; }
-.slide.active .wm-node-links path:nth-child(4){ animation-delay:2.54s; }
-.slide.active .wm-node-links path:nth-child(5){ animation-delay:2.62s; }
-.slide.active .wm-node-links path:nth-child(6){ animation-delay:2.7s; }
-.slide.active .wm-node-links path:nth-child(7){ animation-delay:2.78s; }
+.site-section.active .wm-node-links path{ animation:wmDrawShort .6s ease forwards; }
+.site-section.active .wm-node-links path:nth-child(1){ animation-delay:2.3s; }
+.site-section.active .wm-node-links path:nth-child(2){ animation-delay:2.38s; }
+.site-section.active .wm-node-links path:nth-child(3){ animation-delay:2.46s; }
+.site-section.active .wm-node-links path:nth-child(4){ animation-delay:2.54s; }
+.site-section.active .wm-node-links path:nth-child(5){ animation-delay:2.62s; }
+.site-section.active .wm-node-links path:nth-child(6){ animation-delay:2.7s; }
+.site-section.active .wm-node-links path:nth-child(7){ animation-delay:2.78s; }
 @keyframes wmDrawShort{ from{ opacity:0; stroke-dashoffset:220; } to{ opacity:.5; stroke-dashoffset:0; } }
 
 /* marker-pink data flow — fades in once the wireframe is fully connected, then
    drifts continuously and calmly, echoing "information flowing into the model" */
 .wm-flow-links path{ stroke:var(--ltx-black); stroke-width:1.4; stroke-dasharray:8 14; opacity:0; }
-.slide.active .wm-flow-links path{
+.site-section.active .wm-flow-links path{
   animation:wmFlowFadeIn .8s ease 3s forwards, wmFlowMove 2.6s linear 3s infinite;
 }
 @keyframes wmFlowFadeIn{ to{ opacity:.5; } }
 @keyframes wmFlowMove{ to{ stroke-dashoffset:-220; } }
 
 .wm-particles circle{ fill:var(--ltx-black); opacity:0; transform-box:fill-box; transform-origin:center; }
-.slide.active .wm-particle{
+.site-section.active .wm-particle{
   animation:wmParticleIn .5s ease 3.3s forwards, wmParticleDrift 4.5s ease-in-out 3.3s infinite;
 }
 @keyframes wmParticleIn{ to{ opacity:.8; } }
@@ -1591,13 +1597,13 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   stroke:var(--ltx-grey-line); stroke-width:1.2; opacity:0; stroke-dasharray:170; stroke-dashoffset:170;
   transition:stroke .3s ease, stroke-width .3s ease, opacity .3s ease;
 }
-.slide.active .wm-cap-line{ animation:wmCapLineIn .5s ease forwards; }
-.slide.active .wm-cap-line:nth-child(1){ animation-delay:2.55s; }
-.slide.active .wm-cap-line:nth-child(2){ animation-delay:2.65s; }
-.slide.active .wm-cap-line:nth-child(3){ animation-delay:2.75s; }
-.slide.active .wm-cap-line:nth-child(4){ animation-delay:2.85s; }
-.slide.active .wm-cap-line:nth-child(5){ animation-delay:2.95s; }
-.slide.active .wm-cap-line:nth-child(6){ animation-delay:3.05s; }
+.site-section.active .wm-cap-line{ animation:wmCapLineIn .5s ease forwards; }
+.site-section.active .wm-cap-line:nth-child(1){ animation-delay:2.55s; }
+.site-section.active .wm-cap-line:nth-child(2){ animation-delay:2.65s; }
+.site-section.active .wm-cap-line:nth-child(3){ animation-delay:2.75s; }
+.site-section.active .wm-cap-line:nth-child(4){ animation-delay:2.85s; }
+.site-section.active .wm-cap-line:nth-child(5){ animation-delay:2.95s; }
+.site-section.active .wm-cap-line:nth-child(6){ animation-delay:3.05s; }
 @keyframes wmCapLineIn{ from{ opacity:0; stroke-dashoffset:170; } to{ opacity:.6; stroke-dashoffset:0; } }
 .wm-cap-line.active{ stroke:var(--ltx-black); stroke-width:1.8; opacity:1; }
 
@@ -1607,7 +1613,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   transition:opacity .3s ease;
   animation-delay:var(--capDelay, 0s);
 }
-.slide.active .wm-cap{ animation:wmCapIn .5s ease forwards; animation-delay:var(--capDelay, 0s); }
+.site-section.active .wm-cap{ animation:wmCapIn .5s ease forwards; animation-delay:var(--capDelay, 0s); }
 @keyframes wmCapIn{
   from{ opacity:0; transform:translate(-50%,-50%) scale(.7); }
   to{ opacity:1; transform:translate(-50%,-50%) scale(1); }
@@ -1757,7 +1763,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   fill:none; stroke:var(--ltx-black); stroke-width:1; opacity:.05;
   stroke-dasharray:4 10;
 }
-.slide.active .pr-bg-lines path{ animation:prFlowMove 5s linear infinite; }
+.site-section.active .pr-bg-lines path{ animation:prFlowMove 5s linear infinite; }
 .pr-bg-lines path:nth-of-type(2){ animation-duration:6.5s; opacity:.035; }
 .pr-bg-lines path:nth-of-type(3){ animation-duration:4.2s; opacity:.04; }
 .pr-bg-lines path:nth-of-type(4){ animation-duration:7.5s; opacity:.035; }
@@ -1813,7 +1819,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .lic-item p{ position:relative; z-index:2;   margin:0; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
 /* scoped to the visible pane so the hidden tab's cards don't finish the
    fly-in off-screen — switching tabs then restarts the sequence */
-.slide.active .access-pane.is-on.is-playing .lic-item{
+.site-section.active .access-pane.is-on.is-playing .lic-item{
   animation:licFlyIn .6s cubic-bezier(.16,1,.3,1) forwards;
   animation-delay:var(--flyDelay);
 }
@@ -1939,7 +1945,8 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 }
 #appnav{
   position:fixed; top:0; left:0; right:0; z-index:100;
-  display:flex; align-items:center; gap:8px; padding:0 var(--appnav-pad-x);
+  display:flex; align-items:center; gap:8px;
+  padding-inline:calc(var(--content-pad-x) + max(0px, (100vw - 2 * var(--content-pad-x) - var(--content-max)) / 2));
   background:var(--ltx-offwhite);
   font-family:var(--font); color:var(--ink);
   transition:opacity .45s ease;
@@ -2001,7 +2008,8 @@ body.nav-open .menu-toggle span:nth-child(3){ transform:translateY(-7px) rotate(
 #appnav-sub{
   position:fixed; top:var(--topnav-h); left:0; right:0; z-index:99;
   display:none; align-items:center;
-  padding:var(--subnav-pad-y) var(--appnav-pad-x);
+  padding-block:var(--subnav-pad-y);
+  padding-inline:calc(var(--content-pad-x) + max(0px, (100vw - 2 * var(--content-pad-x) - var(--content-max)) / 2));
   background:rgba(231, 232, 235, 0.7);
   backdrop-filter:blur(12px);
   -webkit-backdrop-filter:blur(12px);
@@ -2535,7 +2543,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   position:absolute; inset:0; width:100%; height:100%; overflow:visible;
   z-index:0; pointer-events:none; opacity:0;
 }
-.slide.active .sys-net{ animation:sysNetIn 1s ease forwards; animation-delay:.2s; }
+.site-section.active .sys-net{ animation:sysNetIn 1s ease forwards; animation-delay:.2s; }
 @keyframes sysNetIn{ to{ opacity:1; } }
 .sys-grid-bg{ opacity:.045; }
 .net-lines line{ stroke:rgba(0,0,0,.05); stroke-width:1; }
@@ -2545,7 +2553,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   fill:var(--ltx-grey-line); opacity:.5; r:3;
   transform-box:fill-box; transform-origin:center;
 }
-.slide.active .net-nodes-primary .node{ animation:sysNodeFlash .8s ease forwards; }
+.site-section.active .net-nodes-primary .node{ animation:sysNodeFlash .8s ease forwards; }
 @keyframes sysNodeFlash{
   0%{ fill:var(--ltx-grey-line); opacity:.5; }
   40%{ fill:var(--ltx-black); opacity:1; r:5.5; }
@@ -2556,7 +2564,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   stroke-dasharray:50 900; opacity:0;
   filter:drop-shadow(0 0 4px rgba(11,11,11,0.21));
 }
-.slide.active .flow-path{
+.site-section.active .flow-path{
   animation:
     sysFlowIn .3s ease forwards .7s,
     sysFlowMove 2.3s linear .9s 3,
@@ -2574,7 +2582,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   opacity:0;
   transition:transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease, opacity .3s ease;
 }
-.slide.active .sys-card-grid .sys-card{ animation:sysCardIn .7s cubic-bezier(.16,1,.3,1) forwards; }
+.site-section.active .sys-card-grid .sys-card{ animation:sysCardIn .7s cubic-bezier(.16,1,.3,1) forwards; }
 @keyframes sysCardIn{
   0%{ opacity:0; transform:translateY(16px) scale(.97); filter:blur(6px); border-color:var(--line); box-shadow:0 2px 6px rgba(0,0,0,.03); }
   55%{ opacity:1; transform:translateY(0) scale(1); filter:blur(0); border-color:var(--ltx-black); box-shadow:0 16px 34px rgba(11,11,11,0.054); }
@@ -2663,23 +2671,23 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     padding-bottom:calc(14px + env(safe-area-inset-bottom));
     box-sizing:border-box;
   }
-  .slide{
+  .site-section{
     display:none; position:relative !important; inset:auto !important;
     width:100% !important; height:auto !important;
     padding:20px 20px 36px !important; box-sizing:border-box;
     opacity:1 !important; pointer-events:auto !important;
     transform:none !important;
   }
-  .slide.active{ display:block !important; }
+  .site-section.active{ display:block !important; }
 
   /* flatten one-off absolutely positioned inline elements into normal flow */
-  .slide.active [style*="position:absolute"]{
+  .site-section.active [style*="position:absolute"]{
     position:relative !important; top:auto !important; left:auto !important;
     right:auto !important; bottom:auto !important;
     width:100% !important; max-width:100% !important; height:auto !important;
     margin:0 0 14px !important;
   }
-  .slide.active [style*="position:absolute"][style*="display:flex"]{ flex-wrap:wrap !important; row-gap:10px; }
+  .site-section.active [style*="position:absolute"][style*="display:flex"]{ flex-wrap:wrap !important; row-gap:10px; }
 
   /* shared building blocks */
   .topbar{ position:relative !important; top:auto; left:auto; right:auto; margin:0 0 14px; height:auto; }
@@ -2698,7 +2706,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .divider-footer .num, .divider-footer .lbl{ font-size:40px !important; line-height:1.15 !important; }
 
   /* cover / closing — centered copy, same-size video carousel */
-  .slide.cover.active{
+  .site-section.cover.active{
     display:flex !important;
     flex-direction:column;
     align-items:center;
@@ -2715,7 +2723,10 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   }
   .cover .subhead{
     position:relative !important; top:auto !important; left:auto !important;
-    width:100% !important; font-size:18px !important; line-height:1.4 !important;
+    width:100% !important;
+    font-size:var(--fs-h5) !important;
+    line-height:var(--lh-medium) !important;
+    margin-top:10px !important;
     order:2; text-align:center !important;
   }
   .collage{
@@ -2768,13 +2779,13 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .dash-metrics .metric{ padding:12px 8px !important; border-right:none !important; }
   .dash-metrics .mval{ font-size:28px !important; }
   .dash-metrics .mlbl{ font-size:13px !important; }
-  .slide.pricing-sim [style*="display:flex"][style*="border-bottom"],
-  .slide.pricing-sim [style*="display:flex"][style*="padding:10px"]{
+  .site-section.pricing-sim [style*="display:flex"][style*="border-bottom"],
+  .site-section.pricing-sim [style*="display:flex"][style*="padding:10px"]{
     flex-direction:column !important;
     align-items:flex-start !important;
     gap:6px !important;
   }
-  .slide.pricing-sim span[style*="width:270px"]{ width:100% !important; }
+  .site-section.pricing-sim span[style*="width:270px"]{ width:100% !important; }
 
   /* card grids */
   .grid{
@@ -2908,7 +2919,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   /* slide 19 licensing cards: single column, so the corner-to-corner fly-in
      doesn't make sense here — just fade+rise instead, sweep stays the same */
   .lic-item{ padding:8px 12px; }
-  .slide.active .access-pane.is-on.is-playing .lic-item{ animation-name:licFadeUpMobile; }
+  .site-section.active .access-pane.is-on.is-playing .lic-item{ animation-name:licFadeUpMobile; }
   .access-toggle{ position:relative !important; top:auto; left:auto; transform:none; margin:4px auto 18px; }
   .access-stage{ position:relative !important; top:auto; left:auto; right:auto; bottom:auto; height:auto; min-height:0; }
   .access-pane{ position:relative !important; inset:auto; display:none; opacity:1; visibility:visible; pointer-events:auto; }
@@ -3142,7 +3153,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     padding-top:calc(var(--topnav-h) + 12px);
     padding-bottom:calc(16px + env(safe-area-inset-bottom));
   }
-  .slide{
+  .site-section{
     padding:24px 24px 48px !important;
     min-height:100svh;
     height:auto !important;
@@ -3152,7 +3163,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     font-size:36px !important; line-height:1.08 !important;
     margin:0 0 16px !important;
   }
-  .slide.active [style*="position:absolute"]{
+  .site-section.active [style*="position:absolute"]{
     font-size:16px !important; line-height:1.45 !important;
     margin:0 0 16px !important;
   }
@@ -3170,7 +3181,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .icon-btn{ width:44px; height:44px; min-height:44px; }
 
   /* Cover + thank you: centered copy, large equal video carousel */
-  .slide.cover.active{
+  .site-section.cover.active{
     display:flex !important;
     flex-direction:column;
     align-items:center;
@@ -3181,37 +3192,37 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     overflow:auto;
     background:var(--ltx-white);
   }
-  .slide.cover .headline,
-  .slide.cover .subhead,
-  .slide.cover .logo-big{
+  .site-section.cover .headline,
+  .site-section.cover .subhead,
+  .site-section.cover .logo-big{
     position:relative; z-index:1;
     background:transparent;
     text-align:center;
   }
-  .slide.cover::after{ display:none; }
-  .slide.cover .headline{
+  .site-section.cover::after{ display:none; }
+  .site-section.cover .headline{
     font-size:36px !important; line-height:1.08 !important;
     max-width:100%; width:100% !important;
     margin:0 auto !important;
     order:1;
     text-align:center !important;
   }
-  .slide.cover .subhead{
-    font-size:16px !important; line-height:1.45 !important;
-    max-width:100%; margin:14px auto 0 !important;
+  .site-section.cover .subhead{
+    font-size:var(--fs-regular) !important; line-height:var(--lh-medium) !important;
+    max-width:100%; margin:10px auto 0 !important;
     order:2;
     text-align:center !important;
   }
-  .slide.cover .logo-big{
+  .site-section.cover .logo-big{
     height:28px !important;
     margin:0 auto 16px !important;
     order:0;
   }
-  .slide.cover.active:not(:has(.subhead)) .headline{
+  .site-section.cover.active:not(:has(.subhead)) .headline{
     margin-top:8px !important; font-size:40px !important;
     order:0;
   }
-  .slide.cover .collage{
+  .site-section.cover .collage{
     position:relative !important;
     inset:auto !important;
     display:flex !important;
@@ -3236,13 +3247,13 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     -webkit-mask-image:none;
     mask-image:none;
   }
-  .slide.cover .collage::-webkit-scrollbar{ display:none; }
-  .slide.cover .cover-row,
-  .slide.cover .cover-row-track,
-  .slide.cover .cover-row-set{ display:contents; }
-  .slide.cover .cover-row-set[aria-hidden]{ display:none !important; }
-  .slide.cover .cover-row-track{ animation:none !important; }
-  .slide.cover .collage .tile{
+  .site-section.cover .collage::-webkit-scrollbar{ display:none; }
+  .site-section.cover .cover-row,
+  .site-section.cover .cover-row-track,
+  .site-section.cover .cover-row-set{ display:contents; }
+  .site-section.cover .cover-row-set[aria-hidden]{ display:none !important; }
+  .site-section.cover .cover-row-track{ animation:none !important; }
+  .site-section.cover .collage .tile{
     position:relative !important;
     top:auto !important; left:auto !important; right:auto !important; bottom:auto !important;
     inset:auto !important;
@@ -3257,14 +3268,14 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   }
 
   /* Section dividers: short video band, title raised into view below it */
-  .slide.active:has(.divider-footer){
+  .site-section.active:has(.divider-footer){
     display:flex !important;
     flex-direction:column;
     justify-content:flex-start;
     min-height:auto;
     padding:24px !important;
   }
-  .slide.active:has(.divider-footer) .divider-visual{
+  .site-section.active:has(.divider-footer) .divider-visual{
     position:relative !important;
     flex:none !important;
     width:100% !important;
@@ -3276,12 +3287,12 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     overflow:hidden;
     background:var(--ltx-black);
   }
-  .slide.active:has(.divider-footer) .divider-visual video{
+  .site-section.active:has(.divider-footer) .divider-visual video{
     position:absolute; inset:0;
     width:100% !important; height:100% !important;
     object-fit:cover; display:block;
   }
-  .slide.active:has(.divider-footer) .divider-footer{
+  .site-section.active:has(.divider-footer) .divider-footer{
     margin-top:0;
     flex-wrap:wrap;
     height:auto !important;
@@ -3511,13 +3522,13 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   }
 
   /* Revenue share: stack principle rows so copy is not clipped */
-  .slide.pricing-sim [style*="display:flex"][style*="border-bottom"],
-  .slide.pricing-sim [style*="display:flex"][style*="padding:10px"]{
+  .site-section.pricing-sim [style*="display:flex"][style*="border-bottom"],
+  .site-section.pricing-sim [style*="display:flex"][style*="padding:10px"]{
     flex-direction:column !important;
     align-items:flex-start !important;
     gap:6px !important;
   }
-  .slide.pricing-sim span[style*="width:270px"]{
+  .site-section.pricing-sim span[style*="width:270px"]{
     width:100% !important;
   }
   .pr-card{ padding:16px 18px; }
@@ -3607,11 +3618,11 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .cs-callout p{ margin:0;    font-style:italic; max-width:1400px; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
 
 .cs-stagger{ opacity:0; transform:translateY(14px); transition:opacity .5s cubic-bezier(.16,1,.3,1), transform .5s cubic-bezier(.16,1,.3,1); }
-.slide.active .cs-stagger{ opacity:1; transform:translateY(0); }
-.slide.active .cs-stagger:nth-child(1){ transition-delay:.05s; }
-.slide.active .cs-stagger:nth-child(2){ transition-delay:.12s; }
-.slide.active .cs-stagger:nth-child(3){ transition-delay:.19s; }
-.slide.active .cs-stagger:nth-child(4){ transition-delay:.26s; }
+.site-section.active .cs-stagger{ opacity:1; transform:translateY(0); }
+.site-section.active .cs-stagger:nth-child(1){ transition-delay:.05s; }
+.site-section.active .cs-stagger:nth-child(2){ transition-delay:.12s; }
+.site-section.active .cs-stagger:nth-child(3){ transition-delay:.19s; }
+.site-section.active .cs-stagger:nth-child(4){ transition-delay:.26s; }
 
 /* ---- Slide 1: challenge dashboard ---- */
 .chal-row{ position:absolute; top:465px; left:var(--content-gutter); right:var(--content-gutter); bottom:205px; display:flex; gap:20px; }
@@ -3888,7 +3899,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     </div>
     <button type="submit" id="pw-submit" class="ltx-but-base is-black">Continue</button>
     <span id="pw-hint" role="status" aria-live="polite">Sales Deck · Internal</span>
-    <p id="pw-privacy">Your name, role, and how you use this deck — which slides you view and for how long — are recorded so we can follow up usefully. See the <a href="https://static.lightricks.com/legal/privacy-policy.pdf" target="_blank" rel="noopener noreferrer">privacy policy</a>.</p>
+    <p id="pw-privacy">Your name, role, and how you use this deck — which sections you view and for how long — are recorded so we can follow up usefully. See the <a href="https://static.lightricks.com/legal/privacy-policy.pdf" target="_blank" rel="noopener noreferrer">privacy policy</a>.</p>
   </form>
 </div>
 <script>
@@ -4060,7 +4071,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 <div id="stage"><div class="global-padding padding-global"><div id="deck">
 
 <!-- SLIDE 1 -->
-<section class="slide content-container cover" data-section="0" data-label="Cover" data-no-sound="1">
+<section class="site-section content-container cover" data-section="0" data-label="Cover" data-no-sound="1">
   <svg class="logo-big" viewBox="0 0 80 38" role="img" aria-label="LTX"><path fill-rule="evenodd" fill="#0b0b0b" d="M 50.08 9.33 L 50.08 11.58 L 56.83 21.42 L 56.92 22.33 L 49.00 33.75 L 49.33 35.42 L 50.50 35.92 L 58.17 35.75 L 63.33 29.33 L 67.17 34.67 L 68.58 35.83 L 76.42 35.92 L 77.75 35.25 L 77.75 33.50 L 69.83 22.17 L 71.00 19.58 L 76.92 11.25 L 77.08 10.00 L 76.58 9.17 L 68.42 9.00 L 63.75 14.83 L 63.00 14.58 L 59.08 9.08 L 51.50 8.92 Z M 3.33 9.08 L 2.67 10.42 L 2.67 33.08 L 3.00 34.75 L 4.67 35.92 L 24.50 35.92 L 25.58 35.50 L 26.25 34.50 L 26.25 28.58 L 25.50 27.50 L 13.67 27.33 L 13.00 26.75 L 12.92 10.67 L 12.25 9.58 L 11.25 8.92 Z M 29.25 2.83 L 28.33 4.00 L 28.33 8.42 L 27.42 9.00 L 23.92 9.08 L 22.92 10.50 L 23.17 16.25 L 24.17 17.00 L 27.50 17.00 L 28.25 17.67 L 28.17 25.83 L 29.00 30.08 L 30.58 32.58 L 33.58 34.83 L 38.25 35.83 L 45.00 35.75 L 46.00 34.67 L 46.00 28.42 L 44.33 27.25 L 40.42 27.33 L 38.75 26.50 L 38.08 24.83 L 38.08 17.50 L 38.67 17.00 L 44.58 17.00 L 45.17 16.67 L 45.75 15.58 L 45.75 10.42 L 44.25 8.92 L 38.50 8.92 L 38.08 8.42 L 38.08 3.58 L 37.33 2.83 Z"/></svg>
   <div class="collage" id="collage1"></div>
   <h1 class="headline h1-display">The world model<br>the world builds on</h1>
@@ -4068,7 +4079,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 2: Agenda -->
-<section class="slide content-container" data-section="0" data-label="Agenda">
+<section class="site-section content-container" data-section="0" data-label="Agenda">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <div class="agenda-wrap">
@@ -4083,7 +4094,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 3: Who we are — chapter hero -->
-<section class="slide content-container section-hero-slide" data-section="1" data-label="Who We Are" data-no-sound="1" id="section-who-hero">
+<section class="site-section content-container section-hero-slide" data-section="1" data-label="Who We Are" data-no-sound="1" id="section-who-hero">
   <div class="section-hero-block">
     <header class="section-hero" aria-label="Who are we">
       <video class="section-hero__video" data-src="../sales-deck-original/videos/ed1f6b840edc8e5346333f4e9f618cc201a417b8.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
@@ -4099,7 +4110,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 4–6: Who we are (scrollable page) -->
-<section class="slide content-container about-page scroll-page world-model" data-section="1" data-label="Who We Are">
+<section class="site-section content-container about-page scroll-page world-model" data-section="1" data-label="Who We Are">
   <div class="deck-sections">
 
     <article class="about-block deck-section who-chapter" data-track-block="who:intro">
@@ -4237,7 +4248,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 7: From dependency to control -->
-<section class="slide content-container ctrl-slide deck-section" data-section="1" data-label="From dependency to control">
+<section class="site-section content-container ctrl-slide deck-section" data-section="1" data-label="From dependency to control">
   <div class="topbar" aria-hidden="true"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule" aria-hidden="true"></div>
   <div class="ctrl-head">
@@ -4299,7 +4310,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 9: Production-grade model — interactive capability explorer -->
-<section class="slide content-container pgx-slide" data-section="1" data-label="Production-grade model">
+<section class="site-section content-container pgx-slide" data-section="1" data-label="Production-grade model">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <h1 class="title heading-style-h1">Production-grade model</h1>
@@ -4421,7 +4432,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 9b: What’s new in LTX-2.5 — interactive feature explorer -->
-<section class="slide content-container nx-slide" data-section="1" data-label="What's new in LTX-2.5">
+<section class="site-section content-container nx-slide" data-section="1" data-label="What's new in LTX-2.5">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <div class="nx-head">
@@ -4618,7 +4629,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 10: What LTX can do — chapter hero -->
-<section class="slide content-container section-hero-slide" data-section="2" data-label="What LTX Can Do" data-no-sound="1" id="section-can-hero">
+<section class="site-section content-container section-hero-slide" data-section="2" data-label="What LTX Can Do" data-no-sound="1" id="section-can-hero">
   <div class="section-hero-block">
     <header class="section-hero" aria-label="What LTX can do">
       <video class="section-hero__video" data-src="../sales-deck-original/videos/bd791c9d7464903f57fb391fd73ab98831868e72.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
@@ -4634,7 +4645,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 11: What LTX Can Do — interactive capability explorer (replaces the former 12 separate slides) -->
-<section class="slide content-container" data-section="2" data-label="Capability Explorer">
+<section class="site-section content-container" data-section="2" data-label="Capability Explorer">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
 
@@ -4817,7 +4828,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE: Post-production capabilities — same explorer as What LTX Can Do -->
-<section class="slide content-container" data-section="2" data-label="Post-Production">
+<section class="site-section content-container" data-section="2" data-label="Post-Production">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
 
@@ -4949,7 +4960,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 23: Also Built For -->
-<section class="slide content-container sys-init" data-section="2" data-label="Also Built For">
+<section class="site-section content-container sys-init" data-section="2" data-label="Also Built For">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <h1 class="title heading-style-h1">Also Built For</h1>
@@ -5044,7 +5055,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 24: Use cases & workflows — chapter hero -->
-<section class="slide content-container section-hero-slide" data-section="3" data-label="Use Cases & Workflows" data-no-sound="1" id="section-usecases-hero">
+<section class="site-section content-container section-hero-slide" data-section="3" data-label="Use Cases & Workflows" data-no-sound="1" id="section-usecases-hero">
   <div class="section-hero-block">
     <header class="section-hero" aria-label="Use cases and workflows">
       <video class="section-hero__video" data-src="../sales-deck-original/videos/774a699d2505e4f77469e41acc9ca1ea0e1bc838.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
@@ -5060,7 +5071,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 14 (consolidated): Use Cases & Workflows — interactive accordion (replaces the former 6 separate slides) -->
-<section class="slide content-container" data-section="3" data-label="Multi-Modal Animation Controls">
+<section class="site-section content-container" data-section="3" data-label="Multi-Modal Animation Controls">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
 
@@ -5178,7 +5189,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 31: Why LTX wins — chapter hero -->
-<section class="slide content-container section-hero-slide" data-section="4" data-label="Why LTX Wins" data-no-sound="1" id="section-why-hero">
+<section class="site-section content-container section-hero-slide" data-section="4" data-label="Why LTX Wins" data-no-sound="1" id="section-why-hero">
   <div class="section-hero-block">
     <header class="section-hero" aria-label="Why LTX wins">
       <video class="section-hero__video" data-src="../sales-deck-original/videos/a59f3f9f3455c3889afb74406d368e37508a4d64.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
@@ -5194,7 +5205,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 32: The LTX Advantage — auto-playing four-pillar story -->
-<section class="slide content-container adv-slide" data-section="4" data-label="The LTX Advantage">
+<section class="site-section content-container adv-slide" data-section="4" data-label="The LTX Advantage">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <h1 class="title heading-style-h1">The LTX Advantage</h1>
@@ -5296,7 +5307,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 33: Customer stories — interactive case-study gallery -->
-<section class="slide content-container cs-slide" data-section="4" data-label="Customer Stories" data-no-sound="1">
+<section class="site-section content-container cs-slide" data-section="4" data-label="Customer Stories" data-no-sound="1">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <h1 class="title heading-style-h1">Customer Stories</h1>
@@ -5341,7 +5352,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 34: Ways to access LTX — chapter hero -->
-<section class="slide content-container section-hero-slide" data-section="5" data-label="Ways to Access LTX" data-no-sound="1" id="section-access-hero">
+<section class="site-section content-container section-hero-slide" data-section="5" data-label="Ways to Access LTX" data-no-sound="1" id="section-access-hero">
   <div class="section-hero-block">
     <header class="section-hero" aria-label="Ways to access LTX">
       <video class="section-hero__video" data-src="../sales-deck-original/videos/62a80087694184a5f5ec54f7c3361c3b1c6c85fc.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
@@ -5357,7 +5368,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 35: Ways to Access LTX — Licensing | API toggle -->
-<section class="slide content-container access-slide" data-section="5" data-access="licensing" data-label="Ways to Access LTX">
+<section class="site-section content-container access-slide" data-section="5" data-access="licensing" data-label="Ways to Access LTX">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <h1 class="title heading-style-h1">Ways to Access LTX</h1>
@@ -5406,7 +5417,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 41: Next steps — animated exploration-to-production journey -->
-<section class="slide content-container next-steps" data-section="5" data-label="Next Steps">
+<section class="site-section content-container next-steps" data-section="5" data-label="Next Steps">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <svg class="ns-bg-grid" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
@@ -5479,7 +5490,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 37: Commercial partnerships — chapter hero -->
-<section class="slide content-container section-hero-slide" data-section="6" data-label="Commercial Partnerships" data-no-sound="1" id="section-commercial-hero">
+<section class="site-section content-container section-hero-slide" data-section="6" data-label="Commercial Partnerships" data-no-sound="1" id="section-commercial-hero">
   <div class="section-hero-block">
     <header class="section-hero" aria-label="Commercial partnerships">
       <video class="section-hero__video" data-src="../sales-deck-original/videos/cc70166460a2f0abec06e779ebdfdcedaff841de.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>
@@ -5495,7 +5506,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 38: Two commercial models — interactive navigation hub into the two dedicated sections -->
-<section class="slide content-container commercial-hub" id="slideCommercialHub" data-section="6" data-label="Two commercial models">
+<section class="site-section content-container commercial-hub" id="slideCommercialHub" data-section="6" data-label="Two commercial models">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <h1 class="title heading-style-h1" style="max-width:1280px;">Two commercial models</h1>
@@ -5529,7 +5540,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 39: Revenue Share detail — interactive pricing simulator -->
-<section class="slide content-container pricing-sim" id="slideRevenueShare" data-section="6" data-label="Revenue Share">
+<section class="site-section content-container pricing-sim" id="slideRevenueShare" data-section="6" data-label="Revenue Share">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <button type="button" class="back-to-hub ltx-but-base" data-goto-id="slideCommercialHub"><span>&larr;</span><span>Back to Commercial Models</span></button>
@@ -5605,7 +5616,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 40: Usage-Based detail — interactive usage-flow dashboard -->
-<section class="slide content-container usage-flow" id="slideUsageBased" data-section="6" data-label="Usage-Based">
+<section class="site-section content-container usage-flow" id="slideUsageBased" data-section="6" data-label="Usage-Based">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <button type="button" class="back-to-hub ltx-but-base" data-goto-id="slideCommercialHub"><span>&larr;</span><span>Back to Commercial Models</span></button>
@@ -5662,7 +5673,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 42: Thank you -->
-<section class="slide content-container cover" data-section="6" data-label="Thank you">
+<section class="site-section content-container cover" data-section="6" data-label="Thank you">
   <div class="collage" id="collage2"></div>
   <h1 class="headline h1-display">Thank you</h1>
 </section>
@@ -5694,8 +5705,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 <script>
 (function(){
   var deck = document.getElementById('deck');
-  var slides = Array.prototype.slice.call(deck.querySelectorAll('.slide'));
-  var total = slides.length;
+  var sections = Array.prototype.slice.call(deck.querySelectorAll('.site-section'));
+  var total = sections.length;
   var idx = 0;
 
   // ---- build photo/video collages for cover/closing slides ----
@@ -5834,9 +5845,10 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     for(var i = range.start; i <= range.end; i++){
       var slot = document.createElement('div');
       slot.className = 'screen';
-      if(slides[i].matches('.about-page, .section-hero-slide, .deck-section')) slot.classList.add('is-flow');
-      if(!slides[i].id) slides[i].id = 'section-' + i;
-      slot.appendChild(slides[i]);
+      if(sections[i].matches('.about-page, .section-hero-slide, .deck-section')) slot.classList.add('layout-document');
+      else slot.classList.add('layout-artboard');
+      if(!sections[i].id) sections[i].id = 'section-' + i;
+      slot.appendChild(sections[i]);
       main.appendChild(slot);
     }
     el.appendChild(pageWrap);
@@ -5860,7 +5872,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var line = scrollFocusLine();
     var focus = range.start;
     for(var i = range.start; i <= range.end; i++){
-      var slot = slides[i] && slides[i].parentElement;
+      var slot = sections[i] && sections[i].parentElement;
       if(slot && slot.getBoundingClientRect().top <= line) focus = i;
     }
     return focus;
@@ -5883,7 +5895,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         return;
       }
       if(sub.pane){
-        if(sub.idx === focus && slides[focus] && slides[focus].getAttribute('data-access') === sub.pane){
+        if(sub.idx === focus && sections[focus] && sections[focus].getAttribute('data-access') === sub.pane){
           best = sub;
         }
         return;
@@ -6058,7 +6070,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   function clearDividerGrow(){
     dividerGrowGen++;
     document.body.classList.remove('divider-growing');
-    slides.forEach(function(s){
+    sections.forEach(function(s){
       s.classList.remove('is-growing', 'is-dissolving');
     });
   }
@@ -6110,7 +6122,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   }
   function leaveChapter(c){
     if(c < 0 || !chapterRanges[c]) return;
-    for(var i = chapterRanges[c].start; i <= chapterRanges[c].end; i++) leaveSlide(slides[i]);
+    for(var i = chapterRanges[c].start; i <= chapterRanges[c].end; i++) leaveSlide(sections[i]);
   }
   function markCurrentSub(){
     var c = currentChapter();
@@ -6156,12 +6168,12 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     if(changed) leaveChapter(chapterIndex);
     chapterIndex = c;
     chapterEls.forEach(function(el, i){ el.classList.toggle('is-on', i === c); });
-    slides.forEach(function(s, i){
+    sections.forEach(function(s, i){
       var on = i >= chapterRanges[c].start && i <= chapterRanges[c].end;
       s.classList.toggle('active', on);
     });
     renderChapterSubnav();
-    syncDeckLayout();
+    syncArtboardLayout();
     navItemEls.forEach(function(el, i){ el.classList.toggle('active', i === c); });
     markCurrentSub();
   }
@@ -6170,14 +6182,14 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   function goTo(n, scrollId){
     var prevChapter = chapterIndex;
     idx = Math.max(0, Math.min(total-1, n));
-    var slide = slides[idx];
+    var slide = sections[idx];
     render();
     if(pendingAccessPane){
       if(typeof setAccessPane === 'function') setAccessPane(pendingAccessPane, true);
       pendingAccessPane = null;
     }
     var range = chapterRanges[chapterIndex];
-    var chapterStartSlide = range && slides[range.start];
+    var chapterStartSlide = range && sections[range.start];
     var heroSlot = chapterStartSlide && chapterStartSlide.parentElement;
     var target = (scrollId && document.getElementById(scrollId)) || (slide && slide.parentElement);
     var heroOfTarget = target && !window.matchMedia('(max-width:900px)').matches && target.closest('.section-hero-slide');
@@ -6185,7 +6197,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var chapterHero = !scrollId && heroSlot && target === heroSlot;
     var smooth = prevChapter === chapterIndex && prevChapter >= 0;
     requestAnimationFrame(function(){
-      syncDeckLayout();
+      syncArtboardLayout();
       requestAnimationFrame(function(){
         syncChromeHeights();
         scrollToTarget(target, smooth, { chapterHero: chapterHero });
@@ -6302,7 +6314,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     if(cta){
       cta.addEventListener('click', function(){
         var pgx = deck.querySelector('.pgx-slide');
-        var n = Array.prototype.indexOf.call(slides, pgx);
+        var n = Array.prototype.indexOf.call(sections, pgx);
         if(n >= 0) goTo(n);
       });
     }
@@ -6378,21 +6390,15 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     document.documentElement.style.setProperty('--subnav-h', subH + 'px');
   }
 
-  /* Every desktop section fills the viewport below the nav (--section-h).
-     Fixed slides show the band of their artboard from --fit-top down, scaled so
-     at least FIT_MIN_BAND artboard px fit; when the viewport is wider than that
-     band allows, the artboard grows wider instead and stays left-aligned. */
+  /* Artboard sections: scale artboard to slot width; slot height follows content (from --fit-top). */
   var FIT_ART_W = 1440;
   var FIT_COVER_W = 1920;
-  var FIT_MIN_BAND = 820;
-  function syncDeckLayout(){
+  function syncArtboardLayout(){
     var mobile = window.matchMedia('(max-width:900px)').matches;
-    var viewH = Math.max(320, window.innerHeight - readChromeTop());
-    document.documentElement.style.setProperty('--section-h', viewH + 'px');
     document.querySelectorAll('.chapter.is-on .screen').forEach(function(slot){
-      var slide = slot.querySelector('.slide');
+      var slide = slot.querySelector('.site-section');
       if(!slide) return;
-      if(mobile || slot.classList.contains('is-flow')){
+      if(mobile || slot.classList.contains('layout-document')){
         slot.style.height = '';
         slide.style.transform = '';
         slide.style.width = '';
@@ -6401,25 +6407,26 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       }
       var slotW = slot.clientWidth;
       var scale, cropTop = 0;
+      var artH = parseFloat(getComputedStyle(slide).getPropertyValue('--canvas-h')) || 1080;
       if(slide.classList.contains('cover')){
         scale = slotW / FIT_COVER_W;
       }else{
         cropTop = parseFloat(getComputedStyle(slide).getPropertyValue('--fit-top')) || 0;
-        scale = Math.min(slotW / FIT_ART_W, viewH / FIT_MIN_BAND);
+        scale = slotW / FIT_ART_W;
       }
       slide.style.width = (slotW / scale) + 'px';
-      slide.style.height = (cropTop + viewH / scale) + 'px';
+      slide.style.height = artH + 'px';
       slide.style.transform = 'scale(' + scale + ') translateY(' + (-cropTop) + 'px)';
-      slot.style.height = viewH + 'px';
+      slot.style.height = Math.ceil((artH - cropTop) * scale) + 'px';
     });
     if(!mobile) scaleAboutGlobe();
   }
-  window.addEventListener('resize', syncDeckLayout);
-  document.addEventListener('fullscreenchange', syncDeckLayout);
+  window.addEventListener('resize', syncArtboardLayout);
+  document.addEventListener('fullscreenchange', syncArtboardLayout);
   if('IntersectionObserver' in window){
     var screenObserver = new IntersectionObserver(function(entries){
       entries.forEach(function(entry){
-        var slide = entry.target.querySelector('.slide');
+        var slide = entry.target.querySelector('.site-section');
         if(!slide || !slide.classList.contains('active')) return;
         if(entry.isIntersecting && entry.intersectionRatio >= 0.18){
           if(!slide._siteEntered) enterSlide(slide);
@@ -6446,7 +6453,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   var DECK_VIDEOS_PAUSED = true;
   var heroVideosUserPaused = true;
   function isCoverCollageVideo(video){
-    return !!(video && video.closest('.slide.cover .collage'));
+    return !!(video && video.closest('.site-section.cover .collage'));
   }
   function playCoverCollageVideos(slide){
     slide.querySelectorAll('.collage video').forEach(function(vid){
@@ -6507,7 +6514,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     return heroVideosUserPaused;
   }
   function isHeroVideoSlideInView(video){
-    var slide = video && video.closest('.slide');
+    var slide = video && video.closest('.site-section');
     if(!slide || !slide.classList.contains('active')) return false;
     var slot = slide.parentElement;
     if(!slot) return false;
@@ -6642,7 +6649,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 
   // ---- capability explorers — click a CTA to swap the content panel in place ----
   deck.querySelectorAll('.cap-nav').forEach(function(nav){
-    var slide = nav.closest('.slide');
+    var slide = nav.closest('.site-section');
     var stage = slide && slide.querySelector('.cap-stage');
     if(!stage) return;
     var btns = nav.querySelectorAll('.cap-btn');
@@ -6811,7 +6818,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   (function(){
     var row = deck.querySelector('#advRow') || deck.querySelector('.adv-row');
     if(!row) return;
-    var slideEl = row.closest('.slide');
+    var slideEl = row.closest('.site-section');
     var cards = Array.prototype.slice.call(row.querySelectorAll('.adv-card'));
     var timers = [];
     var autoplayActive = false;
@@ -7146,7 +7153,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   (function(){
     var sim = deck.querySelector('#prSim');
     if(!sim) return;
-    var slideEl = sim.closest('.slide');
+    var slideEl = sim.closest('.site-section');
     var range = document.getElementById('prRange');
     var fill = document.getElementById('prFill');
     var thumb = document.getElementById('prThumb');
@@ -7268,7 +7275,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   (function(){
     var wrap = deck.querySelector('#ufWrap');
     if(!wrap) return;
-    var slideEl = wrap.closest('.slide');
+    var slideEl = wrap.closest('.site-section');
     var nodes = wrap.querySelectorAll('.uf-node');
     var lines = wrap.querySelectorAll('.uf-line-fill');
     var subCredits = document.getElementById('ufSubCredits');
@@ -7380,7 +7387,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   (function(){
     var row = deck.querySelector('#nsRow');
     if(!row) return;
-    var slideEl = row.closest('.slide');
+    var slideEl = row.closest('.site-section');
     var stages = row.querySelectorAll('.ns-stage');
     var segs = row.querySelectorAll('.ns-seg-fill');
     var panel = document.getElementById('nsPanel');
@@ -7476,7 +7483,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   (function(){
     var menu = deck.querySelector('#industryGrid');
     if(!menu) return;
-    var slideEl = menu.closest('.slide');
+    var slideEl = menu.closest('.site-section');
     var tabs = menu.querySelectorAll('.industry-tab');
     var stage = menu.parentElement && menu.parentElement.querySelector('.industry-stage');
     var videoPool = stage ? stage.querySelectorAll('[data-industry-video]') : [];
@@ -7668,7 +7675,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   (function(){
     var chapter = document.querySelector('.who-chapter');
     if(!chapter) return;
-    var aboutSlide = chapter.closest('.slide');
+    var aboutSlide = chapter.closest('.site-section');
     var proof = chapter.querySelector('.who-num');
     var counted = false;
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -7769,7 +7776,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   (function(){
     var wrap = deck.querySelector('#pipeWrap');
     if(!wrap) return;
-    var slideEl = wrap.closest('.slide');
+    var slideEl = wrap.closest('.site-section');
     var toggle = deck.querySelector('#pipeToggle');
     var btns = toggle ? toggle.querySelectorAll('.pt-btn') : [];
     var views = wrap.querySelectorAll('.pipeline-view');
@@ -7804,7 +7811,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var statEls = deck.querySelectorAll('.cs-hero-stat .num[data-count]');
     var wrap = deck.querySelector('#impactWrap');
     if(!statEls.length && !wrap) return;
-    var slideEl = (statEls.length ? statEls[0] : wrap).closest('.slide');
+    var slideEl = (statEls.length ? statEls[0] : wrap).closest('.site-section');
     var timers = [];
     var spine = wrap ? wrap.querySelector('.impact-spine') : null;
     var drops = wrap ? wrap.querySelectorAll('.impact-drop') : [];
@@ -7859,7 +7866,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   (function(){
     var wrap = deck.querySelector('#pipeWrapTech');
     if(!wrap) return;
-    var slideEl = wrap.closest('.slide');
+    var slideEl = wrap.closest('.site-section');
     var toggle = deck.querySelector('#pipeToggleTech');
     var btns = toggle ? toggle.querySelectorAll('.pt-btn') : [];
     var views = wrap.querySelectorAll('.pipeline-view');
@@ -7894,7 +7901,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var statEls = deck.querySelectorAll('#csStat1Tech[data-count]');
     var wrap = deck.querySelector('#impactWrapTech');
     if(!statEls.length && !wrap) return;
-    var slideEl = (statEls.length ? statEls[0] : wrap).closest('.slide');
+    var slideEl = (statEls.length ? statEls[0] : wrap).closest('.site-section');
     var timers = [];
     var spine = wrap ? wrap.querySelector('.impact-spine') : null;
     var drops = wrap ? wrap.querySelectorAll('.impact-drop') : [];
@@ -7954,7 +7961,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var panes = slide.querySelectorAll('.access-pane');
     function syncNav(){
       document.querySelectorAll('.submenu .sub-item[data-pane]').forEach(function(it){
-        it.classList.toggle('current', slides[idx] === slide && it.getAttribute('data-pane') === slide.getAttribute('data-access'));
+        it.classList.toggle('current', sections[idx] === slide && it.getAttribute('data-pane') === slide.getAttribute('data-access'));
       });
     }
     setAccessPane = function(name, replay){
@@ -8006,7 +8013,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     btn.addEventListener('click', function(){
       selectedModel = null;
       var target = document.getElementById(btn.getAttribute('data-goto-id'));
-      var i = slides.indexOf(target);
+      var i = sections.indexOf(target);
       if(i > -1) goTo(i);
     });
   });
@@ -8020,7 +8027,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       card.addEventListener('click', function(){
         var targetId = card.getAttribute('data-target');
         var targetEl = document.getElementById(targetId);
-        var targetIdx = slides.indexOf(targetEl);
+        var targetIdx = sections.indexOf(targetEl);
         if(targetIdx < 0) return;
         selectedModel = MODEL_BY_TARGET[targetId] || null;
 
@@ -8114,7 +8121,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var chips = stage.querySelectorAll('.pgx-chip');
     var out = document.getElementById('pgxLoraOut');
     var labels = { Character:'Character-consistent', Style:'Style-adapted', Brand:'Brand-aligned', Domain:'Domain-specialized' };
-    var slideEl = nav.closest('.slide');
+    var slideEl = nav.closest('.site-section');
     var avRoot = stage.querySelector('#pgxAv') || stage.querySelector('.pgx-av');
     var avHead = avRoot && avRoot.querySelector('.pgx-av-head');
     var avRaf = 0;
@@ -8229,8 +8236,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     if(hash){
       var el = document.getElementById(hash);
       if(el){
-        var sl = el.classList.contains('slide') ? el : el.closest('.slide');
-        var n = slides.indexOf(sl);
+        var sl = el.classList.contains('slide') ? el : el.closest('.site-section');
+        var n = sections.indexOf(sl);
         if(n >= 0){
           start = n;
           if(el !== sl) scrollId = hash;
@@ -8239,7 +8246,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     }
     goTo(start, scrollId);
     requestAnimationFrame(function(){
-      slides.forEach(function(s){
+      sections.forEach(function(s){
         if(!s.classList.contains('active')) return;
         var slot = s.parentElement;
         if(!slot) return;

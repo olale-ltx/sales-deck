@@ -27,7 +27,7 @@
   var CFG = {
     endpoint: null,
     deckId: 'sales-deck-2026',
-    slideSelector: '.slide',
+    slideSelector: '.site-section',
     heartbeatMs: 30000,      // flush every 30s so a hard close loses <30s
     idleMs: 60000,           // stop counting active time after 60s of no input
     debug: false

@@ -1,6 +1,6 @@
-# Deck style reference
+# Mini-site style usage map
 
-Usage map for `deck/index.html`. Applied to the desktop stage on 20 Oct 2026.
+Which **STYLE-GUIDE** classes this reference site uses, and where. Not a second design system—an audit of `deck/index.html`.
 
 Visual review: `http://127.0.0.1:8790/deck/style-reference.html`
 

@@ -8,9 +8,9 @@ Visual source of truth: `STYLE-GUIDE.md` and `design/ltx.css`. Behavior source o
 
 ## What this is
 
-A sales meeting deck built as a mini-website: one scrolling page per chapter. Two kinds of section live in a chapter. Flow sections (chapter heroes, Who We Are, dependency → control; slot class `.is-flow`) size themselves. Fixed-artboard slides are laid out on the 90rem × 1080 content area of the original 1920×1080 design (covers keep the full 1920 for the collage) and scaled as one unit to the content column by `syncDeckLayout()`. The content column has no max width in the deck, so it always lines up with the nav logo at the 3vw edge.
+LTX **mini-website** (chapter scroll). Canonical goals and anatomy: **`docs/LTX-MINI-SITE-GOALS.md`**, **`docs/LTX-MINI-SITE-SYSTEM.md`**.
 
-On desktop every section is exactly one screen tall below the nav (`--section-h`, set by `syncDeckLayout()`). Fixed slides show their artboard from `--fit-top` (default 130) down, scaled so at least 820 artboard px fit; on wide screens the artboard gets wider instead. Bottom-anchored elements follow the section height. Flow sections (chapter heroes, About blocks, control slide) fill `--section-h` with CSS. Phones keep natural scrolling. Under 900px the scale is off and every slide stacks in normal flow.
+Each chapter has `.screen` slots; content lives in `<section class="site-section">`. **Document layout** (`.layout-document`) = normal flow height. **Artboard layout** (`.layout-artboard`) = legacy absolute 1440×1080 (1920 cover) scaled by `syncArtboardLayout()`. Column: 3vw padding, `--content-max` 100rem. Section spacing: `--section-gap` (12rem).
 
 Live URL and the Apps Script contract are in `sales-deck-original/README.md`. Keep them. The form is lead capture, not access control. An API failure still lets the meeting continue.
 
@@ -88,7 +88,7 @@ Layout is a fixed stage. Slides are `position: absolute; inset: 0`. Content is m
 
 Yes. Slide structure, `MENU`, ids, `data-src`, and the script can stay while the visual rules change.
 
-What works: point a copy at `design/ltx.css`, then restyle this deck’s own classes (and the inline rules) with those tokens. On this stage use `--fs-*-stage`, not the ebook’s `vw` clamps.
+What works: point a copy at `design/ltx.css`, then restyle this deck’s own classes (and the inline rules) with those tokens. Use the same `--fs-*` clamps and Webflow classes on every slide—no separate stage token pin per slide type.
 
 What does not work: swapping in the ebook stylesheet alone. The deck does not use `.hero`, `.rail`, `.chapter`, or `.ltx-btn`. A `:root` remap is not enough either, because most of the color and type is hardcoded below the token block.
 
@@ -111,7 +111,7 @@ Script: `/tmp/deckshot/lock.py`. Snapshot before it ran: `/tmp/deckshot/index.pr
 `deck/index.html` now links `../design/ltx.css` and loads Aeonik from Typekit `emb1gsr`. Inter is trimmed to 300/400/500.
 
 - `:root` deck tokens map to LTX vars: `--bg` offwhite, `--card` white, `--ink` black, `--ink-soft` grey-light, `--ink-faint` grey-muted, `--line` grey-line, `--accent` slate-dark, `--radius` `--radius-md`.
-- Above 900px, `#deck` points `--fs-*` at `--fs-*-stage`, so the shared Webflow classes (`heading-style-h1`, `h1-display`, `text-size-*`) render at desktop ceiling on the scaled canvas. Under 900px they fall back to the clamps.
+- Typography comes only from `design/ltx.css` (`--fs-*` clamps + `heading-style-*`, `h1-display`, `text-size-*`). Fixed slides scale the whole artboard; there is no deck-level `--fs-*-stage` override.
 - Pink is gone. Black replaces it. Progress and position marks were purple in this pass, later replaced by slate (see Style lock).
 - Raw greys were mapped by value onto the palette. Weights 600–900 became 500. Desktop px font sizes became `--fs-*-stage` tokens by nearest step. Card radii 8–24px became `--radius-md`. Mobile `@media` px sizes are untouched.
 - Every `[ LABEL ]` eyebrow and tag uses the Webflow markup: `.section-name-new` > `.text-scramble` `[` + `.section-name` + `.text-scramble` `]`. `.eyebrow`, `.ns-panel-tag`, `.pr-slider-tag`, `.uf-tl-tag` keep only position.
@@ -150,6 +150,6 @@ On `localhost` / `127.0.0.1` the working copy skips the lead gate with the bare 
 
 ## When we change styles
 
-Work in `deck/`, not in `sales-deck-original/`. Keep the script hooks (`.slide`, `data-label`, ids, `data-src`, `data-goto-section`, `MENU` indexes). Point videos and images at `../sales-deck-original/`.
+Work in `deck/`, not in `sales-deck-original/`. Keep hooks (`.site-section`, `data-label`, ids, `data-src`, `MENU` indexes). Point assets at `../sales-deck-original/`.
 
 Change only the styles you ask for. A token remap will not catch raw hex, px type, or the inline styles on the commercial slides — those get edited where they are written.

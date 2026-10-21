@@ -1,0 +1,14 @@
+---
+description: LTX mini-website (not slides) — anatomy, classes, no patches
+alwaysApply: true
+---
+
+# LTX mini-site
+
+This repo is a **chapter-based mini-website**, not a slide deck. Follow `docs/LTX-MINI-SITE-GOALS.md`, `docs/LTX-MINI-SITE-SYSTEM.md`, `STYLE-GUIDE.md`, and `design/ltx.css`.
+
+- Use **sections** (`.site-section`), not “slides.” No presentation modes or special type rules per layout kind.
+- Style only with documented Webflow classes (`heading-style-h*`, `h1-display`, `text-size-*`, `section-name-new`, `ltx-but-base`). New pattern = update the guide + agree the class.
+- Prefer **document layout** (`.layout-document`). **Artboard layout** (`.layout-artboard`) is legacy; do not extend it for new content without a migration plan.
+- Spacing: `--section-gap` between major sections. Column: 3vw padding, `--content-max` 100rem.
+- Agent skill: `.cursor/skills/ltx-mini-site/SKILL.md`

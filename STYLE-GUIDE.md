@@ -129,33 +129,22 @@ Webflow component **page-name-eyebrow**, class `section-name-new`. Text is upper
 
 `.section-name`: 0.9rem, weight 300, tracking 0.15em, uppercase. `.text-scramble` remains in legacy markup but is hidden by the shared component. Use this for every eyebrow and small tag.
 
-### A 1920×1080 stage
+### Type in the sales deck
 
-`clamp` and `vw` follow the browser window (20rem–90rem in `design/ltx.css`). In the sales deck:
+The deck is a scrolling site, not a separate “presentation mode.” **One type system everywhere:** `design/ltx.css` **`--fs-*` clamps** on `:root`, applied through Webflow classes (`h1-display`, `heading-style-h1` … `heading-style-h6`, `text-size-*`). Do not override `--fs-*` on `.site-section` by layout kind.
 
-- **Flow slides** (`.about-page`, `.section-hero-slide`) use the root **`--fs-*` clamps** via `var(--fs-h1)` etc.
-- **Fixed slides** pin `--fs-*` to **`--fs-*-stage`** on the slide element so type scales once with the slide `transform` (not twice with `vw`).
-- Presentation **scale is capped at 1** above 1920px viewport width so ultrawide screens do not blow up fixed layouts.
-
-On a fixed slide without that pin, point each `--fs-*` at its `--fs-*-stage` value so shared classes hit the desktop ceiling:
-
-| Token | Size |
+| Class | Token |
 |---|---|
-| `--fs-display-stage` | 6rem |
-| `--fs-h1-stage` | 4.5rem |
-| `--fs-h2-stage` | 2.8rem |
-| `--fs-h3-stage` | 2.2rem |
-| `--fs-h4-stage` | 1.75rem |
-| `--fs-h5-stage` | 1.5rem |
-| `--fs-h6-stage` | 1.25rem |
-| `--fs-xlarge-stage` | 1.5rem |
-| `--fs-large-stage` | 1.375rem |
-| `--fs-medium-stage` | 1.125rem |
-| `--fs-regular-stage` | 1.03125rem |
-| `--fs-small-stage` | 0.9375rem |
-| `--fs-tiny-stage` | 0.8125rem |
+| `.h1-display` | `--fs-display` |
+| `.heading-style-h1` | `--fs-h1` |
+| `.heading-style-h2` | `--fs-h2` |
+| … | … |
 
-Tracking and line-height stay the same. `text-wrap: balance` on titles and leads. `text-wrap: pretty` on index titles that wrap.
+**Artboard sections** (`.layout-artboard`, scaled by `syncArtboardLayout()`) use the same classes; the whole artboard is `transform: scale(...)`. No second `--fs-*-stage` pin in the deck.
+
+**`--fs-*-stage` tokens** in `design/ltx.css` are for a literal 1920×1080 canvas (`.ltx-page` off, no slide transform). The deck does not use them.
+
+Tracking and line-height stay on the shared tokens. `text-wrap: balance` on titles and leads. `text-wrap: pretty` on index titles that wrap.
 
 ## Space
 
@@ -182,7 +171,7 @@ The deck is a mini-website: one scrollable chapter per top-nav item. Structure e
 |---|---|
 | `.page-wrapper` | Full-width chapter shell |
 | `.global-padding` / `.padding-global` | Horizontal inset for all deck content (`--content-pad-x`, 3vw) |
-| `.main-container` | Content column. Capped at `--content-max` (90rem) in `design/ltx.css`; the deck removes the cap so content always aligns with the nav logo |
+| `.main-container` | Content column capped at `--content-max` (100rem), centered inside the 3vw padding; nav uses the same inset so the logo lines up with the column |
 | `.deck-section` | One scroll section (about block, control slide, etc.) |
 
 Fixed-artboard slides (absolute layout) are drawn on a 90rem × 1080 artboard, where `--content-gutter` resolves to 0, and scaled to the column. Covers use the full 1920 artboard with the gutter forced to 0. Migrate those slides into `.deck-section` flow over time.
@@ -327,7 +316,7 @@ Chapters are separated by a hairline and `--space-2xl` of padding (`--space-lg` 
 The sales deck is a chapter-based scroll site (not a scaled 1920×1080 stage). Restyle sections with this language:
 
 - Ground a light slide with `--ltx-offwhite` or `--ltx-white`. A dark slide uses `--ltx-black`, with `--ltx-white` type. Grey fills a media card before footage loads.
-- Titles use the stage sizes above, weight 400 (or 500 from H4 down). Do not revive 70px / weight 600 as a special slide title.
+- Titles use the shared heading/display classes and `--fs-*` clamps, weight 400 (or 500 from H4 down). Do not revive 70px / weight 600 as a special slide title.
 - Section numbers stay muted and tabular, not 100px extra-bold.
 - Footage lives in a `.media-card` with the shared scrim, radius `--radius-md`.
 - Dividers are `--color-border`, inset from the slide edge by a consistent pad (the ebook’s `--container-pad` idea, not a new inset per slide).
