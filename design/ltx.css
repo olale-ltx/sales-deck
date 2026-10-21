@@ -282,7 +282,7 @@
 .wm-core,
 .adv-bar-lbl,
 .adv-mlbl,
-.dash-metrics .mlbl,
+.dash-metrics:not(.is-display) .mlbl,
 .pr-card-lbl,
 .pr-slider-scale span,
 .uf-tl-months span,
@@ -327,6 +327,26 @@
   line-height: var(--lh-medium);
   text-transform: none;
   color: var(--ltx-black);
+}
+
+/* Hero-scale stat row (e.g. who-proof numerals) — not diagram chart-label captions */
+.dash-metrics.is-display .mval {
+  font-size: var(--fs-display);
+  font-weight: 400;
+  line-height: var(--lh-compact);
+  letter-spacing: var(--ls-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--ltx-black);
+}
+.dash-metrics.is-display .mlbl {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: var(--fs-regular);
+  font-weight: 400;
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-regular);
+  text-transform: none;
+  color: var(--color-text-muted);
 }
 
 /* --------------------------------------------------------------------------
