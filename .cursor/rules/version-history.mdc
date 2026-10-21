@@ -1,0 +1,14 @@
+---
+description: Local git snapshots for the sales deck
+alwaysApply: true
+---
+
+# Version history
+
+This folder is a local git repo (no remote). Use it so any change can be compared or rolled back.
+
+- Commit after every change the user approves, with a one-line message that says what changed.
+- Commit before a risky or wide change (refactors, removing code, layout rewrites).
+- Before declaring a regression fixed, `git diff` against the last good commit to find what changed.
+- Never rewrite or delete history, and never push, unless the user asks.
+- `sales-deck-original/videos/` is ignored on purpose (large, unchanging). Posters stay tracked.
