@@ -36,6 +36,8 @@
   --color-text-subtle: var(--ltx-grey-muted);
   --color-border: var(--ltx-grey-line);
   --color-soft-fill: rgba(134, 142, 165, 0.1);
+  /* Selected/hover fill for list rails + shell tabs — slate-medium wash (~28% on white) */
+  --color-active-fill: #dde0e6;
   --color-on-media: var(--ltx-white);
   --color-accent: var(--ltx-slate-dark);
 
@@ -43,6 +45,8 @@
   /* Gap from chapter hero video (.section-hero-slide) to the next .screen slot */
   --hero-to-content-gap: 4rem;
   --hero-to-content-gap-who: 2rem;
+  /* Gap below a section H1 and below its chip/tag row before following content */
+  --heading-to-content-gap: 4rem;
 
   --font-sans: "Aeonik", "Inter", Arial, system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -549,8 +553,7 @@
   line-height: var(--lh-normal);
   letter-spacing: var(--ls-tiny);
   font-variant-numeric: tabular-nums;
-  color: var(--ltx-grey-line);
-  transition: color 0.25s ease;
+  color: var(--ltx-black);
 }
 .index__title {
   letter-spacing: var(--ls-h6);
@@ -559,10 +562,6 @@
 }
 .index__row:hover,
 .index__item.is-active .index__row {
-  color: var(--color-ink);
-}
-.index__row:hover .index__num,
-.index__item.is-active .index__num {
   color: var(--color-ink);
 }
 .index__item.is-active .index__title { font-weight: 500; }

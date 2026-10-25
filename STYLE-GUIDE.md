@@ -31,7 +31,7 @@ Chapter **section heroes** use Title Case for the big chapter name; the paragrap
 
 A lead can be one sentence per line on a wide layout (`<br>` between sentences, `text-wrap: balance`). On a narrow layout those breaks disappear and the lead becomes one paragraph.
 
-Numbers in a list are zero-padded (`01`), set in **`.index-num`** (Aeonik, `--fs-tiny`, `tabular-nums`, default `--ltx-grey-line`). They stay quieter than the title beside them; on hover or active row, match ink (see parent patterns below).
+Numbers in a list are zero-padded (`01`), set in **`.index-num`** (Aeonik, `--fs-tiny`, `tabular-nums`, always `--ltx-black`).
 
 ## Color
 
@@ -62,6 +62,7 @@ Semantic aliases in `design/ltx.css`:
 | `--color-text-subtle` | grey-muted | Index numerals |
 | `--color-border` | grey-line | Hairlines |
 | `--color-soft-fill` | `rgba(134, 142, 165, 0.1)` | Code chips, quiet fills |
+| `--color-active-fill` | `#dde0e6` (slate-medium wash) | Selected/hover wash on list rails and shell tabs |
 | `--color-on-media` | white | Type sitting on footage |
 | `--color-accent` | slate-dark | Accent |
 
@@ -111,7 +112,7 @@ Values are the ltx.io site’s published classes. Clamps run from a 20rem viewpo
 | Index numeral | `.index-num` | 0.8125rem | 1.1 | 0.002rem | 400 |
 | Chart label | `.chart-label` | 0.8125rem | 1.1 | 0.002rem | 400 |
 
-`.index-num` uses the tiny scale plus Aeonik, `tabular-nums`, and default color `--ltx-grey-line` (not a general body class).
+`.index-num` uses the tiny scale plus Aeonik, `tabular-nums`, and always `--ltx-black` (not a general body class).
 
 `.chart-label` is the tiny scale, weight 400, `--ltx-grey-muted` — for diagram lanes, spec captions, and (with **`.is-caps`**) deck kickers. (The old name **viz-label** meant “visualization”; **chart-label** is clearer.)
 
@@ -181,8 +182,9 @@ Tracking and line-height stay on the shared tokens. `text-wrap: balance` on titl
 | `--space-lg` | 2.5rem |
 | `--space-xl` | 4rem |
 | `--space-2xl` | 6rem |
+| `--heading-to-content-gap` | 4rem — below a section H1, and below its chip/tag row before the stage |
 
-Use the scale. Do not invent a one-off `18px` gap when `--space-sm` or `--space-md` is close.
+Use the scale. Do not invent a one-off `18px` gap when `--space-sm` or `--space-md` is close. For section titles into chips/stage, use `--heading-to-content-gap`, not a one-off.
 
 ### Deck page layout (chapter scroll)
 
@@ -232,7 +234,7 @@ grid-template-columns: var(--nav-num-col) minmax(0, 1fr);
 
 `--nav-num-col` is `calc(2ch + 0.08em)`. It only resolves to the right width when it is read on an element whose font-size is the number’s font-size. Sub-items indent with `padding-left: calc(var(--nav-num-col) + gap)` on that same font-size, so they line up with the title even when the title wraps.
 
-Inactive titles are muted. Hover and the active row go to ink. The active title is weight 500. Numerals use **`.index-num`** (same tokens as `.index__num` in the list pattern): default `--ltx-grey-line`, then `--ltx-black` / `--color-ink` when the row is hovered, selected, or `.is-on` (e.g. `.ctrl-nav-item:hover .index-num`, `.nx-tab.is-on .index-num`, `.agenda-row:hover .index-num`).
+Inactive titles are muted. Hover and the active row go to ink. The active title is weight 500. Numerals use **`.index-num`** (same tokens as `.index__num` in the list pattern) and stay `--ltx-black` in every state.
 
 Read-progress, when a long page has it, is a 1px black bar on the active row only (`transform: scaleX(var(--progress))`, origin left). It tracks scroll. It does not animate on click. The row borders stay thin.
 

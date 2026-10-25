@@ -34,6 +34,7 @@ How to build a chapter-based LTX site like `deck/index.html`. Read `STYLE-GUIDE.
 
 - Between consecutive `.screen` slots: `margin-top: var(--section-gap)` (12rem).
 - **After a chapter hero video:** the hero lives in its own `.screen` with `.section-hero-slide`; the next `.screen` (first body content) uses **`margin-top: var(--hero-to-content-gap)` (4rem)**, not `--section-gap`. Selector: `.screen:has(> .section-hero-slide) + .screen`. **Who We Are** (`#section-who-hero`) uses **`var(--hero-to-content-gap-who)` (2rem)** instead.
+- **Below a section H1** (and below its chip/tag row before the stage): `var(--heading-to-content-gap)` (4rem). Used by Capabilities / Post-Production (`.cap-nav__title` → chips → `.cap-stage`) and Also Built For (`.title` → `.sys-field`).
 - Between blocks inside one About `.site-section`: `.about-block + .about-block { margin-top: var(--section-gap) }`.
 
 ## Typography (single system)
@@ -55,7 +56,10 @@ Do not add page-only `--fs-*` overrides on `.site-section`.
 
 - Top nav: chapters (`MENU` in JS).
 - Subnav: in-chapter items; scroll to `#id` or artboard slot.
-- `scrollToTarget()` aligns slot/block under `--chrome-top` (no smooth-scroll on chapter change).
+- **Under chrome before H1:** `--section-pad-under-chrome` (3rem / 48px). One global inset for every section landing under the top nav + breadcrumb.
+  - Document sections: `padding-top: var(--section-pad-under-chrome)` on the section / `.about-block` / `.chapter-block`.
+  - Artboard sections: H1 aligned to the slot top via `--fit-top` + `--cap-nav-top`; `scrollToTarget()` adds the same pad as scroll offset so the visible gap matches document sections.
+- `scrollToTarget()` aligns the target under `--chrome-top`, then applies `--section-pad-under-chrome` for artboard slots (chapter heroes stay flush).
 
 ## New mini-site checklist
 
