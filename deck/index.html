@@ -6560,10 +6560,11 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   // Vertical positions are proportionally compressed (top+height scaled by ~0.842, the same
   // ratio for every tile) so the whole 5-row cascade fits inside 0-100% height with the exact
   // same relative order and gaps as Figma — no tile clipped off-canvas, none overlapping another.
-  /* Four rows only — 5th band (Bike) removed so the cover fits 100dvh with room for agenda */
+  /* Four rows — Bike sits on the last row after Duck (pool), past 100% so the marquee carries it */
   var collageSpecs = [
     {left:'55.104%', top:'59.354%', w:'22.083%', h:'18.643%', g:'#333333', v:'../sales-deck-original/videos/slime_green.mp4'},
     {left:'77.969%', top:'59.276%', w:'22.031%', h:'18.564%', g:'#333333', v:'../sales-deck-original/videos/Duck.mp4'},
+    {left:'100.782%', top:'59.276%', w:'22.031%', h:'18.564%', g:'#333333', v:'../sales-deck-original/videos/Bike.mp4'},
     {left:'32.448%', top:'39.611%', w:'21.927%', h:'18.485%', g:'#333333', v:'../sales-deck-original/videos/Marshemellow_Burn.mp4'},
     {left:'55.156%', top:'39.611%', w:'21.979%', h:'18.485%', g:'#333333', v:'../sales-deck-original/videos/Elder_dance.mp4'},
     {left:'77.917%', top:'39.533%', w:'22.083%', h:'18.643%', g:'#333333', v:'../sales-deck-original/videos/sparkler.mp4'},
@@ -6580,8 +6581,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var t = document.createElement('div');
     t.className = 'tile';
     t.style.background = s.g;
-    t.style.left = s.left;
-    t.style.width = s.w;
+    /* Resolve % against the 1920 artboard so a wider row-set doesn’t shift tiles */
+    t.style.left = (1920 * parseFloat(s.left) / 100) + 'px';
+    t.style.width = (1920 * parseFloat(s.w) / 100) + 'px';
     if(s.v){
       var v = document.createElement('video');
       v.setAttribute('data-src', s.v);
@@ -6593,7 +6595,13 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   function makeCoverSet(specs){
     var set = document.createElement('div');
     set.className = 'cover-row-set';
-    specs.forEach(function(s){ set.appendChild(makeCoverTile(s)); });
+    var maxRightPx = 1920;
+    specs.forEach(function(s){
+      set.appendChild(makeCoverTile(s));
+      maxRightPx = Math.max(maxRightPx, 1920 * (parseFloat(s.left) + parseFloat(s.w)) / 100);
+    });
+    /* Widen past 1920 when Bike sits after Duck on the last row */
+    if(maxRightPx > 1920) set.style.width = maxRightPx + 'px';
     return set;
   }
   ['collage1','collage2'].forEach(function(id){
