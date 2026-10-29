@@ -8196,7 +8196,6 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   // All deck videos autoplay muted. Audio only when the user clicks .sound-toggle on
   // one clip (tracked by unmutedVideo). Cap/slide changes mute everything again.
   var DECK_VIDEOS_PAUSED = false;
-  var heroVideosUserPaused = false;
   var unmutedVideo = null;
   function isCoverCollageVideo(video){
     return !!(video && video.closest('.site-section.cover .collage'));
@@ -8259,10 +8258,13 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       }
     });
   }
+  function isHeroUserPaused(video){
+    return !!(video && video.classList.contains('section-hero__video') && video._heroUserPaused);
+  }
   function deckVideoPlaybackAllowed(video){
     if(isCoverCollageVideo(video)) return true;
-    if(!DECK_VIDEOS_PAUSED) return true;
-    return !!(video && video.classList.contains('section-hero__video') && !heroVideosUserPaused);
+    if(isHeroUserPaused(video)) return false;
+    return !DECK_VIDEOS_PAUSED;
   }
   function loadAndPlay(video){
     if(!video) return;
@@ -8304,13 +8306,17 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     forceMuteVideo(video);
     updatePlayBtn(video);
   }
+  // Tab/panel leave: pause and rewind so returning starts at frame 0.
+  // Do not use for chapter/section leave — heroes keep mid-clip position.
+  function pauseAndRewind(video){
+    pauseVideo(video);
+    if(!video) return;
+    try{ video.currentTime = 0; }catch(e){}
+  }
 
-  // ---- chapter hero videos: optional pause (resets on full page reload) ----
+  // ---- chapter hero videos: per-hero pause (does not broadcast to other heroes) ----
   var ICON_HERO_PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg>';
   var ICON_HERO_PLAY = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5L8 5.5Z"></path></svg>';
-  function heroVideosPaused(){
-    return heroVideosUserPaused;
-  }
   function isHeroVideoSlideInView(video){
     var slide = video && video.closest('.site-section');
     if(!slide || !slide.classList.contains('active')) return false;
@@ -8319,30 +8325,23 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var r = slot.getBoundingClientRect();
     return r.bottom > 0 && r.top < window.innerHeight;
   }
-  function syncHeroVideoPauseUI(){
-    var paused = heroVideosPaused();
-    var label = paused ? 'Play hero videos' : 'Pause hero videos';
-    chapterRoot.querySelectorAll('.hero-play-toggle').forEach(function(btn){
-      btn.innerHTML = paused ? ICON_HERO_PLAY : ICON_HERO_PAUSE;
-      btn.setAttribute('aria-label', label);
-      btn.setAttribute('aria-pressed', paused ? 'true' : 'false');
-      btn.classList.toggle('is-paused', paused);
-    });
+  function syncHeroToggleUI(btn, paused){
+    if(!btn) return;
+    btn.innerHTML = paused ? ICON_HERO_PLAY : ICON_HERO_PAUSE;
+    btn.setAttribute('aria-label', paused ? 'Play hero video' : 'Pause hero video');
+    btn.setAttribute('aria-pressed', paused ? 'true' : 'false');
+    btn.classList.toggle('is-paused', !!paused);
   }
-  function applyHeroVideoPauseState(){
-    var paused = heroVideosPaused();
-    chapterRoot.querySelectorAll('.section-hero__video').forEach(function(vid){
-      if(paused) pauseVideo(vid);
-      else if(isHeroVideoSlideInView(vid)) loadAndPlay(vid);
-    });
+  function setHeroVideoPaused(video, paused){
+    if(!video || !video.classList.contains('section-hero__video')) return;
+    video._heroUserPaused = !!paused;
+    var hero = video.closest('.section-hero');
+    syncHeroToggleUI(hero && hero.querySelector('.hero-play-toggle'), !!paused);
+    if(paused) pauseVideo(video);
+    else if(isHeroVideoSlideInView(video)) loadAndPlay(video);
   }
-  function setHeroVideosPaused(paused){
-    heroVideosUserPaused = !!paused;
-    syncHeroVideoPauseUI();
-    applyHeroVideoPauseState();
-  }
-  function toggleHeroVideosPaused(){
-    setHeroVideosPaused(!heroVideosPaused());
+  function toggleHeroVideoPaused(video){
+    setHeroVideoPaused(video, !isHeroUserPaused(video));
   }
   var heroAvifOk = null;
   function heroPostersUseAvif(cb){
@@ -8352,36 +8351,43 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     img.onerror = function(){ heroAvifOk = false; cb(false); };
     img.src = 'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2ZWYAAAACoW1ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAGF2YQBhdmlmAAAAAAAAtaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxhYXYx4Z/gAAA=';
   }
-  function posterBaseFromVideo(vid){
-    var src = vid.getAttribute('data-src') || vid.getAttribute('src') || '';
+  function posterBaseFromSrc(src){
+    src = src || '';
     var m = src.match(/\/videos\/(.+?)\.(mp4|webm|mov)(?:$|[?#])/i);
     if(!m) return '';
     return src.replace(/\/videos\/.+$/i, '/videos/posters/' + m[1]);
   }
-  function initVideoPosters(){
+  function posterBaseFromVideo(vid){
+    return posterBaseFromSrc(vid.getAttribute('data-src') || vid.getAttribute('src') || '');
+  }
+  function applyVideoPoster(vid, srcOverride){
+    if(!vid) return;
     heroPostersUseAvif(function(useAvif){
-      chapterRoot.querySelectorAll('video[data-src]').forEach(function(vid){
-        var base = posterBaseFromVideo(vid);
-        if(!base) return;
-        vid.setAttribute('poster', base + (useAvif ? '.avif' : '.webp'));
-      });
+      var base = posterBaseFromSrc(srcOverride || vid.getAttribute('data-src') || vid.getAttribute('src') || '');
+      if(!base) return;
+      vid.setAttribute('poster', base + (useAvif ? '.avif' : '.webp'));
+    });
+  }
+  function initVideoPosters(){
+    chapterRoot.querySelectorAll('video[data-src]').forEach(function(vid){
+      applyVideoPoster(vid);
     });
   }
   function initHeroVideoPauseControls(){
     initVideoPosters();
     chapterRoot.querySelectorAll('.section-hero').forEach(function(hero){
       if(hero.querySelector('.hero-play-toggle')) return;
+      var video = hero.querySelector('.section-hero__video');
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'hero-play-toggle';
       btn.addEventListener('click', function(e){
         e.stopPropagation();
-        toggleHeroVideosPaused();
+        if(video) toggleHeroVideoPaused(video);
       });
       hero.appendChild(btn);
+      syncHeroToggleUI(btn, isHeroUserPaused(video));
     });
-    syncHeroVideoPauseUI();
-    if(heroVideosPaused()) applyHeroVideoPauseState();
   }
 
   // ---- per-video play/pause + optional mute (when the clip has audio) ----
@@ -8523,7 +8529,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     // panel (slide 11) stay paused until that panel is selected.
     slide.querySelectorAll('video[data-src]').forEach(function(vid){
       if(isCoverCollageVideo(vid)) return;
-      if(vid.classList.contains('section-hero__video') && heroVideosPaused()) return;
+      if(isHeroUserPaused(vid)) return;
       if(vid.closest('.acc-thumb')) return;
       var panel = vid.closest('.cap-panel') || vid.closest('.cap-panel');
       if(panel && !panel.classList.contains('active')) return;
@@ -8564,7 +8570,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
             if(pair && !pair.classList.contains('is-on')) return;
             restartAndPlay(v);
           });
-        }else panel.querySelectorAll('video').forEach(pauseVideo);
+        }else panel.querySelectorAll('video').forEach(pauseAndRewind);
       });
     }
     btns.forEach(function(btn){
@@ -8617,7 +8623,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         pair.classList.toggle('is-on', on);
         pair.querySelectorAll('video').forEach(function(v){
           if(on && live) restartAndPlay(v);
-          else pauseVideo(v);
+          else pauseAndRewind(v);
         });
       });
       var count = show.querySelector('.pp-count');
@@ -8684,9 +8690,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         panel.classList.toggle('active', isTarget);
         if(isTarget){
           if(key === 'hdrnative') resetHdrHero();
-          panel.querySelectorAll('.acc-video-frame video[data-src], .acc-hero video[data-src]').forEach(loadAndPlay);
+          panel.querySelectorAll('.acc-video-frame video[data-src], .acc-hero video[data-src]').forEach(restartAndPlay);
         } else {
-          panel.querySelectorAll('video').forEach(pauseVideo);
+          panel.querySelectorAll('video').forEach(pauseAndRewind);
         }
       });
     }
@@ -8889,6 +8895,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         hero.classList.remove('is-img');
         if(playBtn) playBtn.style.display = '';
         vid.setAttribute('data-has-audio', s.hasAudio ? '1' : '0');
+        vid.setAttribute('data-src', s.video);
+        applyVideoPoster(vid, s.video);
         if(vid.getAttribute('src') !== s.video){
           vid.setAttribute('src', s.video);
           vid.load();
@@ -9302,7 +9310,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
           active.setAttribute('src', dataSrc);
           active.load();
         }
-        loadAndPlay(active);
+        restartAndPlay(active);
         return;
       }
       var incoming = active === videoPool[0] ? videoPool[1] : videoPool[0];
@@ -9312,21 +9320,15 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       incoming.setAttribute('src', src);
       incoming.setAttribute('data-has-audio', '0'); /* industry clips are silent */
       if(typeof syncSoundBtnVisibility === 'function') syncSoundBtnVisibility(incoming);
-      (function(){
-        var base = posterBaseFromVideo(incoming);
-        if(!base) return;
-        heroPostersUseAvif(function(useAvif){
-          incoming.setAttribute('poster', base + (useAvif ? '.avif' : '.webp'));
-        });
-      })();
+      applyVideoPoster(incoming, src);
       incoming.load();
 
       function snapSwap(){
         active.classList.remove('is-visible', 'is-leaving');
         incoming.classList.remove('is-leaving');
         incoming.classList.add('is-visible');
-        pauseVideo(active);
-        loadAndPlay(incoming);
+        pauseAndRewind(active);
+        restartAndPlay(incoming);
       }
 
       if(instant || reduceMotion){
@@ -9338,14 +9340,14 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       active.classList.add('is-leaving');
       active.classList.remove('is-visible');
       incoming.classList.add('is-visible');
-      loadAndPlay(incoming);
+      restartAndPlay(incoming);
 
       var cleaned = false;
       function cleanupOutgoing(){
         if(cleaned) return;
         cleaned = true;
         active.classList.remove('is-leaving');
-        pauseVideo(active);
+        pauseAndRewind(active);
       }
       active.addEventListener('transitionend', function(e){
         if(e.propertyName === 'opacity') cleanupOutgoing();
