@@ -8476,6 +8476,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       if(vid.classList.contains('section-hero__video')) return;
       if(isCoverCollageVideo(vid)) return;
       if(vid.closest('.acc-thumb')) return;
+      // Customer-story teasers keep only "Watch the Full Video" — no custom pause.
+      if(vid.closest('.cs-hero')) return;
       var parent = vid.parentElement;
       if(!parent) return;
       var style = window.getComputedStyle(parent);
