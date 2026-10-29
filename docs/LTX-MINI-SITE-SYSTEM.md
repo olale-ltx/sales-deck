@@ -33,8 +33,9 @@ How to build a chapter-based LTX site like `deck/index.html`. Read `STYLE-GUIDE.
 ## Spacing
 
 - Between consecutive `.screen` slots: `margin-top: var(--section-gap)` (12rem).
-- **After a chapter hero video:** the hero lives in its own `.screen` with `.section-hero-slide`; the next `.screen` (first body content) uses **`margin-top: var(--hero-to-content-gap)` (4rem)**, not `--section-gap`. Selector: `.screen:has(> .section-hero-slide) + .screen`. **Who We Are** (`#section-who-hero`) uses **`var(--hero-to-content-gap-who)` (2rem)** instead.
-- **Below a section H1** (and below its chip/tag row before the stage): `var(--heading-to-content-gap)` (4rem). Used by Capabilities / Post-Production (`.cap-nav__title` → chips → `.cap-stage`) and Also Built For (`.title` → `.sys-field`).
+- **After a chapter hero video:** the hero lives in its own `.screen` with `.section-hero-slide`; that screen gets **`padding-bottom: var(--hero-to-content-gap)` (4rem)** and the next `.screen` has **`margin-top: 0`** (so `--section-gap` does not apply). Same for Who via **`--hero-to-content-gap-who` (4rem)**.
+- **Subtext → content:** always **`2rem`** via **`--heading-to-content-gap`** and a **`.heading-content-spacer`** div after the section sub (not ad-hoc `margin`/`padding`). Body section titles under heroes use **`heading-style-h2 text-weight-semibold`** (heroes keep `heading-style-h1`).
+- **Below a section H1** (and below its chip/tag row before the stage): `var(--heading-to-content-gap)` (2.5rem). Used by Capabilities / Post-Production (`.cap-nav__title` → chips → `.cap-stage`) and Also Built For (`.title` → `.sys-field`).
 - Between blocks inside one About `.site-section`: `.about-block + .about-block { margin-top: var(--section-gap) }`.
 
 ## Typography (single system)
@@ -56,10 +57,9 @@ Do not add page-only `--fs-*` overrides on `.site-section`.
 
 - Top nav: chapters (`MENU` in JS).
 - Subnav: in-chapter items; scroll to `#id` or artboard slot.
-- **Under chrome before H1:** `--section-pad-under-chrome` (3rem / 48px). One global inset for every section landing under the top nav + breadcrumb.
-  - Document sections: `padding-top: var(--section-pad-under-chrome)` on the section / `.about-block` / `.chapter-block`.
-  - Artboard sections: H1 aligned to the slot top via `--fit-top` + `--cap-nav-top`; `scrollToTarget()` adds the same pad as scroll offset so the visible gap matches document sections.
-- `scrollToTarget()` aligns the target under `--chrome-top`, then applies `--section-pad-under-chrome` for artboard slots (chapter heroes stay flush).
+- `#section-step` (bottom-right): prev/next through every `.screen` in the chapter (including sections not listed in the menu), using menu scroll/pane targets when present; then the next chapter.
+- **Under chrome before H1:** `--section-pad-under-chrome` (1.25rem). Document sections use it as internal `padding-top`. Artboards rely on `--fit-top`. `scrollToTarget()` lands flush under `--chrome-top` so the previous section is not left visible under the subnav.
+- Chapter heroes (`.section-hero`): `aspect-ratio: 3.66 / 1` (~30% shorter than the prior 2.56/1 band).
 
 ## New mini-site checklist
 

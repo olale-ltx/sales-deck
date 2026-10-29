@@ -44,14 +44,16 @@
   --content-max: 100rem;
   /* Gap from chapter hero video (.section-hero-slide) to the next .screen slot */
   --hero-to-content-gap: 4rem;
-  --hero-to-content-gap-who: 2rem;
+  --hero-to-content-gap-who: 4rem;
   /* Gap below a section H1 and below its chip/tag row before following content */
-  --heading-to-content-gap: 4rem;
+  /* Subtext → content. Prefer `.heading-content-spacer` in markup over ad-hoc margins. */
+  --heading-to-content-gap: 2rem;
 
   --font-sans: "Aeonik", "Inter", Arial, system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  --fs-display: clamp(3rem, 5vw, 6rem);
+  /* Fluid 20rem→90rem (320→1440). display floor sits above h1 so ranks never cross. */
+  --fs-display: clamp(3.25rem, 2.4643rem + 3.9286vw, 6rem);
   --fs-h1: clamp(3rem, 2.5714rem + 2.1429vw, 4.5rem);
   --fs-h2: clamp(2.25rem, 2.0929rem + 0.7857vw, 2.8rem);
   --fs-h3: clamp(1.8rem, 1.6857rem + 0.5714vw, 2.2rem);
@@ -115,9 +117,9 @@
   --split-cols: minmax(0, 1fr) minmax(0, 2fr);
   --split-gap: 3rem;
 
-  /* Eyebrows (.section-name) — slightly below legacy Webflow 0.9rem / 0.15em */
-  --fs-eyebrow: 0.8125rem;
-  --ls-eyebrow: 0.08em;
+  /* Eyebrows / caps kickers (.section-name, .chart-label.is-caps) */
+  --fs-eyebrow: 0.75rem;
+  --ls-eyebrow: 0.15em;
   --lh-eyebrow: 1.05;
 
   --container-max: 100rem;
@@ -221,7 +223,7 @@
 .text-size-large  { font-size: var(--fs-large);  line-height: var(--lh-medium); letter-spacing: var(--ls-large); }
 .text-size-medium { font-size: var(--fs-medium); line-height: var(--lh-medium); letter-spacing: var(--ls-medium); }
 .text-size-regular { font-size: var(--fs-regular); line-height: var(--lh-normal); letter-spacing: var(--ls-regular); }
-.text-size-small  { font-size: var(--fs-small);  line-height: var(--lh-normal); letter-spacing: var(--ls-small); }
+.text-size-small  { font-size: var(--fs-small);  line-height: 1.2; letter-spacing: var(--ls-small); }
 .text-size-tiny   { font-size: var(--fs-tiny);   line-height: var(--lh-normal); letter-spacing: var(--ls-tiny); }
 
 .text-weight-light { font-weight: 300; }
@@ -260,7 +262,8 @@
   color: var(--ltx-grey-medium);
   font-size: var(--fs-eyebrow);
   font-weight: 400;
-  line-height: var(--lh-medium);
+  letter-spacing: var(--ls-eyebrow);
+  line-height: var(--lh-eyebrow);
   text-wrap: balance;
 }
 .section-name {
@@ -311,6 +314,9 @@
 .section-name,
 .wm-core {
   text-transform: uppercase;
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--ls-eyebrow);
+  line-height: var(--lh-eyebrow);
 }
 
 .chart-label.is-on-media {
@@ -575,7 +581,7 @@
   border-left: 0.1875rem solid var(--ltx-black);
   padding: 0.75rem 1.25rem;
   font-size: 1.25rem;
-  line-height: var(--lh-xlarge);
+  line-height: 1.35;
 }
 
 .ltx-code {

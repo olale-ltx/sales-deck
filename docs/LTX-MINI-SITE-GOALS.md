@@ -15,7 +15,7 @@
 2. **One type scale** — `--fs-*` clamps from `design/ltx.css` on every section. No alternate `--fs-*-stage` pins per layout kind in the deck.
 3. **Clear hierarchy** — Display → H1 → H2 → … → body; weights 400 (display–H3), 500 (H4–H6, active labels). No 700+.
 4. **Webflow-like structure** — `page-wrapper` → `main-container` → sections; global `--content-pad-x` (3vw); column `--content-max` (100rem).
-5. **Spacing rhythm** — `--section-gap` (12rem) between major `.screen` slots in a chapter; **`--hero-to-content-gap` (4rem)** from a chapter hero video to the next `.screen` (**2rem** for Who We Are via `--hero-to-content-gap-who`); **`--section-pad-under-chrome` (3rem)** from the sticky nav/breadcrumb to the section H1 on every menu landing; **`--heading-to-content-gap` (4rem)** below a section H1 and below its chip/tag row before following content (documented in `LTX-MINI-SITE-SYSTEM.md`).
+5. **Spacing rhythm** — `--section-gap` (12rem) between major `.screen` slots in a chapter; **`--hero-to-content-gap` (4rem)** as padding under each chapter hero video (same for Who via `--hero-to-content-gap-who`); **`--section-pad-under-chrome` (1.25rem)** from the sticky nav/breadcrumb to the section H1 on document landings; **`--heading-to-content-gap` (2rem)** for subtext → content via **`.heading-content-spacer`** (documented in `LTX-MINI-SITE-SYSTEM.md`). Body section titles after heroes: `heading-style-h2 text-weight-semibold`. Chapter hero videos use `.section-hero` at `aspect-ratio: 3.66 / 1`.
 6. **New patterns** — Propose class + guide entry + example markup; do not ship silent `#id` or `.one-off` rules.
 
 ## Layout vocabulary (internal)

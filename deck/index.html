@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://use.typekit.net" crossorigin>
 <script src="https://use.typekit.net/emb1gsr.js"></script>
 <script>try{Typekit.load()}catch(e){}</script>
-<link rel="stylesheet" href="../design/ltx.css">
+<link rel="stylesheet" href="../design/ltx.css?v=text-small-lh-12">
 <style>
 :root{
   --bg:var(--ltx-offwhite);
@@ -33,21 +33,25 @@
   --canvas-w:1920px;
   --canvas-h:1080px;
   --font:var(--font-sans);
-  --appnav-pad-y:1.5rem;
-  --subnav-pad-y:0.7rem;
+  --appnav-pad-y:0.95rem;
+  --subnav-pad-y:0.2rem;
   --topnav-h:72px; /* measured from #appnav — fallback until sync */
   --subnav-h:0px;
   --chrome-top:var(--topnav-h);
   --content-pad-x:3vw;
   --content-max:100rem;
+  /* Left inset aligns logo/nav with the content column. Right inset keeps fullscreen + arrows near the viewport edge. */
+  --chrome-inset-x:calc(var(--content-pad-x) + max(0px, (100vw - 2 * var(--content-pad-x) - var(--content-max)) / 2));
+  --chrome-inset-right:1.25rem;
   --section-gap:12rem;
   --hero-to-content-gap:4rem;
-  --hero-to-content-gap-who:2rem;
-  --heading-to-content-gap:4rem;
+  --hero-to-content-gap-who:4rem;
+  --heading-to-content-gap:2rem;
   /* Space under top chrome (nav + breadcrumb) before a section H1 — one rule for all landings. */
-  --section-pad-under-chrome:3rem;
+  --section-pad-under-chrome:1.25rem;
   --cap-nav-top:228px;
-  --cap-chip-rows-h:5rem; /* two .ltx-chip rows + row gap */
+  --cap-col:30rem; /* left explorer column — ~original 460px, slightly wider */
+  --cap-chip-rows-h:8rem; /* up to three chip rows + gaps (Capabilities) */
 }
 body.has-chapter-sub{
   --chrome-top:calc(var(--topnav-h) + var(--subnav-h));
@@ -103,7 +107,9 @@ html,body{
 .screen{
   position:relative; width:100%; overflow:hidden;
   background:var(--bg);
-  scroll-margin-top:calc(var(--chrome-top) + var(--section-pad-under-chrome));
+  /* Flush under chrome — pad lives inside the section, not as a scroll gap
+     that would leave the previous section visible under the subnav. */
+  scroll-margin-top:var(--chrome-top);
 }
 @media (min-width:901px){
   .screen > .site-section{
@@ -116,11 +122,32 @@ html,body{
      by syncArtboardLayout() (band from --fit-top down). Covers keep the full 1920 width. */
   .main-container > .screen + .screen{ margin-top:var(--section-gap); }
   .about-page .chapter-blocks > .about-block + .about-block{ margin-top:var(--section-gap); }
+  /* Hero → body: pad under the hero screen (not margin on the next) so artboard
+     crop/transform cannot eat the gap — same 4rem on every chapter. */
+  .main-container > .screen:has(> .section-hero-slide){
+    padding-bottom:var(--hero-to-content-gap);
+  }
+  .main-container > .screen:has(> .section-hero-slide) + .screen{
+    margin-top:0;
+  }
+  .main-container > .screen:has(> #section-who-hero){
+    padding-bottom:var(--hero-to-content-gap-who);
+  }
+  /* Next Steps: hero→eyebrow matches eyebrow→boxes (both --heading-to-content-gap). */
+  .main-container > .screen:has(> #section-nextsteps-hero){
+    padding-bottom:var(--heading-to-content-gap);
+  }
   .screen.layout-artboard > .site-section{
     width:var(--artboard-w); height:var(--canvas-h);
     transform-origin:0 0;
     --content-gutter:0px;
     --fit-top:130;
+  }
+  /* Counter artboard scale so caps kickers match document sections (Who We Are). */
+  .screen.layout-artboard > .site-section .chart-label.is-caps,
+  .screen.layout-artboard > .site-section .section-name,
+  .screen.layout-artboard > .site-section .wm-core{
+    font-size:calc(var(--fs-eyebrow) / var(--artboard-scale, 1));
   }
   .screen.layout-artboard > .site-section.cover{
     width:var(--canvas-w);
@@ -140,6 +167,7 @@ html,body{
     padding-top:0;
     padding-bottom:0;
   }
+  #aboutIndustries > .title{ white-space:nowrap; }
   #aboutIndustries .section-sub{ margin-bottom:0; }
   #aboutIndustries .about-industries-layout{
     margin-top:clamp(1rem, 3vh, 1.75rem);
@@ -197,7 +225,7 @@ html,body{
     padding:var(--section-pad-under-chrome) 0 72px;
   }
   .screen.layout-document > .site-section.pgx-slide .pgx-intro{
-    margin:0 0 4rem;
+    margin:0;
   }
   .screen.layout-document > .site-section.pgx-slide .pgx-block{ margin-top:0; }
   .screen.layout-document > .site-section.pgx-slide .pgx-explorer{
@@ -245,7 +273,7 @@ html,body{
   }
   .screen.layout-document > .site-section.ctrl-slide .ctrl-shell{
     position:relative; top:auto; left:auto; right:auto; bottom:auto;
-    margin:4rem 0 var(--space-xl); min-height:min(540px, 72vh);
+    margin:0 0 var(--space-xl); min-height:min(540px, 72vh);
   }
   /* Overview chapter: exact viewport — no section-gap, no scrollbar */
   #chapter-0 .main-container{
@@ -269,23 +297,91 @@ html,body{
   .screen.layout-artboard > .site-section.sys-init{
     --fit-top:228;
   }
-  .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section:has(.acc-wrap){
-    --fit-top:184;
+  /* Regular mode only. Access chrome→heading is nx-head 96 + 6px title margin
+     − fit-top 64 = 38 artboard px. acc-wrap / the workflow headline sit at 184,
+     so crop 38px higher. Fullscreen keeps the 152 rule below. */
+  body:not(.is-fullscreen) .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section:has(.acc-wrap){
+    --fit-top:146; /* 184 − 38 */
   }
   .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section.adv-slide,
-  .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section.commercial-hub{
+  .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section.commercial-hub,
+  .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section.next-steps{
+    --fit-top:187;
+  }
+  /* CS sits after Advantage (not the hero’s + sibling) — crop to .cs-head top 187 like adv. */
+  .screen.layout-artboard > .site-section.cs-slide{
     --fit-top:187;
   }
   /* Access uses What's New (nx) head at 96px — same crop as .nx-slide, not old 187 title top */
   .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section.access-slide{
     --fit-top:64;
   }
+  /*
+   Fullscreen spacer — Access is the source of truth:
+   .nx-head top 96 − --fit-top 64 = 32 artboard px under chrome.
+   Every other artboard keeps the same air (contentY − 32).
+  */
+  body.is-fullscreen{
+    --nav-to-content-air:32;
+  }
+  body.is-fullscreen .screen.layout-artboard > .site-section:has(.cap-nav),
+  body.is-fullscreen .screen.layout-artboard > .site-section.sys-init{
+    --fit-top:196; /* 228 − 32 */
+  }
+  body.is-fullscreen .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section:has(.acc-wrap){
+    --fit-top:152; /* 184 − 32 */
+  }
+  body.is-fullscreen .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section.adv-slide,
+  body.is-fullscreen .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section.commercial-hub,
+  body.is-fullscreen .main-container > .screen:has(> .section-hero-slide) + .screen.layout-artboard > .site-section.next-steps,
+  body.is-fullscreen .screen.layout-artboard > .site-section.cs-slide{
+    --fit-top:155; /* 187 − 32 */
+  }
+  /* .back-to-hub (top 118) is the first visible element here, not the 187 head —
+     crop from its line so it clears chrome with the standard 32px air; head
+     then lands 69px below it, same gap as regular mode. */
+  body.is-fullscreen .screen.layout-artboard > .site-section.pricing-sim,
+  body.is-fullscreen .screen.layout-artboard > .site-section.usage-flow{
+    --fit-top:86; /* 118 − 32 */
+  }
+  /* Access / .nx-slide already 64 = 96 − 32 */
+
+  /* Fullscreen arrow landings: each stop fills the viewport under chrome so
+     the next heading cannot peek (Who hero → Industries, Industries → World). */
+  body.is-fullscreen .main-container > .screen{
+    min-height:calc(100dvh - var(--chrome-top));
+  }
+  body.is-fullscreen .about-page .chapter-blocks > .about-block{
+    min-height:calc(100dvh - var(--chrome-top));
+  }
+  /* Desktop about-blocks zero padding-block; restore Access FS air under chrome
+     (syncNavContentGap → --section-pad-under-chrome). Skip who-chapter (own FS fit). */
+  body.is-fullscreen .about-page .chapter-blocks > .about-block:not(.who-chapter){
+    padding-top:var(--section-pad-under-chrome);
+  }
 }
 @media (max-width:900px){
-  .screen{ height:auto !important; overflow:visible; }
+  .screen{ height:auto !important; min-height:0 !important; overflow:visible; }
   .site-section.section-hero-slide{
     padding:0.5rem 0 8px !important;
+    min-height:0 !important;
   }
+  /* Hero → body gap on small screens too */
+  .main-container > .screen:has(> .section-hero-slide){
+    padding-bottom:var(--hero-to-content-gap);
+  }
+  .main-container > .screen:has(> .section-hero-slide) + .screen{
+    margin-top:0;
+  }
+  .main-container > .screen:has(> #section-who-hero){
+    padding-bottom:var(--hero-to-content-gap-who);
+  }
+  .main-container > .screen:has(> #section-nextsteps-hero){
+    padding-bottom:var(--heading-to-content-gap);
+  }
+  /* Keep hero → body close; 9vh editorial top margin is for desktop only */
+  .who-mid{ margin-top:1.5rem; padding-top:1.5rem; }
+  .who-logos{ margin-top:2.5rem; }
 }
 .content-container{
   /* Artboard coordinate system (1440px artboard). Layout column cap is :root --content-max. */
@@ -391,6 +487,17 @@ body.divider-growing #appnav{
 body.divider-growing #stage{ background:var(--ltx-black); }
 
 /* cover / closing */
+/* Thank you: only in fullscreen — out of flow + unreachable via section-step when not FS */
+body:not(.is-fullscreen) .screen:has(> .site-section.thank-you),
+body:not(.is-fullscreen) .site-section.thank-you{
+  display:none !important;
+  height:0 !important;
+  min-height:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow:hidden !important;
+  pointer-events:none !important;
+}
 .cover .cover-copy{
   position:absolute; z-index:8;
   left:var(--content-gutter); top:400px;
@@ -426,8 +533,8 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   .layout-artboard > .site-section.cover{
     --artboard-scale:1;
   }
-  .layout-artboard > .site-section.cover .h1-display{
-    font-size:calc(var(--fs-display) / var(--artboard-scale, 1));
+  .layout-artboard > .site-section.cover .heading-style-h1{
+    font-size:calc(var(--fs-h1) / var(--artboard-scale, 1));
   }
   .layout-artboard > .site-section.cover .subhead{
     font-size:calc(var(--fs-h4) / var(--artboard-scale, 1));
@@ -722,10 +829,13 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .video-mock .frame{ position:absolute; inset:0; background:
    radial-gradient(circle at 30% 20%, var(--ltx-grey), var(--ltx-black) 60%);
 }
-.video-mock video.frame{ width:100%; height:100%; object-fit:cover; display:block; background:var(--ltx-black); }
-/* Multi-Keyframe has baked-in labels/filmstrip at the frame edges —
-   contain keeps those visible. Lip-Dub uses HTML badges + cover. */
-.cap-panel[data-cap="keyframe"] video.frame{ object-fit:contain; }
+.video-mock video.frame{ width:100%; height:100%; object-fit:cover; object-position:center; display:block; background:var(--ltx-black); }
+/* Multi-Keyframe / Extend: baked-in edge labels must stay fully visible — contain, no crop zoom.
+   Do not transform:scale letterbox-crop demos; that clips captions baked into the video pixels. */
+.cap-panel[data-cap="keyframe"] video.frame,
+.cap-panel[data-cap="extend"] video.frame{
+  object-fit:contain;
+}
 /* Same chip style as Retake / Camera Control variant labels */
 .video-mock .badge{
   position:absolute; top:16px; left:16px; z-index:2;
@@ -896,29 +1006,38 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .cs-slide .title{
   position:relative; top:auto; left:auto; right:auto;
   margin:0 0 16px; max-width:920px;
-  font-size:calc(var(--fs-h1) / var(--artboard-scale, 1));
-  line-height:var(--lh-compact); letter-spacing:var(--ls-h1); font-weight:400;
+  font-size:calc(var(--fs-h2) / var(--artboard-scale, 1));
+  line-height:var(--lh-small); letter-spacing:var(--ls-h2); font-weight:600;
 }
 .cs-kicker{
   position:relative; top:auto; left:auto; right:auto; margin:0;
   font-size:calc(var(--fs-xlarge) / var(--artboard-scale, 1));
   font-weight:400; letter-spacing:var(--ls-xlarge); line-height:var(--lh-medium); color:var(--ltx-black);
 }
-.cs-main{
-  position:absolute;
-  top:calc(
+.cs-slide{
+  /* Visual 1.5rem on screen; artboard is scaled, so divide by --artboard-scale. */
+  --cs-gap:calc(1.5rem / var(--artboard-scale, 1));
+  --cs-main-top:calc(
     187px
-    + (var(--fs-h1) / var(--artboard-scale, 1) * var(--lh-compact))
+    + (var(--fs-h2) / var(--artboard-scale, 1) * var(--lh-small))
     + 16px
     + (var(--fs-xlarge) / var(--artboard-scale, 1) * var(--lh-medium))
-    + 2rem
+    + var(--cs-gap)
   );
-  left:var(--content-gutter); right:var(--content-gutter); bottom:176px;
-  display:flex; gap:36px; min-height:0; align-items:center;
+  /* Hero is 1.75fr of a 1440 artboard minus the 36px column gap, 16:9. */
+  --cs-hero-h:calc((1440px - 36px) * 1.75 / 2.75 * 9 / 16);
+}
+.cs-slide .heading-content-spacer{ height:0; }
+.cs-main{
+  position:absolute;
+  top:var(--cs-main-top);
+  left:var(--content-gutter); right:var(--content-gutter); bottom:auto;
+  height:var(--cs-hero-h);
+  display:flex; gap:36px; min-height:0; align-items:flex-start;
 }
 .cs-hero{
   flex:1.75; min-width:0; width:100%; position:relative;
-  aspect-ratio:16 / 9; height:auto; align-self:center;
+  aspect-ratio:16 / 9; height:var(--cs-hero-h); align-self:flex-start;
   border-radius:var(--radius-md); overflow:hidden; background:var(--ltx-black); border:none;
 }
 .cs-hero video, .cs-hero img{
@@ -974,22 +1093,34 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .cs-quote.text-style-quote{
   border-left:none;
   padding:0;
+  line-height:1.35;
 }
 .cs-attr{
   opacity:0; transform:translateY(6px);
   transition:opacity .4s ease .2s, transform .4s ease .2s;
 }
-.cs-attr strong{ display:block; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
+.cs-attr strong{
+  display:block;
+  font-family:"Aeonik Nav Semibold", var(--font);
+  font-size:var(--fs-regular); font-weight:500;
+  letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black);
+}
 .cs-attr span{ display:block; margin-top:2px; font-size:var(--fs-tiny); font-weight:400; letter-spacing:var(--ls-tiny); line-height:var(--lh-normal); color:var(--ltx-grey-muted); }
 .cs-rail{
-  position:absolute; left:var(--content-gutter); right:var(--content-gutter); bottom:52px; height:108px;
+  position:absolute; left:var(--content-gutter); right:var(--content-gutter);
+  top:calc(var(--cs-main-top) + var(--cs-hero-h) + var(--cs-gap));
+  bottom:auto; height:108px;
   display:flex; align-items:stretch; gap:8px;
 }
 .cs-arrow{
-  flex:0 0 36px; border:1px solid var(--line); border-radius:4px; background:transparent; color:var(--ltx-grey-muted);
+  flex:0 0 36px; border:1px solid rgba(11,11,11,0.1); border-radius:4px; background:var(--ltx-white); color:var(--ltx-black);
   cursor:pointer;   font-family:inherit;
-  transition:border-color .2s ease, color .2s ease; font-size:var(--fs-regular); font-weight:400; line-height:1; }
-.cs-arrow:hover{ border-color:var(--ltx-black); color:var(--ltx-black); }
+  transition:background .2s, border-color .2s, color .2s; font-size:var(--fs-regular); font-weight:400; line-height:1; }
+.cs-arrow:hover{
+  background:var(--ltx-white);
+  border-color:rgba(11,11,11,0.28);
+  color:var(--ltx-black);
+}
 .cs-rail-track{ flex:1; display:flex; gap:8px; min-width:0; }
 .cs-rail-btn{
   flex:1; min-width:0; display:flex; flex-direction:column; align-items:flex-start;
@@ -1346,9 +1477,6 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 /* ============ SLIDE 12: Use Cases & Workflows — workflow navigator ============ */
 .acc-wrap{ position:absolute; top:184px; left:var(--content-gutter); right:var(--content-gutter); bottom:80px; display:flex; gap:56px; }
 .acc-nav{ flex:0 0 360px; display:flex; flex-direction:column; min-width:0; }
-.acc-nav-lbl{
-  margin:0 0 28px; padding-left:56px;
-}
 .acc-path{
   position:relative; flex:0 0 auto; display:flex; flex-direction:column;
   justify-content:flex-start; gap:0.5rem; min-height:0;
@@ -1410,29 +1538,33 @@ body.divider-growing #stage{ background:var(--ltx-black); }
     border:1px solid var(--ltx-black); border-radius:var(--radius-md);
   padding:3px 8px; vertical-align:middle; position:relative; top:-4px; font-size:var(--fs-eyebrow); font-weight:300; letter-spacing:var(--ls-eyebrow); line-height:var(--lh-eyebrow); text-transform:uppercase; color:var(--ltx-grey-light); }
 .acc-media{
-  flex:0 0 auto; position:relative; width:100%; max-width:100%;
+  flex:0 1 auto; position:relative; width:min(100%, calc(520px * 16 / 9)); max-width:100%;
   aspect-ratio:16 / 9; min-height:0;
+  /* Shorter than a full-bleed 16:9 so the stage ends above the thumb strip. */
+  max-height:520px; height:auto;
 }
 .acc-video-frame{
   position:absolute; inset:0; border-radius:var(--radius); overflow:hidden;
-  background:transparent;
+  background:var(--ltx-black);
 }
 .acc-video-frame video{
   position:absolute; inset:0; width:100%; height:100%;
-  object-fit:cover; object-position:center; display:block; background:transparent;
+  object-fit:cover; object-position:center; display:block; background:var(--ltx-black);
 }
 .acc-panel[data-acc="hdrnative"] .acc-text{ margin-bottom:2rem; }
 .acc-media-hdr{
-  display:flex; flex-direction:column; gap:16px;
-  aspect-ratio:auto; height:auto;
+  display:flex; flex-direction:column; gap:12px;
+  aspect-ratio:auto; height:auto; max-height:none;
+  width:min(100%, calc(520px * 16 / 9));
 }
 .acc-hero{
-  flex:0 0 auto; position:relative; width:100%; aspect-ratio:16 / 9;
-  overflow:hidden; background:transparent; border-radius:var(--radius);
+  flex:0 1 auto; position:relative; width:min(100%, calc(520px * 16 / 9)); max-width:100%;
+  aspect-ratio:16 / 9; max-height:520px; height:auto; min-height:0;
+  overflow:hidden; background:var(--ltx-black); border-radius:var(--radius);
 }
 .acc-hero video{
   position:absolute; inset:0; width:100%; height:100%;
-  object-fit:cover; object-position:center; display:block; background:transparent;
+  object-fit:cover; object-position:center; display:block; background:var(--ltx-black);
 }
 .acc-thumbs{
   flex:0 0 96px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;
@@ -1444,7 +1576,8 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 }
 .acc-thumb.is-on{ border-color:var(--ltx-black); }
 .acc-thumb video{
-  display:block; width:100%; height:96px; object-fit:cover; background:var(--ltx-black); pointer-events:none;
+  display:block; width:100%; height:96px; object-fit:cover; object-position:center;
+  background:var(--ltx-black); pointer-events:none;
 }
 
 /* ============ SLIDE 16: The LTX Advantage — static 2×2 (sys-card style) ============ */
@@ -1455,9 +1588,8 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .adv-slide .title{
   position:relative; top:auto; left:auto; right:auto;
   margin:0 0 16px; max-width:980px;
-  /* Match Who We Are .about-block h1 on the scaled artboard */
-  font-size:calc(var(--fs-h1) / var(--artboard-scale, 1));
-  line-height:var(--lh-compact); letter-spacing:var(--ls-h1); font-weight:400;
+  font-size:calc(var(--fs-h2) / var(--artboard-scale, 1));
+  line-height:var(--lh-small); letter-spacing:var(--ls-h2); font-weight:600;
 }
 .adv-final-label{
   position:relative; left:auto; right:auto; bottom:auto;
@@ -1470,25 +1602,26 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   position:absolute;
   top:calc(
     187px
-    + (var(--fs-h1) / var(--artboard-scale, 1) * var(--lh-compact))
+    + (var(--fs-h2) / var(--artboard-scale, 1) * var(--lh-small))
     + 16px
     + (var(--fs-large) / var(--artboard-scale, 1) * var(--lh-medium))
     + var(--heading-to-content-gap)
   );
-  left:var(--content-gutter); right:var(--content-gutter); bottom:80px;
+  left:var(--content-gutter); right:var(--content-gutter);
+  /* bottom is set in artboardContentBottom so the grid fills down to the arrows */
   display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr;
-  gap:20px 24px; align-content:stretch;
+  gap:16px 20px; align-content:stretch; align-items:stretch;
 }
 .adv-card{
-  min-width:0; position:relative; overflow:hidden; align-self:stretch;
-  display:flex; flex-direction:column; align-items:flex-start; justify-content:space-between;
+  min-width:0; min-height:0; height:100%; position:relative; overflow:hidden; align-self:stretch;
+  display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-start;
   background:var(--ltx-white); border:none; border-radius:var(--radius);
-  box-shadow:none; padding:28px 32px;
+  box-shadow:none; padding:22px 24px 22px;
 }
 .adv-head{ display:flex; align-items:center; gap:0; flex:0 0 auto; }
 .adv-build-area{
-  display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-start;
-  gap:0.75rem; margin-top:auto; padding-top:1.5rem; flex:1 1 auto; width:100%;
+  display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start;
+  gap:0.55rem; margin-top:auto; padding-top:0; flex:0 0 auto; width:100%;
 }
 .adv-ic{ display:none; }
 .adv-head .heading-style-h3{
@@ -1508,6 +1641,10 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .adv-infra-svg{ fill:none; stroke:var(--ltx-black); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; overflow:visible; width:48px; height:48px; }
 .adv-check-svg{ fill:none; stroke:var(--ltx-black); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; flex:0 0 auto; }
 .adv-metric{ display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+.adv-card[data-adv="efficient"] .adv-build-area > .adv-step:first-child{
+  display:flex; flex-direction:row; align-items:baseline; justify-content:flex-start;
+  gap:2rem; flex-wrap:wrap;
+}
 .adv-mval{
   font-size:calc(var(--fs-h2) / var(--artboard-scale, 1));
   font-weight:400; letter-spacing:var(--ls-h2);
@@ -1604,119 +1741,48 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   line-height:var(--lh-medium); color:var(--ltx-black);
 }
 .adv-path + .adv-teams{ margin-top:1rem; }
-.adv-card[data-adv="partner"] .adv-step:has(.adv-wf-note) + .adv-step{
-  /* build-area gap is 0.75rem — top up to 2rem from the note */
-  margin-top:calc(2rem - 0.75rem);
+.adv-card[data-adv="partner"] .adv-wf-note{
+  align-self:stretch; max-width:100%;
 }
 .adv-teams{ display:flex; align-items:center; gap:0.5rem; margin-top:0; flex-wrap:wrap; }
 .adv-teams .plus{ color:var(--ltx-black); }
 .adv-connector{ display:none !important; }
 
-/* ============ Next steps — circles + hairlines (Usage-Based pattern) ============ */
+/* ============ Next steps — seven stage boxes; click dims siblings (same .38 as .wm-proof / .industry-tab) ============ */
 .ns-stack{
   position:absolute; top:187px; left:var(--content-gutter); right:var(--content-gutter); bottom:80px;
   display:flex; flex-direction:column; align-items:stretch;
 }
-.ns-head{
-  position:relative; flex:0 0 auto;
-  display:flex; flex-direction:column; align-items:center; text-align:center;
-  margin:0 0 var(--heading-to-content-gap);
-}
-.ns-title{
-  position:relative; top:auto; left:auto; right:auto;
-  margin:0 0 16px; max-width:none; text-align:center;
-  font-size:calc(var(--fs-h1) / var(--artboard-scale, 1));
-  line-height:var(--lh-compact); letter-spacing:var(--ls-h1); font-weight:400;
-}
-.ns-intro{
-  position:relative; top:auto; left:auto; right:auto; margin:0; max-width:920px;
-  text-align:center;
-  font-size:calc(var(--fs-large) / var(--artboard-scale, 1));
-  font-weight:400; letter-spacing:var(--ls-large); line-height:var(--lh-medium); color:var(--ltx-black);
-}
-
+/* Eyebrow→boxes: half of --heading-to-content-gap (2rem → 1rem). */
+.ns-eyebrow{ margin:0 0 calc(var(--heading-to-content-gap) / 2); }
 .ns-row{
-  position:relative; top:auto; left:auto; right:auto;
   flex:0 0 auto;
-  display:flex; align-items:flex-start; gap:0;
+  display:grid; grid-template-columns:repeat(7, minmax(0, 1fr)); gap:12px; align-items:stretch;
 }
+/* Number + heading + description always in flow — selecting never changes height. */
 .ns-stage{
-  flex:1; min-width:0; position:relative;
+  min-width:0; position:relative;
   display:flex; flex-direction:column; align-items:flex-start;
-  padding:0; text-align:left; cursor:pointer;
-  border:none; background:transparent;
+  /* Match Access .nx-card / .access-slide .nx-card (10–12px), was 22px 24px. */
+  padding:10px 12px; text-align:left; cursor:pointer;
+  background:var(--ltx-white); border:1px solid var(--line); border-radius:4px;
   opacity:0; transform:translateY(8px);
-  transition:opacity .45s var(--ease-out-soft, cubic-bezier(.16,1,.3,1)),
-    transform .45s var(--ease-out-soft, cubic-bezier(.16,1,.3,1));
+  transition:opacity .45s var(--ease-out-soft), transform .45s var(--ease-out-soft), border-color .25s ease;
 }
 .ns-stage.revealed{ opacity:1; transform:none; }
-.ns-dot-row{
-  display:flex; align-items:center; width:100%;
-  margin-bottom:12px;
-}
-.ns-dot{
-  flex:0 0 40px; width:40px; height:40px; border-radius:50%;
-  border:1px solid var(--ltx-black); box-sizing:border-box;
-  display:flex; align-items:center; justify-content:center;
-  background:var(--bg); z-index:1;
-  transition:background .25s ease, color .25s ease, border-color .25s ease, box-shadow .25s ease;
-}
-.ns-dot .index-num{
-  flex:none; margin:0; color:var(--ltx-black);
-  font-size:var(--fs-tiny); line-height:1;
-}
-.ns-stage h4{
-  margin:0; padding:0; max-width:9.5rem;
-  font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular);
-  line-height:var(--lh-medium); color:var(--ltx-grey-light);
-  transition:color .25s ease;
-}
-.ns-stage.active .ns-dot,
-.ns-stage.selected .ns-dot{
-  background:rgba(11,11,11,0.08); color:var(--ltx-black);
-  box-shadow:0 0 0 6px rgba(11,11,11,0.042);
-}
-.ns-stage.active h4,
-.ns-stage.selected h4{ color:var(--ltx-black); }
-.ns-stage.done .ns-dot{
-  background:var(--ltx-black); border-color:var(--ltx-black);
-  box-shadow:none;
-}
-.ns-stage.done .ns-dot .index-num{ color:var(--ltx-white); }
-.ns-stage.done h4{ color:var(--ltx-black); }
-.ns-row.has-selection .ns-stage:not(.selected){ opacity:.55; }
-.ns-row.has-selection .ns-stage.selected{ opacity:1; }
-
-/* Hairline from this circle to the next */
-.ns-seg{
-  flex:1 1 auto; min-width:0; height:1px;
-  margin:0; position:relative; background:transparent;
-}
-.ns-stage:last-child .ns-seg{ display:none; }
-.ns-seg-fill{
-  display:block; width:100%; height:100%;
-  background:var(--ltx-black);
-  transform:scaleX(0); transform-origin:left center;
-  transition:transform .45s var(--ease-out-soft, cubic-bezier(.16,1,.3,1));
-}
-.ns-seg.is-on .ns-seg-fill{ transform:scaleX(1); }
+/* Match .industry-tabs-menu / .wm-proofs inactive fade (.38). All full until .is-focus. */
+.ns-row.is-focus .ns-stage.revealed{ opacity:.38; }
+.ns-row.is-focus .ns-stage.revealed.selected{ opacity:1; }
+.ns-stage.selected{ border-color:var(--ltx-black); }
+.ns-num{ display:block; margin:0 0 0.5rem; }
+.ns-stage h5{ margin:0; text-wrap:balance; }
+/* Natural wrap — no text-wrap:balance / .text-balanced. */
+.ns-desc{ margin:auto 0 0; padding-top:0.75rem; text-wrap:wrap; }
 @media (prefers-reduced-motion:reduce){
-  .ns-stage{ opacity:1; transform:none; transition:none; }
-  .ns-seg-fill{ transform:none; transition:none; }
+  .ns-stage, .ns-stage.revealed{ opacity:1; transform:none; transition:none; }
+  .ns-row.is-focus .ns-stage.revealed{ opacity:.38; }
+  .ns-row.is-focus .ns-stage.revealed.selected{ opacity:1; }
 }
-
-.ns-panel{
-  position:relative; top:auto; left:auto; right:auto;
-  flex:0 0 auto; margin-top:2rem; padding:26px 30px;
-  border:1px solid var(--line); border-radius:4px; background:var(--ltx-white);
-}
-.ns-panel-tag{ margin-bottom:16px; }
-.ns-panel-body{ display:flex; align-items:flex-start; gap:22px; }
-.ns-panel-body > .index-num{ flex:none; min-width:var(--nav-num-col); }
-.ns-panel-text h3{   margin:0 0 8px; font-size:var(--fs-h3); font-weight:400; letter-spacing:var(--ls-h3); line-height:var(--lh-compact); color:var(--ltx-black); }
-.ns-panel-text p{   margin:0; font-size:var(--fs-regular); font-weight:400; letter-spacing:var(--ls-regular); line-height:var(--lh-medium); color:var(--ltx-black); }
-.ns-panel-body.ns-fade{ animation:nsPanelFade .35s ease; }
-@keyframes nsPanelFade{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
 
 /* ============ SLIDE: Production-grade model — capability explorer ============ */
 .pgx-slide{ background:var(--bg); }
@@ -1760,10 +1826,9 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .pgx-item h4{
   margin:0 0 6px;
   transition:color .28s ease; font-size:var(--fs-h5); font-weight:500; letter-spacing:var(--ls-h5); line-height:var(--lh-normal); color:var(--ltx-black); }
-.pgx-item p{ margin:0; max-width:560px; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
+.pgx-item p{ margin:0; max-width:560px; }
 .pgx-item.is-on, .pgx-item:hover{ opacity:1; background:var(--color-active-fill); color:var(--ltx-black); }
 .pgx-item.is-on h4, .pgx-item:hover h4{ color:var(--ltx-black); }
-.pgx-item.is-on p, .pgx-item:hover p{ color:var(--ltx-grey-light); }
 .pgx-item:focus-visible{
   outline:2px solid var(--ltx-black); outline-offset:-2px;
 }
@@ -2192,7 +2257,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .commercial-hub .hub-grid{
   top:calc(
     187px
-    + (var(--fs-h1) * var(--lh-compact))
+    + (var(--fs-h2) * var(--lh-small))
     + 12px
     + (var(--fs-xlarge) * var(--lh-medium))
     + var(--heading-to-content-gap)
@@ -2218,7 +2283,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   outline:2px solid var(--ltx-black); outline-offset:2px;
 }
 .commercial-hub .hub-card.price-card h3.heading-style-h5{ margin:0 0 8px; }
-.commercial-hub .hub-card > .text-size-regular{ margin:0 0 14px; max-width:none; }
+.commercial-hub .hub-card > .text-size-small{ margin:0 0 14px; max-width:none; }
 .commercial-hub .hub-card:hover{
   background:var(--ltx-white);
   border-color:var(--ltx-black);
@@ -2279,7 +2344,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   position:absolute; left:var(--content-gutter); right:var(--content-gutter);
   top:calc(
     187px
-    + (var(--fs-h1) * var(--lh-compact))
+    + (var(--fs-h2) * var(--lh-small))
     + 12px
     + (var(--fs-xlarge) * var(--lh-medium) * 2.4)
     + var(--heading-to-content-gap)
@@ -2289,7 +2354,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   position:absolute; left:var(--content-gutter); right:var(--content-gutter);
   top:calc(
     187px
-    + (var(--fs-h1) * var(--lh-compact))
+    + (var(--fs-h2) * var(--lh-small))
     + 12px
     + (var(--fs-xlarge) * var(--lh-medium) * 2.4)
     + var(--heading-to-content-gap)
@@ -2393,7 +2458,7 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   position:absolute;
   top:calc(
     187px
-    + (var(--fs-h1) * var(--lh-compact))
+    + (var(--fs-h2) * var(--lh-small))
     + 12px
     + (var(--fs-large) * var(--lh-medium) * 2.2)
     + var(--heading-to-content-gap)
@@ -2501,7 +2566,10 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .pr-pt .dot{ fill:var(--ltx-black); transition:fill .2s ease, r .2s ease; }
 #prPoints.dimmed .pr-pt:not(.pr-hover) .dot{ opacity:.3; }
 .pr-pt.pr-hover .dot{ fill:var(--ltx-slate-dark); r:6; }
+#prMarkerAura,
 #prMarker{ transition:cx .08s linear, cy .08s linear; }
+/* Same light slate ring as .pr-slider-thumb (box-shadow: 0 0 0 6px …) */
+#prMarkerAura{ fill:rgba(46,52,69,.12); pointer-events:none; }
 
 .pr-tooltip{
   position:absolute; top:16px; right:16px; background:var(--ltx-black); color:var(--ltx-white); border-radius:var(--radius-md);
@@ -2514,36 +2582,71 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 
 /* ============ Ways to Access LTX — What's New shell (2 tabs, static boxes) ============ */
 .access-slide .nx-tabs{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
-.access-slide .nx-stage{ padding-bottom:1.5rem; }
+/* Shorter panel: heading + white fit one viewport; still clear of #section-step.
+   Title on this page is heading-style-h2 — shell top must match that size. */
+.access-slide .nx-shell{
+  bottom:12rem;
+  top:calc(
+    96px
+    + 6px
+    + (var(--fs-h2) * var(--lh-small))
+    + 8px
+    + (var(--fs-large) * var(--lh-medium))
+    + var(--heading-to-content-gap)
+  );
+}
+.access-slide .nx-stage{ padding:0.75rem 0 0.75rem; }
 .access-slide .nx-group{
-  bottom:1.5rem;
+  top:0.75rem; bottom:0.75rem;
+  grid-template-columns:0.9fr 1.3fr; /* give cards the spare middle space */
+  gap:1.5rem;
+  align-items:center;
+  align-content:center;
   transform:none; transition:none; /* instant tab swap, no fade/slide */
 }
+.access-slide .nx-left{ justify-content:center; padding-right:1rem; }
+.access-slide .nx-h,
+.access-slide .nx-left .section-sub{ max-width:32rem; }
+.access-slide .nx-cards{ align-self:center; }
+.access-slide .nx-card{ min-height:0; padding:10px 12px; }
+.access-slide .nx-card h5.heading-style-h5{ margin:0 0 0.5rem; }
+.access-slide .nx-shell .nx-tab{ padding-block:0.65rem; }
 /* ============ SLIDE 9: capability explorer ============ */
+/* Composition: section title → stage. Chips top-align with the 16:9 asset;
+   description sits bottom-left of that same band. */
 .cap-nav{
   position:absolute; top:var(--cap-nav-top); left:var(--content-gutter); right:var(--content-gutter);
   display:flex; flex-direction:column; gap:0;
+  pointer-events:none; /* title doesn't steal clicks; rows re-enable */
 }
 .cap-nav__title{
   margin:0 0 var(--heading-to-content-gap);
   color:var(--ltx-black);
+  pointer-events:auto;
 }
+/* Flow under the title (title margin = stage top). Intentional rows; wrap as fallback. */
 .cap-nav-row{
+  position:relative;
+  width:var(--cap-col); max-width:100%;
   display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-start;
-  gap:0.5rem; width:100%;
+  gap:0.35rem;
+  z-index:3;
+  pointer-events:auto;
 }
-.cap-nav-row + .cap-nav-row{ margin-top:0.5rem; }
+.cap-nav-row + .cap-nav-row{ margin-top:0.35rem; }
 .cap-dot{ display:none; }
+.cap-btn{
+  flex:0 0 auto; white-space:nowrap;
+  padding-inline:0.75rem; /* slightly tighter than default .ltx-chip */
+}
 .cap-btn::after{ display:none; }
 
-/* Title + chips + 4rem under tags — keep stage clear of the nav */
+/* Stage starts under the section title (chips live in the left column of this band) */
 .cap-stage{
   position:absolute;
   top:calc(
     var(--cap-nav-top)
-    + (var(--fs-h1) * var(--lh-compact))
-    + var(--heading-to-content-gap)
-    + var(--cap-chip-rows-h)
+    + (var(--fs-h2) * var(--lh-small))
     + var(--heading-to-content-gap)
   );
   left:var(--content-gutter); right:var(--content-gutter); bottom:80px;
@@ -2552,10 +2655,25 @@ body.divider-growing #stage{ background:var(--ltx-black); }
    paints badge text (backdrop-filter ghosts) at the same absolute coords. */
 .cap-panel{
   position:absolute; inset:0; display:none; gap:50px;
+  align-content:start; /* row height = asset, not the full stage */
+  align-items:stretch;
   pointer-events:none; z-index:0;
 }
-.cap-panel.active{ display:flex; pointer-events:auto; z-index:1; }
-.cap-text{ flex:0 0 460px; display:flex; flex-direction:column; min-width:0; }
+.cap-panel.active{ display:grid; grid-template-columns:var(--cap-col) minmax(0,1fr); pointer-events:auto; z-index:1; }
+.cap-text{
+  display:flex; flex-direction:column; min-width:0;
+  justify-content:flex-end; /* description → bottom-left of the asset band */
+  padding-top:calc(var(--cap-chip-rows-h) + 1rem);
+  box-sizing:border-box;
+  /* Bottom hairline on the column = flush with the asset bottom (no gap under it). */
+  border-bottom:1px solid var(--line);
+}
+/* Top hairline sits on the title; bottom air lives above the column rule. */
+.cap-text > .cap-title{
+  border-top:1px solid var(--line);
+  padding-top:1rem;
+}
+.cap-text > :last-child{ padding-bottom:1rem; }
 .cap-title{    margin:0 0 16px; font-size:var(--fs-h3); font-weight:400; letter-spacing:var(--ls-h3); line-height:var(--lh-compact); color:var(--ltx-black); }
 .cap-desc{ margin:0 0 16px; max-width:560px; }
 .cap-caption{ margin-top:0; max-width:560px; font-size:var(--fs-small); font-weight:400; letter-spacing:var(--ls-small); line-height:var(--lh-normal); color:var(--ltx-grey-light); }
@@ -2570,9 +2688,25 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   width:auto; height:auto; border-radius:0; background:none;
   color:inherit; font-size:1em; line-height:inherit; font-weight:400;
 }
-.cap-media{ flex:1 1 auto; position:relative; min-width:0; }
-.cap-media .video-mock, .cap-media .video-mock[data-variant-group]{ position:absolute; inset:0; top:0; left:0; right:0; bottom:0; }
-.pp-show{ position:absolute; inset:0; }
+/* Media stays 16:9; drives the band height. Text column stretches and pins copy to the bottom. */
+.cap-media{
+  position:relative; min-width:0; min-height:0;
+  display:flex; align-items:center; justify-content:center;
+  align-self:start; /* asset sets the band height; chips share its top */
+}
+.cap-media .video-mock,
+.cap-media .video-mock[data-variant-group],
+.cap-media .pp-show{
+  position:relative; inset:auto; top:auto; left:auto; right:auto; bottom:auto;
+  width:100%; max-width:100%; max-height:100%;
+  aspect-ratio:16 / 9; height:auto;
+}
+.cap-media .video-mock[data-variant-group]{
+  /* 2×2 grid of 16:9 cells — overall block is still capped to stage */
+  aspect-ratio:16 / 9;
+  bottom:auto;
+}
+.cap-media .pp-show{ overflow:hidden; border-radius:var(--radius); background:var(--ltx-black); }
 .pp-pair{ position:absolute; inset:0; display:none; }
 .pp-pair.is-on{ display:block; }
 .pp-single video.frame{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:var(--ltx-black); }
@@ -2615,10 +2749,18 @@ body.divider-growing #stage{ background:var(--ltx-black); }
   --appnav-logo-h:26px;
   --appnav-logo-gap:32px;
 }
+@font-face{
+  font-family:"Aeonik Nav Semibold";
+  src:local("Aeonik SemiBold"), local("Aeonik-SemiBold");
+  font-style:normal;
+  font-weight:500;
+  font-display:swap;
+}
 #appnav{
   position:fixed; top:0; left:0; right:0; z-index:100;
   display:flex; align-items:center; gap:8px;
-  padding-inline:calc(var(--content-pad-x) + max(0px, (100vw - 2 * var(--content-pad-x) - var(--content-max)) / 2));
+  padding-left:var(--chrome-inset-x);
+  padding-right:var(--chrome-inset-right);
   background:var(--ltx-offwhite);
   font-family:var(--font); color:var(--ink);
   transition:opacity .45s ease;
@@ -2646,15 +2788,38 @@ body.divider-growing #stage{ background:var(--ltx-black); }
 .navitem:hover .lbl, .navitem.open .lbl{ color:var(--ltx-grey-medium); }
 .navitem:hover .lbl .nav-chevron, .navitem.open .lbl .nav-chevron{ transform:rotate(180deg); }
 .navitem.active .lbl{
-  color:var(--ltx-black); font-weight:500;
+  color:var(--ltx-black); font-family:"Aeonik Nav Semibold", var(--font); font-weight:500;
 }
 .appnav-right{ display:flex; align-items:center; gap:14px; margin-left:8px; flex:0 0 auto; }
 .icon-btn{
-  background:rgba(0,0,0,.04); border:1px solid rgba(0,0,0,.08); color:var(--ink);
-  width:34px; height:34px; border-radius:50%; cursor:pointer; 
-  display:flex; align-items:center; justify-content:center; transition:background .2s, border-color .2s, color .2s;
-  flex:0 0 auto; font-size:var(--fs-regular); font-weight:400; line-height:1; }
-.icon-btn:hover{ background:rgba(11,11,11,0.08); border-color:rgba(11,11,11,0.35); color:var(--ltx-black); }
+  background:#dee0e5; /* sampled control fill — stands out on offwhite */
+  border:1px solid rgba(11,11,11,0.1);
+  color:var(--ltx-black);
+  width:34px; height:34px; border-radius:4px; /* square, match video play/pause */
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .2s, border-color .2s, color .2s;
+  flex:0 0 auto; font-size:var(--fs-regular); font-weight:400; line-height:1;
+}
+.icon-btn:hover{
+  background:#dee0e5;
+  border-color:rgba(11,11,11,0.28);
+  color:var(--ltx-black);
+}
+.icon-btn:disabled{
+  opacity:0.35; cursor:default; pointer-events:none; box-shadow:none;
+}
+.icon-btn svg{ display:block; width:14px; height:14px; }
+
+/* Section stepper — same destinations as the menu, fixed bottom-right.
+   `right` matches #appnav so the next arrow lines up under the fullscreen button. */
+#section-step{
+  position:fixed; z-index:90;
+  right:var(--chrome-inset-right);
+  bottom:max(1.25rem, env(safe-area-inset-bottom));
+  display:flex; align-items:center; gap:8px;
+}
+body.pw-locked #section-step{ visibility:hidden; }
 
 .menu-toggle{
   display:none;
@@ -2682,14 +2847,45 @@ body.nav-open .menu-toggle span:nth-child(3){ transform:translateY(-7px) rotate(
   /* Pull flush to #appnav (avoids 1px hairline from subpixel height) */
   margin-top:-1px;
   padding-block:var(--subnav-pad-y);
-  padding-top:calc(var(--subnav-pad-y) + 1px);
-  padding-inline:calc(var(--content-pad-x) + max(0px, (100vw - 2 * var(--content-pad-x) - var(--content-max)) / 2));
-  background:linear-gradient(to bottom, var(--ltx-offwhite) 0, var(--ltx-offwhite) 2px, rgba(231, 232, 235, 0.7) 2px);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
+  padding-inline:var(--chrome-inset-x);
+  /* Frosted strip — same idea as mobile chrome (STYLE-GUIDE) */
+  background:hsla(220, 8%, 91%, 0.72);
+  backdrop-filter:saturate(140%) blur(10px);
+  -webkit-backdrop-filter:saturate(140%) blur(10px);
   font-family:var(--font);
 }
 body.has-chapter-sub #appnav-sub{ display:flex; }
+body.is-fullscreen #appnav-sub{ display:none !important; }
+
+/* Fullscreen chrome: hide page scrollbar (scroll still works for section-step);
+   left nav + content inset match right (--chrome-inset-right).
+   .main-container is capped at 100rem and centered, so on wide screens that
+   centering adds inset beyond the pad. Drop the cap so the pad is the inset. */
+body.is-fullscreen{
+  --content-pad-x:var(--chrome-inset-right);
+  --chrome-inset-x:var(--chrome-inset-right);
+  scrollbar-width:none;
+}
+body.is-fullscreen .main-container{
+  max-width:none;
+  margin-inline:0;
+}
+html:has(body.is-fullscreen){
+  scrollbar-width:none;
+}
+body.is-fullscreen::-webkit-scrollbar,
+html:has(body.is-fullscreen)::-webkit-scrollbar{
+  display:none;
+  width:0;
+  height:0;
+}
+body.is-fullscreen #appnav{
+  padding-left:var(--chrome-inset-right);
+}
+body.is-fullscreen #appnav-sub{
+  padding-inline:var(--chrome-inset-right);
+}
+
 .appnav-sub-inner{
   display:flex; align-items:center; justify-content:flex-start;
   width:100%; min-width:0; margin:0; padding:0;
@@ -2724,9 +2920,195 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   position:relative; isolation:isolate; overflow:hidden;
   display:flex; align-items:flex-end;
   width:100%; max-width:100%;
-  aspect-ratio:2.56 / 1;
+  /* ~30% shorter than prior 2.56/1 */
+  aspect-ratio:3.66 / 1;
   border-radius:var(--radius-md);
   background:var(--ltx-grey);
+}
+/* Fullscreen: chapter heroes fill the content column at 16:9.
+   Width drives the box; height is width × 9/16. max-width:none overrides
+   the base max-width:100% so the ratio cannot shrink the width. */
+body.is-fullscreen .section-hero-slide .section-hero{
+  width:100%;
+  max-width:none;
+  height:auto;
+  max-height:none;
+  aspect-ratio:16 / 9;
+}
+body.is-fullscreen .section-hero-slide .section-hero__video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+/* Who We Are only: hero + adoption row + logo strip share one viewport
+   under the chrome. A full-width 16:9 hero leaves no room for the stats
+   and logos. Other chapter heroes stay 16:9. */
+@media (min-width:901px){
+  body.is-fullscreen{
+    --who-fs-slot:calc(100dvh - var(--chrome-top));
+    --who-fs-hero-pad:0.5rem;
+    --who-fs-gap:var(--heading-to-content-gap);
+    --who-fs-stats:9rem;
+    --who-fs-logo-gap:var(--heading-to-content-gap);
+    --who-fs-logos:4.5rem;
+    /* #section-step sits 1.25rem up; button is 34px; 1rem of air above it */
+    --who-fs-arrow-clear:calc(1.25rem + 34px + 1rem);
+    --who-fs-below:calc(var(--who-fs-stats) + var(--who-fs-logo-gap) + var(--who-fs-logos) + var(--who-fs-arrow-clear));
+    /* Cap at 16:9 of the fullscreen column (max-width is dropped in FS);
+       shrink further so the stats and logos stay inside the slot. */
+    --who-fs-hero-h:min(
+      calc((100vw - 2 * var(--content-pad-x)) * 9 / 16),
+      calc(var(--who-fs-slot) - var(--who-fs-below) - var(--who-fs-hero-pad) - var(--who-fs-gap))
+    );
+  }
+  body.is-fullscreen .main-container > .screen:has(> #section-who-hero){
+    box-sizing:border-box;
+    min-height:0;
+    height:calc(var(--who-fs-hero-pad) + var(--who-fs-hero-h) + var(--who-fs-gap));
+    padding-bottom:var(--who-fs-gap);
+  }
+  body.is-fullscreen #section-who-hero.section-hero-slide{
+    height:auto;
+    min-height:0;
+    padding-top:var(--who-fs-hero-pad);
+    padding-bottom:0;
+  }
+  body.is-fullscreen #section-who-hero .section-hero{
+    aspect-ratio:auto;
+    width:100%;
+    max-width:100%;
+    height:var(--who-fs-hero-h);
+    max-height:var(--who-fs-hero-h);
+    min-height:0;
+  }
+  body.is-fullscreen #section-who-hero .section-hero__video{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+  body.is-fullscreen .about-page .chapter-blocks > .about-block.who-chapter{
+    box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+    min-height:0;
+    height:calc(var(--who-fs-slot) - var(--who-fs-hero-pad) - var(--who-fs-hero-h) - var(--who-fs-gap));
+    padding-bottom:var(--who-fs-arrow-clear);
+    overflow:visible;
+  }
+  body.is-fullscreen .who-chapter .who-mid{
+    flex:0 0 auto;
+    margin-top:0;
+  }
+  body.is-fullscreen .who-chapter .who-logos{
+    flex:0 0 auto;
+    margin-top:auto;
+    min-height:var(--who-fs-logos);
+    padding-top:18px;
+    padding-bottom:18px;
+    overflow:hidden;
+    /* Reveal starts at opacity 0 + translateY(16px). Near the arrows that
+       shift clips the marks, and the observer's bottom root margin never
+       fires. Show the strip in place. */
+    opacity:1;
+    transform:none;
+  }
+  body.is-fullscreen .who-chapter .who-logos .who-logo-track{
+    animation:whoLogoMarquee var(--who-marquee-dur, 36s) linear infinite;
+  }
+}
+@media (min-width:901px) and (prefers-reduced-motion:reduce){
+  body.is-fullscreen .who-chapter .who-logos .who-logo-track{ animation:none; }
+}
+/* Next Steps ONLY fullscreen — own --ns-fs-* tokens (do not touch --who-fs-*).
+   Shorter hero than 16:9 so Select stage + 7 full-width boxes fit one viewport. */
+@media (min-width:901px){
+  body.is-fullscreen{
+    --ns-fs-slot:calc(100dvh - var(--chrome-top));
+    --ns-fs-hero-pad:0.5rem;
+    --ns-fs-gap:var(--heading-to-content-gap);
+    --ns-fs-arrow-clear:calc(1.25rem + 34px + 1rem);
+    --ns-fs-eyebrow:1.25rem;
+    --ns-fs-eyebrow-gap:calc(var(--heading-to-content-gap) / 2);
+    /* Reserve room for the 7 cards; leftover goes to the hero (intentionally short). */
+    --ns-fs-stages-body:clamp(14rem, 38vh, 22rem);
+    --ns-fs-below:calc(
+      var(--ns-fs-eyebrow) + var(--ns-fs-eyebrow-gap) + var(--ns-fs-stages-body) + var(--ns-fs-arrow-clear)
+    );
+    --ns-fs-hero-h:min(
+      calc((100vw - 2 * var(--content-pad-x)) * 9 / 16 * 0.55),
+      calc(var(--ns-fs-slot) - var(--ns-fs-below) - var(--ns-fs-hero-pad) - var(--ns-fs-gap))
+    );
+  }
+  body.is-fullscreen .main-container > .screen:has(> #section-nextsteps-hero){
+    box-sizing:border-box;
+    min-height:0;
+    height:calc(var(--ns-fs-hero-pad) + var(--ns-fs-hero-h) + var(--ns-fs-gap));
+    padding-bottom:var(--ns-fs-gap);
+  }
+  body.is-fullscreen #section-nextsteps-hero.section-hero-slide{
+    height:auto;
+    min-height:0;
+    padding-top:var(--ns-fs-hero-pad);
+    padding-bottom:0;
+  }
+  body.is-fullscreen #section-nextsteps-hero .section-hero{
+    aspect-ratio:auto;
+    width:100%;
+    max-width:none;
+    height:var(--ns-fs-hero-h);
+    max-height:var(--ns-fs-hero-h);
+    min-height:0;
+  }
+  body.is-fullscreen #section-nextsteps-hero .section-hero__video{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+  body.is-fullscreen .main-container > .screen:has(> .next-steps){
+    box-sizing:border-box;
+    min-height:0;
+    height:calc(var(--ns-fs-slot) - var(--ns-fs-hero-pad) - var(--ns-fs-hero-h) - var(--ns-fs-gap));
+    overflow:hidden;
+  }
+  /* Kill artboard fixed width so the 7 boxes span the full content column. */
+  body.is-fullscreen .screen.layout-artboard:has(> .next-steps){
+    width:100%;
+  }
+  body.is-fullscreen .next-steps{
+    position:relative;
+    width:100% !important;
+    max-width:none !important;
+    height:100% !important;
+    min-height:0;
+    transform:none !important;
+    --artboard-scale:1;
+  }
+  body.is-fullscreen .next-steps .topbar,
+  body.is-fullscreen .next-steps .rule{ display:none; }
+  body.is-fullscreen .ns-stack{
+    position:relative;
+    top:auto; left:auto; right:auto; bottom:auto;
+    width:100%;
+    max-width:none;
+    height:100%;
+    box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    padding:0 0 var(--ns-fs-arrow-clear);
+    margin:0;
+  }
+  body.is-fullscreen .ns-eyebrow{ flex:0 0 auto; margin:0 0 var(--ns-fs-eyebrow-gap); }
+  body.is-fullscreen .ns-row{
+    flex:1 1 auto;
+    min-height:0;
+    width:100%;
+    max-width:none;
+    align-items:stretch;
+    grid-template-columns:repeat(7, minmax(0, 1fr));
+  }
+  body.is-fullscreen .ns-stage{ min-height:0; width:100%; padding:10px 12px; }
 }
 .section-hero__video{
   position:absolute; inset:0; z-index:0;
@@ -2757,18 +3139,12 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   color:rgba(249,249,249,.9);
 }
 @media (max-width:720px){
-  .section-hero{ min-height:17rem; aspect-ratio:auto; }
-  .section-hero__text-fade{ height:min(70%, 18rem); }
+  .section-hero{ min-height:12rem; aspect-ratio:auto; }
+  .section-hero__text-fade{ height:min(70%, 14rem); }
 }
 
-/* Hero → first body screen (docs/LTX-MINI-SITE-SYSTEM.md); Who We Are uses tighter gap */
-.main-container > .screen:has(> .section-hero-slide) + .screen{
-  margin-top:var(--hero-to-content-gap);
-}
-.main-container > .screen:has(> #section-who-hero) + .screen{
-  margin-top:var(--hero-to-content-gap-who);
-}
-/* Gap is only the margin above — no extra padding on the first block in that screen */
+/* Hero → body gap is padding-bottom on the hero .screen (see min-width:901px block). */
+/* No extra padding on the first block in the body screen */
 .main-container > .screen:has(> .section-hero-slide) + .screen > .site-section.about-page .chapter-blocks > .about-block:first-child,
 .main-container > .screen:has(> .section-hero-slide) + .screen > .site-section.chapter-block,
 .main-container > .screen:has(> .section-hero-slide) + .screen > .site-section.about-page{
@@ -2779,11 +3155,13 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 }
 .chapter-block,
 .about-block{
-  scroll-margin-top:calc(var(--chrome-top) + var(--section-pad-under-chrome));
+  scroll-margin-top:var(--chrome-top);
 }
 .about-block{ padding:var(--section-pad-under-chrome) 0 72px; border-bottom:1px solid var(--line); }
+/* Keep --section-pad-under-chrome on all chapter-blocks (incl. :first-child /
+   ctrl-slide). A tighter first-child clamp broke fullscreen air vs Access.
+   Hero-following screens still zero pad via the rule above. */
 .chapter-block{ padding-top:var(--section-pad-under-chrome); padding-bottom:48px; }
-.chapter-block:first-child{ padding-top:clamp(0.5rem, 0.8vw, 1rem); }
 .ctrl-slide.chapter-block{ padding-bottom:var(--space-xl); }
 .about-block:last-child{ border-bottom:none; padding-bottom:40px; }
 .about-block .title{
@@ -2792,6 +3170,12 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .about-block .title{ max-width:980px;}
 /* Section subtext — layout only; type is .text-size-large (+ .text-balanced) from ltx.css */
 .section-sub{ margin:0; color:var(--ltx-black); }
+/* Shared gap: section subtext → following content. Prefer this element over ad-hoc margins. */
+.heading-content-spacer{
+  display:block; width:100%; height:var(--heading-to-content-gap);
+  flex:0 0 auto; pointer-events:none;
+}
+
 .about-block > .section-sub{ max-width:920px; margin:0 0 36px; }
 .ctrl-slide .ctrl-head > .section-sub{ max-width:760px; }
 .nx-slide .nx-head > .section-sub{ margin:0; }
@@ -2800,6 +3184,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 .ctrl-copy .section-sub{ margin:0 0 16px; max-width:620px; }
 .hub-card .section-sub{ margin:0 0 18px; }
 /* Narrow tab rail — no balance (equal line lengths look wrong at ~1fr); pretty wrap only */
+.split-tab p.text-size-small,
 .split-tab p.text-size-regular{ text-wrap:pretty; }
 .about-who-grid{
   display:grid; grid-template-columns:1.1fr .9fr; gap:48px; align-items:start;
@@ -2856,10 +3241,9 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   gap:48px; align-items:center; padding:48px 0 12px;
   border-top:1px solid var(--line); margin-top:9vh;
 }
-.who-adopt strong,
-.who-proof-copy strong{
+.who-adopt .heading-style-h3,
+.who-proof-copy .heading-style-h3{
   display:block; margin:0 0 6px;
-  font-size:var(--fs-h5); font-weight:500; letter-spacing:var(--ls-h5); line-height:var(--lh-normal); color:var(--ltx-black);
 }
 .who-adopt p,
 .who-proof-copy p{
@@ -2969,9 +3353,9 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   color:inherit;
   transition:color 0.45s var(--ease-out-soft);
 }
+.split-tab p.text-size-small,
 .split-tab p.text-size-regular{
   margin:0;
-  color:var(--ltx-grey-muted);
   transition:color 0.45s var(--ease-out-soft);
 }
 
@@ -2993,7 +3377,6 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   transition:color 0.45s var(--ease-out-soft), background 0.25s ease, opacity 0.2s ease;
 }
 .industry-tab.split-tab h5.heading-style-h5{ color:var(--ltx-black); }
-.industry-tab.split-tab p.text-size-regular{ color:var(--ltx-grey-muted); }
 /* Left rail accent — same pattern as .ctrl-nav-item (horizontal line archived: docs/patterns/tab-indicator-horizontal-line.md) */
 .industry-tab::before,
 .ctrl-nav-item::before,
@@ -3021,9 +3404,9 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   border-bottom-color:transparent;
 }
 .industry-tab.is-on + .industry-tab{ border-top:none; }
-.industry-tab.is-on p.text-size-regular,
-.industry-tab:hover p.text-size-regular{ color:var(--ltx-black); }
 .industry-tab:hover h5, .industry-tab.is-on h5{ color:var(--ltx-black); }
+.industry-tab:hover .split-tab__text p.text-color-secondary,
+.wm-proof:hover .split-tab__text p.text-color-secondary{ color:var(--ltx-black); }
 /* Same opacity fade as .wm-proofs (black ink × .38 — not grey × .38) */
 .industry-tabs-menu .industry-tab{ opacity:.38; }
 .industry-tabs-menu .industry-tab:hover,
@@ -3091,11 +3474,9 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 }
 .wm-proof:last-child{ border-bottom:none; }
 .wm-proof.split-tab h5.heading-style-h5{ color:var(--ltx-black); }
-.wm-proof.split-tab p.text-size-regular{ line-height:var(--lh-medium); color:var(--ltx-grey-muted); }
 .wm-proofs:hover .wm-proof{ opacity:.38; }
 .wm-proofs:hover .wm-proof:hover,
 .wm-proof.is-on{ opacity:1 !important; }
-.wm-proof.is-on p.text-size-regular, .wm-proof:hover p.text-size-regular{ color:var(--ltx-black); }
 .wm-proof:hover h5, .wm-proof.is-on h5{ color:var(--ltx-black); }
 
 .wm-viz{
@@ -3199,7 +3580,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 }
 .ctrl-slide .ctrl-shell{
   position:relative; top:auto; left:auto; right:auto; bottom:auto;
-  min-height:min(540px, 72vh); margin:4rem 0 var(--space-xl);
+  min-height:min(540px, 72vh); margin:0 0 var(--space-xl);
 }
 .ctrl-slide .eyebrow{ position:relative; top:auto; left:auto; }
 .ctrl-slide .ctrl-title{
@@ -3286,7 +3667,6 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 
 @media (max-width:900px){
   .about-block{ padding:28px 0 40px; }
-  .about-block .title{ font-size:36px !important; }
   .about-industries-layout,
   .about-world-body,
   .pgx-explorer,
@@ -3301,7 +3681,6 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .pgx-intro-stats{ justify-content:flex-start; }
   .pgx-intro-stats .dash-metrics{ justify-content:flex-start; }
   .who-chapter{ min-height:0; padding:24px 0 40px; }
-  .about-block .who-title{ font-size:40px !important; letter-spacing:-.5px; }
   .who-mid{ margin-top:28px; padding:24px 0 8px; }
   .who-num{ font-size:64px !important; letter-spacing:-2px; }
   .who-logos{ margin-top:28px; padding:12px 0; }
@@ -3318,6 +3697,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   #aboutWorld .wm-proofs.split-tab-list > .wm-proof.split-tab{
     flex:0 0 auto; min-height:auto;
   }
+  #aboutIndustries > .title{ white-space:normal; }
   #aboutIndustries .industry-tabs-menu{ min-height:0; }
   #aboutIndustries .industry-tabs-menu.split-tab-list > .industry-tab.split-tab{
     flex:0 0 auto;
@@ -3327,7 +3707,6 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     position:relative !important; top:auto !important; left:auto !important; right:auto !important; bottom:auto !important;
     transform:none !important;
   }
-  .ctrl-title{ font-size:32px !important; }
   .ctrl-shell{ display:flex; flex-direction:column; gap:0; margin:12px 0 24px; min-height:0; }
   .ctrl-nav{ border-right:none; border-bottom:1px solid var(--ltx-offwhite); }
   .ctrl-pattern{ display:none; }
@@ -3338,7 +3717,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 }
 .sys-init .sys-field{
   position:absolute;
-  top:calc(var(--cap-nav-top) + (var(--fs-h1) * var(--lh-compact)) + var(--heading-to-content-gap));
+  top:calc(var(--cap-nav-top) + (var(--fs-h2) * var(--lh-small)) + var(--heading-to-content-gap));
   left:var(--content-gutter); right:var(--content-gutter); bottom:80px;
 }
 .sys-net{
@@ -3425,7 +3804,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   cursor:pointer; white-space:nowrap; text-align:left;
   transition:background .18s ease, color .18s ease; color:var(--ltx-grey-medium); }
 .submenu .sub-item:hover{ background:transparent; color:var(--ltx-black); }
-.submenu .sub-item.current{ color:var(--ltx-black); font-weight:500; background:rgba(11,11,11,0.05); }
+.submenu .sub-item.current{ color:var(--ltx-black); font-family:"Aeonik Nav Semibold", var(--font); font-weight:500; background:rgba(11,11,11,0.05); }
 .submenu .sub-item.current:hover{ background:rgba(11,11,11,0.05); color:var(--ltx-black); }
 .agenda-row{ position:relative; }
 
@@ -3496,7 +3875,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .eyebrow{ position:relative !important; top:auto; left:auto; margin:0 0 8px; }
   .title, .title.small{
     position:relative !important; top:auto; left:auto; right:auto;
-    font-size:32px !important; line-height:1.15 !important; max-width:100% !important; margin:0 0 14px !important;
+    max-width:100% !important; margin:0 0 14px !important;
   }
   .footer-caption{ position:relative !important; bottom:auto; left:auto; right:auto; font-size:15px !important; margin-top:14px !important; }
 
@@ -3634,12 +4013,15 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .arrow-card h3{ font-size:24px !important; }
   .testi-card, .proc-card, .price-card, .stat-card{ padding:22px !important; }
 
-  /* video / lab preview mocks */
+  /* video / lab preview mocks — keep 16:9 so baked-in labels are not cropped */
   .video-mock, .lab-mock{
     position:relative !important; top:auto !important; left:auto !important; right:auto !important; bottom:auto !important;
-    width:100% !important; height:42vw !important; max-height:200px !important; margin:16px 0 !important;
+    width:100% !important; height:auto !important; max-height:none !important;
+    aspect-ratio:16 / 9 !important; margin:16px 0 !important;
   }
-  .video-mock[data-variant-group]{ height:42vw !important; max-height:200px !important; }
+  .video-mock[data-variant-group]{
+    height:auto !important; max-height:none !important; aspect-ratio:16 / 9 !important;
+  }
   .tile2x2{
     position:relative !important; top:auto !important; left:auto !important; right:auto !important; bottom:auto !important;
     width:100% !important; height:56vw !important; margin:16px 0 !important; grid-template-columns:1fr 1fr !important;
@@ -3688,16 +4070,26 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .expand-card .exp-line{ opacity:1 !important; transform:none !important; }
 
   /* slide 11 capability explorer: stack nav above a single-column content panel */
-  .cap-nav{ position:relative !important; top:auto !important; left:auto !important; right:auto !important; margin-bottom:var(--heading-to-content-gap); }
+  .cap-nav{ position:relative !important; top:auto !important; left:auto !important; right:auto !important; margin-bottom:var(--heading-to-content-gap); pointer-events:auto !important; }
+  .cap-nav-row{
+    position:relative !important; top:auto !important; left:auto !important; right:auto !important;
+    width:100% !important; margin-top:0.5rem !important;
+  }
+  .cap-nav-row + .cap-nav-row{ margin-top:0.5rem !important; }
   .cap-stage{ position:relative !important; top:auto !important; left:auto !important; right:auto !important; bottom:auto !important; height:auto; }
   .cap-panel{
     position:relative !important; inset:auto !important; display:none !important;
     flex-direction:column !important; gap:16px; opacity:1 !important; transform:none !important; pointer-events:auto !important;
+    grid-template-columns:none !important;
   }
   .cap-panel.active{ display:flex !important; }
-  .cap-text{ flex:0 0 auto !important; }
-  .cap-media{ position:relative; width:100%; height:42vw; max-height:200px; }
-  .cap-media .video-mock, .cap-media .video-mock[data-variant-group]{ position:absolute !important; inset:0 !important; margin:0 !important; }
+  .cap-text{ flex:0 0 auto !important; padding-top:0 !important; justify-content:flex-start !important; }
+  .cap-media{ position:relative; width:100%; height:auto; max-height:none; align-self:stretch; }
+  .cap-media .video-mock, .cap-media .video-mock[data-variant-group],
+  .cap-media .pp-show{
+    position:relative !important; inset:auto !important; margin:0 !important;
+    width:100% !important; height:auto !important; aspect-ratio:16 / 9 !important;
+  }
 
   /* Production-grade explorer: intro stacks, then nav + visual */
   .pgx-intro, .pgx-sub, .pgx-nav, .pgx-stage, .pgx-specs, .pgx-explorer, .pgx-block{
@@ -3739,7 +4131,6 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
      pattern as the capability explorer */
   .acc-wrap{ position:relative !important; top:auto !important; left:auto !important; right:auto !important; bottom:auto !important; display:block; }
   .acc-nav{ flex:none; margin-bottom:16px; }
-  .acc-nav-lbl{ display:none; }
   .acc-path{ display:block; }
   .acc-path-line{ display:none; }
   .acc-item{ padding:12px 10px; font-size:15px; margin:0; gap:10px; }
@@ -3768,7 +4159,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   /* The LTX Advantage: static 2×2 */
   .adv-head-row{
     position:relative !important; top:auto !important; left:auto !important; right:auto !important;
-    margin:0 0 var(--heading-to-content-gap);
+    margin:0;
   }
   .adv-slide .title{ position:relative !important; top:auto !important; margin:0 0 16px !important; }
   .adv-row{
@@ -3810,6 +4201,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     gap:8px;
   }
   #appnav-sub{ padding-right:max(3vw, env(safe-area-inset-right)); }
+  #section-step{ right:max(3vw, env(safe-area-inset-right)); }
   #appnav .applogo{ margin-right:auto; }
   .appnav-logo-spacer{ margin-right:12px; }
   .menu-toggle{ display:flex; }
@@ -3869,8 +4261,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .nx-slide .nx-head, .nx-shell{
     position:relative !important; top:auto !important; left:auto !important; right:auto !important; bottom:auto !important;
   }
-  .nx-title{ font-size:32px !important; }
-  .nx-shell{ margin:var(--heading-to-content-gap) 0 24px; }
+  .nx-shell{ margin:0 0 24px; }
   .nx-tabs{ grid-template-columns:1fr 1fr; }
   .nx-stage{ height:auto; }
   .nx-group{
@@ -3927,21 +4318,16 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   #pw-box{ width:100%; max-width:360px; margin:auto; }
   #pw-box input, #pw-submit{ font-size:16px; min-height:44px; }
 
-  .ns-stack, .ns-head, .ns-intro, .ns-row, .ns-panel{
+  .ns-stack, .ns-row{
     position:relative !important; top:auto !important; left:auto !important; right:auto !important; bottom:auto !important;
     width:100% !important; max-width:100% !important; margin:12px 0 !important;
   }
   .ns-stack{ display:flex !important; flex-direction:column; }
-  .ns-head{ align-items:flex-start !important; text-align:left !important; margin:0 0 16px !important; }
-  .ns-title{ text-align:left !important; margin:0 0 8px !important; font-size:32px !important; }
-  .ns-intro{ font-size:18px !important; text-align:left !important; }
-  .ns-row{ flex-direction:column; gap:10px; margin:0 0 16px !important; }
-  .ns-seg{ display:none; }
-  .ns-stage{ opacity:1 !important; transform:none !important; }
-  .ns-stage h4{ font-size:16px !important; }
-  .ns-panel{ padding:18px !important; margin:0 !important; }
-  .ns-panel-text h3{ font-size:22px !important; }
-  .ns-panel-text p{ font-size:16px !important; }
+  .ns-row{ grid-template-columns:minmax(0, 1fr); gap:10px; margin:0 0 16px !important; }
+  .ns-stage{ opacity:1 !important; transform:none !important; padding:10px 12px; }
+  .ns-row.is-focus .ns-stage{ opacity:.38 !important; }
+  .ns-row.is-focus .ns-stage.selected{ opacity:1 !important; }
+  .ns-num{ margin-bottom:8px; }
 
   .uf-row{ flex-direction:column; gap:16px; }
   .uf-line{ display:none; }
@@ -3989,12 +4375,12 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   }
   .site-section{
     padding:24px 24px 48px !important;
-    min-height:100svh;
+    /* Do not force 100svh — that left a full-viewport empty gap under short heroes. */
+    min-height:0;
     height:auto !important;
   }
   .eyebrow{ margin:0 0 12px !important; }
   .title, .title.small{
-    font-size:36px !important; line-height:1.08 !important;
     margin:0 0 16px !important;
   }
   .site-section.active [style*="position:absolute"]{
@@ -4269,7 +4655,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     display:flex !important; flex-direction:row !important; gap:8px;
     flex:1 1 auto; min-width:0;
   }
-  .acc-path-line, .acc-nav-lbl{ display:none !important; }
+  .acc-path-line{ display:none !important; }
   .acc-item-lbl{ white-space:nowrap; }
   .cap-title{ font-size:28px !important; line-height:1.1 !important; margin:0 0 12px !important; }
   .acc-headline{ margin:0 0 12px !important; }
@@ -4277,9 +4663,9 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .cap-panel, .acc-panel{ flex-direction:column !important; gap:16px; }
   .cap-media{
     width:100%;
-    height:42vw !important;
-    max-height:180px;
-    aspect-ratio:unset;
+    height:auto !important;
+    max-height:none;
+    aspect-ratio:auto;
   }
   .acc-media{
     width:100%;
@@ -4298,26 +4684,27 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
     aspect-ratio:16 / 9;
   }
   .cap-media .video-mock,
-  .cap-media .video-mock[data-variant-group]{
-    position:absolute !important; inset:0 !important;
-    width:100% !important; height:100% !important;
+  .cap-media .video-mock[data-variant-group],
+  .cap-media .pp-show{
+    position:relative !important; inset:auto !important;
+    width:100% !important; height:auto !important;
     max-height:none !important;
-    aspect-ratio:unset;
+    aspect-ratio:16 / 9 !important;
     margin:0 !important;
   }
   .video-mock, .lab-mock{
     width:100% !important;
-    height:42vw !important;
-    max-height:180px !important;
-    aspect-ratio:unset;
+    height:auto !important;
+    max-height:none !important;
+    aspect-ratio:16 / 9 !important;
     margin:12px 0 !important;
   }
   .video-mock[data-variant-group]{
     display:flex !important; overflow-x:auto; scroll-snap-type:x mandatory;
     -webkit-overflow-scrolling:touch; scrollbar-width:none;
-    height:42vw !important;
-    max-height:180px !important;
-    aspect-ratio:unset;
+    height:auto !important;
+    max-height:none !important;
+    aspect-ratio:16 / 9 !important;
   }
   .video-mock[data-variant-group]::after{
     content:''; flex:0 0 1px;
@@ -4346,7 +4733,7 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 
   /* Customer stories: stack hero, then copy, then the logo rail */
   .cs-head{ position:relative !important; top:auto !important; left:auto !important; right:auto !important; margin:0 0 16px; }
-  .cs-slide .title{ font-size:32px !important; top:auto !important; position:relative !important; margin:0 0 8px !important; }
+  .cs-slide .title{ top:auto !important; position:relative !important; margin:0 0 8px !important; }
   .cs-kicker{ position:relative !important; top:auto !important; left:auto !important; right:auto !important; font-size:15px; margin:0; }
   .cs-main{
     position:relative !important; top:auto !important; left:auto !important; right:auto !important; bottom:auto !important;
@@ -4395,15 +4782,8 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   .uf-node h4{ font-size:18px !important; }
   .uf-sub, .uf-tl-status{ font-size:15px !important; }
 
-  /* Next steps — stack circle steps */
-  .ns-row{ flex-direction:column !important; gap:1.25rem; }
-  .ns-stage{ min-height:0; text-align:left !important; padding:0; }
-  .ns-dot-row{ margin-bottom:8px; }
-  .ns-seg{ display:none !important; }
-  .ns-stage h4{ max-width:none; }
-  .ns-panel{ margin-top:16px !important; }
-  .ns-panel-text h3{ font-size:20px !important; }
-  .ns-panel-text p{ font-size:15px !important; }
+  /* Next steps — boxes stack one per row */
+  .ns-row{ grid-template-columns:minmax(0, 1fr) !important; }
 
   /* Production inspector stats if present */
   .pi-metrics, .pi-stat-row{
@@ -4535,12 +4915,12 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
   position:relative; top:auto; left:auto; right:auto; max-width:none; margin:6px 0 8px; white-space:normal;
 }
 .nx-shell{
-  /* Head (title + sub) then --heading-to-content-gap (4rem) before the panel */
+  /* Head (title + sub) then --heading-to-content-gap before the panel */
   position:absolute;
   top:calc(
     96px
     + 6px
-    + (var(--fs-h1) * var(--lh-compact))
+    + (var(--fs-h2) * var(--lh-small))
     + 8px
     + (var(--fs-large) * var(--lh-medium))
     + var(--heading-to-content-gap)
@@ -4621,14 +5001,14 @@ body.has-chapter-sub #appnav-sub{ display:flex; }
 @media (prefers-reduced-motion:reduce){
   .nx-tick::after{ transition-duration:0.001ms; }
 }
-.nx-cards{ display:grid; grid-template-columns:1fr 1fr; gap:8px; align-content:center; }
+.nx-cards{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; align-content:center; }
 .nx-card{
   position:relative; background:var(--ltx-white); border:1px solid var(--ltx-grey-line); border-radius:var(--radius-md);
   padding:12px; min-height:120px;
 }
 .nx-card-cat{ margin:0 0 8px; }
-.nx-card h3.heading-style-h5{ margin:0 0 8px; }
-.nx-card p.text-size-regular{ margin:0; }
+.nx-card h3.heading-style-h5{ margin:0 0 0.75rem; }
+.nx-card p.text-size-small{ margin:0; }
 
 /* ---- Slide 2: before/after pipeline toggle (flowchart chips, not a timeline) ---- */
 .pipe-toggle{ position:absolute; top:400px; left:50%; transform:translateX(-50%); display:inline-flex; background:var(--ltx-offwhite); border-radius:var(--radius-md); padding:4px; gap:2px; z-index:3; }
@@ -4943,7 +5323,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 <section class="site-section content-container cover" data-section="0" data-label="Cover" data-no-sound="1">
   <div class="collage" id="collage1"></div>
   <div class="cover-copy">
-    <h1 class="headline h1-display">The world model<br>the world builds on</h1>
+    <h1 class="headline heading-style-h1">The world model<br>the world builds on</h1>
     <p class="subhead heading-style-h4">Enterprise-grade production infrastructure.<br>Privately deployed. Deeply customized. Fully yours.</p>
   </div>
   <div class="cover-agenda" id="coverAgenda">
@@ -4954,13 +5334,13 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <div class="cover-agenda__panel" id="coverAgendaPanel" aria-hidden="true" inert>
       <div class="cover-agenda__panel-inner">
         <div class="agenda-wrap">
-          <div class="agenda-row" data-goto-section="1"><span class="index-num">01</span><h3 class="t heading-style-h6">Who We Are</h3><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-          <div class="agenda-row" data-goto-section="2"><span class="index-num">02</span><h3 class="t heading-style-h6">What LTX Can Do</h3><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-          <div class="agenda-row" data-goto-section="3"><span class="index-num">03</span><h3 class="t heading-style-h6">Use Cases &amp; Workflows</h3><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-          <div class="agenda-row" data-goto-section="4"><span class="index-num">04</span><h3 class="t heading-style-h6">Why LTX Wins</h3><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-          <div class="agenda-row" data-goto-section="5"><span class="index-num">05</span><h3 class="t heading-style-h6">Ways to Access LTX</h3><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-          <div class="agenda-row" data-goto-section="6"><span class="index-num">06</span><h3 class="t heading-style-h6">Next Steps</h3><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
-          <div class="agenda-row" data-goto-section="7"><span class="index-num">07</span><h3 class="t heading-style-h6">Commercial Partnerships</h3><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+          <div class="agenda-row" data-goto-section="1"><span class="index-num">01</span><h6 class="t heading-style-h6">Who We Are</h6><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+          <div class="agenda-row" data-goto-section="2"><span class="index-num">02</span><h6 class="t heading-style-h6">What LTX Can Do</h6><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+          <div class="agenda-row" data-goto-section="3"><span class="index-num">03</span><h6 class="t heading-style-h6">Use Cases &amp; Workflows</h6><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+          <div class="agenda-row" data-goto-section="4"><span class="index-num">04</span><h6 class="t heading-style-h6">Why LTX Wins</h6><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+          <div class="agenda-row" data-goto-section="5"><span class="index-num">05</span><h6 class="t heading-style-h6">Ways to Access LTX</h6><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+          <div class="agenda-row" data-goto-section="6"><span class="index-num">06</span><h6 class="t heading-style-h6">Next Steps</h6><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
+          <div class="agenda-row" data-goto-section="7"><span class="index-num">07</span><h6 class="t heading-style-h6">Commercial Partnerships</h6><span class="go" aria-hidden="true"><span class="go-i is-out">&#8594;</span><span class="go-i is-in">&#8594;</span></span></div>
         </div>
       </div>
     </div>
@@ -4970,12 +5350,12 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 <!-- SLIDE 3: Who we are — chapter hero -->
 <section class="site-section content-container section-hero-slide" data-section="1" data-label="Who We Are" data-no-sound="1" id="section-who-hero">
   <div class="section-hero-block">
-    <header class="section-hero" aria-label="Who are we">
+    <header class="section-hero" aria-label="Who we are">
       <video class="section-hero__video" data-src="../sales-deck-original/videos/ed1f6b840edc8e5346333f4e9f618cc201a417b8.mp4" data-has-audio="0" muted loop playsinline preload="none" aria-hidden="true"></video>
       <div class="section-hero__scrim" aria-hidden="true"></div>
       <div class="section-hero__text-fade" aria-hidden="true"></div>
       <div class="section-hero__inner" id="aboutWho" data-track-block="who:about">
-        <h1 class="section-hero__title h1-display">Who We Are</h1>
+        <h1 class="section-hero__title heading-style-h1">Who we are</h1>
         <p class="section-sub text-size-large text-balanced">We build open AI models that give you full control, from production-grade video to systems that understand and operate in the physical world.</p>
       </div>
     </header>
@@ -4989,15 +5369,15 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <article class="about-block chapter-block who-chapter" data-track-block="who:intro">
       <div class="who-mid">
         <div class="who-adopt who-reveal" data-reveal="1">
-          <strong>Global Adoption</strong>
+          <h3 class="heading-style-h3">Global Adoption</h3>
           <p class="text-size-regular">Used by enterprises, developers, studios, and AI-native platforms around the world.</p>
         </div>
         <div class="who-proof">
-          <div class="big-stat big-stat-glossy who-num who-reveal" data-reveal="2" data-count="30" data-suffix="M+" data-defer="1">0M+</div>
+          <div class="big-stat big-stat-glossy who-num who-reveal" data-reveal="2">30M+</div>
           <span class="who-proof-rule" aria-hidden="true"></span>
           <div class="who-proof-copy who-reveal" data-reveal="2b">
-            <strong>Downloads since January 2026</strong>
-            <p class="text-size-regular text-color-secondary">One of the most downloaded open-weight models in the AI ecosystem.</p>
+            <h3 class="heading-style-h3">Downloads since January 2026</h3>
+            <p class="text-size-small text-color-secondary">One of the most downloaded open-weight models in the AI ecosystem.</p>
           </div>
         </div>
       </div>
@@ -5022,27 +5402,27 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     </article>
 
     <article class="about-block chapter-block" id="aboutIndustries" data-track-block="who:industries">
-      <h2 class="title heading-style-h1">One model,<br>far more than video</h2>
+      <h2 class="title heading-style-h2 text-weight-semibold">One model, far more than video</h2>
       <p class="section-sub text-size-large text-balanced">The same understanding of the world powers any industry that needs to model how things move and behave.</p>
       <div class="about-industries-layout split-layout ltx-surface">
         <div class="industry-tabs-menu split-tab-list" id="industryGrid" role="tablist" aria-label="Industries">
           <div class="industry-tab split-tab is-on" role="tab" tabindex="0" aria-selected="true" data-video="../sales-deck-original/videos/ltx-robotics.mp4">
-            <div class="split-tab__text"><h5 class="heading-style-h5">Robotics</h5><p class="text-size-regular">Train robots in simulation, then act in the real world.</p></div>
+            <div class="split-tab__text"><h5 class="heading-style-h5">Robotics</h5><p class="text-size-regular text-color-secondary">Train robots in simulation, then act in the real world.</p></div>
           </div>
           <div class="industry-tab split-tab" role="tab" tabindex="-1" aria-selected="false" data-video="../sales-deck-original/videos/ltx-medical.mp4">
-            <div class="split-tab__text"><h5 class="heading-style-h5">Medical</h5><p class="text-size-regular">Simulate and rehearse procedures safely.</p></div>
+            <div class="split-tab__text"><h5 class="heading-style-h5">Medical</h5><p class="text-size-regular text-color-secondary">Simulate and rehearse procedures safely.</p></div>
           </div>
           <div class="industry-tab split-tab" role="tab" tabindex="-1" aria-selected="false" data-video="../sales-deck-original/videos/ltx-creative-applications.mp4">
-            <div class="split-tab__text"><h5 class="heading-style-h5">Creative Applications</h5><p class="text-size-regular">Generate production-grade video, audio, and motion.</p></div>
+            <div class="split-tab__text"><h5 class="heading-style-h5">Creative Applications</h5><p class="text-size-regular text-color-secondary">Generate production-grade video, audio, and motion.</p></div>
           </div>
           <div class="industry-tab split-tab" role="tab" tabindex="-1" aria-selected="false" data-video="../sales-deck-original/videos/ltx-gaming-and-3d.mp4">
-            <div class="split-tab__text"><h5 class="heading-style-h5">Gaming &amp; 3D</h5><p class="text-size-regular">Generate playable, consistent environments on the fly.</p></div>
+            <div class="split-tab__text"><h5 class="heading-style-h5">Gaming &amp; 3D</h5><p class="text-size-regular text-color-secondary">Generate playable, consistent environments on the fly.</p></div>
           </div>
           <div class="industry-tab split-tab" role="tab" tabindex="-1" aria-selected="false" data-video="../sales-deck-original/videos/ltx-autonomous-driving.mp4">
-            <div class="split-tab__text"><h5 class="heading-style-h5">Autonomous Driving</h5><p class="text-size-regular">Predict how a scene will unfold a moment ahead.</p></div>
+            <div class="split-tab__text"><h5 class="heading-style-h5">Autonomous Driving</h5><p class="text-size-regular text-color-secondary">Predict how a scene will unfold a moment ahead.</p></div>
           </div>
           <div class="industry-tab split-tab" role="tab" tabindex="-1" aria-selected="false" data-video="../sales-deck-original/videos/ltx-defence.mp4">
-            <div class="split-tab__text"><h5 class="heading-style-h5">Defense</h5><p class="text-size-regular">Model complex environments and interactions at operational scale.</p></div>
+            <div class="split-tab__text"><h5 class="heading-style-h5">Defense</h5><p class="text-size-regular text-color-secondary">Model complex environments and interactions at operational scale.</p></div>
           </div>
         </div>
         <div class="industry-stage">
@@ -5054,22 +5434,22 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     <article class="about-block chapter-block" id="aboutWorld" data-track-block="who:world-model">
       <div class="about-world-layout">
         <div class="about-world-intro">
-          <h2 class="wm-hero heading-style-h1 text-balanced">LTX is building toward a World Model</h2>
+          <h2 class="wm-hero heading-style-h2 text-weight-semibold text-balanced">LTX is building toward a World Model</h2>
           <p class="section-sub text-size-large text-balanced">From generating video to understanding motion, physics, and how the world changes over time.</p>
         </div>
         <div class="about-world-body split-layout">
           <div class="wm-proofs split-tab-list" id="wmProofs">
             <div class="wm-proof split-tab" data-nodes="prediction">
-              <div class="split-tab__text"><h5 class="heading-style-h5">Predicts what happens next</h5><p class="text-size-regular">Not just what the next frame looks like.</p></div>
+              <div class="split-tab__text"><h5 class="heading-style-h5">Predicts what happens next</h5><p class="text-size-regular text-color-secondary">Not just what the next frame looks like.</p></div>
             </div>
             <div class="wm-proof split-tab" data-nodes="video,audio,motion,interaction,physics">
-              <div class="split-tab__text"><h5 class="heading-style-h5">Understands multiple signals together</h5><p class="text-size-regular">Video, audio, motion, interaction, and physics.</p></div>
+              <div class="split-tab__text"><h5 class="heading-style-h5">Understands multiple signals together</h5><p class="text-size-regular text-color-secondary">Video, audio, motion, interaction, and physics.</p></div>
             </div>
             <div class="wm-proof split-tab" data-nodes="motion,interaction,physics,prediction">
-              <div class="split-tab__text"><h5 class="heading-style-h5">Learns how the world changes over time</h5><p class="text-size-regular">Objects, environments, and actions stay connected across sequences.</p></div>
+              <div class="split-tab__text"><h5 class="heading-style-h5">Learns how the world changes over time</h5><p class="text-size-regular text-color-secondary">Objects, environments, and actions stay connected across sequences.</p></div>
             </div>
             <div class="wm-proof split-tab" data-nodes="physical-ai,prediction">
-              <div class="split-tab__text"><h5 class="heading-style-h5">Built for both digital and physical applications</h5><p class="text-size-regular">From creative production and real-time systems to physical AI.</p></div>
+              <div class="split-tab__text"><h5 class="heading-style-h5">Built for both digital and physical applications</h5><p class="text-size-regular text-color-secondary">From creative production and real-time systems to physical AI.</p></div>
             </div>
           </div>
           <div class="wm-viz" id="wmViz">
@@ -5117,8 +5497,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="topbar" aria-hidden="true"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule" aria-hidden="true"></div>
   <div class="ctrl-head">
-    <h2 class="title ctrl-title heading-style-h1">From dependency to control</h2>
+    <h2 class="title ctrl-title heading-style-h2 text-weight-semibold">From dependency to control</h2>
     <p class="section-sub text-size-large text-balanced">Closed platforms create dependency. Open weights give you control over your model, data, and infrastructure.</p>
+    <div class="heading-content-spacer" aria-hidden="true"></div>
   </div>
   <div class="ctrl-shell split-layout ltx-surface">
     <nav class="ctrl-nav split-tab-list" aria-label="Choose what you want to control">
@@ -5181,7 +5562,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="rule"></div>
   <div class="pgx-intro">
     <div class="pgx-intro-copy">
-      <h2 class="title heading-style-h1">Production-grade model</h2>
+      <h2 class="title heading-style-h2 text-weight-semibold">Production-grade model</h2>
       <p class="pgx-sub section-sub text-size-regular text-color-secondary text-balanced">Built for synchronized generation, customization, deployment, and complex creative control.</p>
     </div>
     <div class="pgx-intro-stats pgx-specs">
@@ -5193,25 +5574,26 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       </div>
     </div>
   </div>
+  <div class="heading-content-spacer" aria-hidden="true"></div>
 
   <div class="pgx-block">
   <div class="pgx-explorer split-layout">
   <nav class="pgx-nav split-tab-list" id="prodNav" aria-label="Model capabilities">
     <div class="pgx-item split-tab is-on" data-cap="av" tabindex="0" role="button" aria-pressed="true">
       <h4>Joint Audio-Video Generation</h4>
-      <p>Synchronized, not stitched.</p>
+      <p class="text-size-small text-color-secondary">Synchronized, not stitched.</p>
     </div>
     <div class="pgx-item split-tab" data-cap="lora" tabindex="0" role="button" aria-pressed="false">
       <h4>LoRA Customization</h4>
-      <p>Adapt the model to your brand, character, style, or domain.</p>
+      <p class="text-size-small text-color-secondary">Adapt the model to your brand, character, style, or domain.</p>
     </div>
     <div class="pgx-item split-tab" data-cap="weights" tabindex="0" role="button" aria-pressed="false" data-track="pgx:open-weights">
       <h4>Open Weights</h4>
-      <p>Self-host, fine-tune, and control where the model runs.</p>
+      <p class="text-size-small text-color-secondary">Self-host, fine-tune, and control where the model runs.</p>
     </div>
     <div class="pgx-item split-tab" data-cap="prompts" tabindex="0" role="button" aria-pressed="false">
       <h4>Understands Longer Prompts</h4>
-      <p>Keeps complex, multi-part creative direction together.</p>
+      <p class="text-size-small text-color-secondary">Keeps complex, multi-part creative direction together.</p>
     </div>
   </nav>
 
@@ -5309,12 +5691,13 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 </section>
 
 <!-- SLIDE 9b: What’s new in LTX-2.5 — interactive feature explorer -->
-<section class="site-section content-container nx-slide" data-section="1" data-label="What's new in LTX-2.5">
+<section class="site-section content-container nx-slide" data-section="1" data-label="What's new in LTX-2.5" data-nx-tab="prod">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <div class="nx-head">
-    <h2 class="title nx-title heading-style-h1">What&rsquo;s new in LTX-2.5</h2>
+    <h2 class="title nx-title heading-style-h2 text-weight-semibold">What&rsquo;s new in LTX-2.5</h2>
     <p class="section-sub text-size-large text-balanced">The world model the world builds on.</p>
+    <div class="heading-content-spacer" aria-hidden="true"></div>
   </div>
   <div class="nx-shell">
     <div class="nx-tabs" role="tablist" aria-label="LTX-2.5 feature groups">
@@ -5358,23 +5741,23 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         <div class="nx-cards">
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Workflow</p>
-            <h3 class="heading-style-h5">Native EXR Workflow</h3>
-            <p class="text-size-regular text-color-secondary">Cinema-grade EXR in ACES and DaVinci Wide Gamut, without a lossy round-trip.</p>
+            <h5 class="heading-style-h5">Native EXR Workflow</h5>
+            <p class="text-size-small text-color-secondary">Cinema-grade EXR in ACES and DaVinci Wide Gamut, without a lossy round-trip.</p>
           </article>
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Quality</p>
-            <h3 class="heading-style-h5">Diffusion Video Decoder</h3>
-            <p class="text-size-regular text-color-secondary">Sharper faces, clearer text, and fewer motion artifacts.</p>
+            <h5 class="heading-style-h5">Diffusion Video Decoder</h5>
+            <p class="text-size-small text-color-secondary">Sharper faces, clearer text, and fewer motion artifacts.</p>
           </article>
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Efficiency</p>
-            <h3 class="heading-style-h5">Diffusion Fidelity Rendering</h3>
-            <p class="text-size-regular text-color-secondary">More detail where it matters, with compute adapted to each scene.</p>
+            <h5 class="heading-style-h5">Diffusion Fidelity Rendering</h5>
+            <p class="text-size-small text-color-secondary">More detail where it matters, with compute adapted to each scene.</p>
           </article>
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Deployment</p>
-            <h3 class="heading-style-h5">Better Distilled Model</h3>
-            <p class="text-size-regular text-color-secondary">Near-full quality that can run on everyday GPUs.</p>
+            <h5 class="heading-style-h5">Better Distilled Model</h5>
+            <p class="text-size-small text-color-secondary">Near-full quality that can run on everyday GPUs.</p>
           </article>
         </div>
       </div>
@@ -5388,13 +5771,13 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         <div class="nx-cards">
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Generation</p>
-            <h3 class="heading-style-h5">Native Multishot</h3>
-            <p class="text-size-regular text-color-secondary">Generate multiple connected shots with consistent characters, environments, and visual language.</p>
+            <h5 class="heading-style-h5">Native Multishot</h5>
+            <p class="text-size-small text-color-secondary">Generate multiple connected shots with consistent characters, environments, and visual language.</p>
           </article>
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Prompting</p>
-            <h3 class="heading-style-h5">Custom Gemma 4 12B Text Encoder</h3>
-            <p class="text-size-regular text-color-secondary">Better understanding of multi-subject and multi-action prompts.</p>
+            <h5 class="heading-style-h5">Custom Gemma 4 12B Text Encoder</h5>
+            <p class="text-size-small text-color-secondary">Better understanding of multi-subject and multi-action prompts.</p>
           </article>
         </div>
       </div>
@@ -5408,13 +5791,13 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         <div class="nx-cards">
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Fine-tuning</p>
-            <h3 class="heading-style-h5">Pretrained Checkpoint for Deep Adaptation</h3>
-            <p class="text-size-regular text-color-secondary">A raw foundation for building and training your own specialized world models.</p>
+            <h5 class="heading-style-h5">Pretrained Checkpoint for Deep Adaptation</h5>
+            <p class="text-size-small text-color-secondary">A raw foundation for building and training your own specialized world models.</p>
           </article>
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Licensing</p>
-            <h3 class="heading-style-h5">Cleaner Permissive Licensing</h3>
-            <p class="text-size-regular text-color-secondary">A clearer path to fine-tune, deploy, commercialize, and redistribute.</p>
+            <h5 class="heading-style-h5">Cleaner Permissive Licensing</h5>
+            <p class="text-size-small text-color-secondary">A clearer path to fine-tune, deploy, commercialize, and redistribute.</p>
           </article>
         </div>
       </div>
@@ -5428,18 +5811,18 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         <div class="nx-cards">
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Quality</p>
-            <h3 class="heading-style-h5">Larger Dataset + RL Post-Training</h3>
-            <p class="text-size-regular text-color-secondary">A higher take rate, fewer retries, and lower cost per usable shot.</p>
+            <h5 class="heading-style-h5">Larger Dataset + RL Post-Training</h5>
+            <p class="text-size-small text-color-secondary">A higher take rate, fewer retries, and lower cost per usable shot.</p>
           </article>
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Prompting</p>
-            <h3 class="heading-style-h5">Dedicated Prompt Enhancer</h3>
-            <p class="text-size-regular text-color-secondary">Get better results with less prompting expertise and no additional inference cost.</p>
+            <h5 class="heading-style-h5">Dedicated Prompt Enhancer</h5>
+            <p class="text-size-small text-color-secondary">Get better results with less prompting expertise and no additional inference cost.</p>
           </article>
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Automation</p>
-            <h3 class="heading-style-h5">Auto Duration</h3>
-            <p class="text-size-regular text-color-secondary">Let the length follow the scene automatically, with fewer manual controls.</p>
+            <h5 class="heading-style-h5">Auto Duration</h5>
+            <p class="text-size-small text-color-secondary">Let the length follow the scene automatically, with fewer manual controls.</p>
           </article>
         </div>
       </div>
@@ -5455,7 +5838,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="section-hero__scrim" aria-hidden="true"></div>
       <div class="section-hero__text-fade" aria-hidden="true"></div>
       <div class="section-hero__inner" id="chapterIntroCanDo">
-        <h1 class="section-hero__title h1-display">What LTX Can Do</h1>
+        <h1 class="section-hero__title heading-style-h1">What LTX can do</h1>
         <p class="section-sub text-size-large text-balanced">From multi-keyframe control to inpainting and audio-to-video — explore production-grade open video capabilities.</p>
       </div>
     </header>
@@ -5468,7 +5851,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="rule"></div>
 
   <nav class="cap-nav" aria-labelledby="capGroupCapabilities">
-    <h2 id="capGroupCapabilities" class="cap-nav__title heading-style-h1">Capabilities</h2>
+    <h2 id="capGroupCapabilities" class="cap-nav__title heading-style-h2 text-weight-semibold">Capabilities</h2>
     <div class="cap-nav-row">
       <button type="button" class="cap-btn ltx-chip active" data-cap="keyframe">Multi-Keyframe</button>
       <span class="cap-dot" aria-hidden="true"></span>
@@ -5477,14 +5860,15 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <button type="button" class="cap-btn ltx-chip" data-cap="union">Union Control</button>
       <span class="cap-dot" aria-hidden="true"></span>
       <button type="button" class="cap-btn ltx-chip" data-cap="camera">Camera Control</button>
-      <span class="cap-dot" aria-hidden="true"></span>
+    </div>
+    <div class="cap-nav-row">
       <button type="button" class="cap-btn ltx-chip" data-cap="a2v">Audio-to-Video</button>
       <span class="cap-dot" aria-hidden="true"></span>
       <button type="button" class="cap-btn ltx-chip" data-cap="consistency">Character Consistency</button>
+      <span class="cap-dot" aria-hidden="true"></span>
+      <button type="button" class="cap-btn ltx-chip" data-cap="lora">LoRA Trainer</button>
     </div>
     <div class="cap-nav-row">
-      <button type="button" class="cap-btn ltx-chip" data-cap="lora">LoRA Trainer</button>
-      <span class="cap-dot" aria-hidden="true"></span>
       <button type="button" class="cap-btn ltx-chip" data-cap="extend">Extend</button>
       <span class="cap-dot" aria-hidden="true"></span>
       <button type="button" class="cap-btn ltx-chip" data-cap="lipdub" data-track="cap:lip-dub">Lip-Dub</button>
@@ -5542,10 +5926,10 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       </div>
       <div class="cap-media">
         <div class="video-mock" data-variant-group="camera">
-          <div class="variant"><video data-src="../sales-deck-original/videos/6c1f83512c89082dcc308d0c1d9f3645676c7ecd.mp4" data-has-audio="1" muted loop playsinline preload="none"></video><div class="badge">Static</div></div>
-          <div class="variant"><video data-src="../sales-deck-original/videos/5e035e235d4232d942bd7ab11fe7a2a5e78015ad.mp4" data-has-audio="1" muted loop playsinline preload="none"></video><div class="badge">Dolly-in</div></div>
-          <div class="variant"><video data-src="../sales-deck-original/videos/333d0739458f4953779ea73f36e3c3dc0efa863e.mp4" data-has-audio="1" muted loop playsinline preload="none"></video><div class="badge">Dolly-out</div></div>
-          <div class="variant"><video data-src="../sales-deck-original/videos/0675a893f29593f7b74cd88b236da51bb21d38d8.mp4" data-has-audio="1" muted loop playsinline preload="none"></video><div class="badge">Dolly-right</div></div>
+          <div class="variant"><video data-src="./videos/cleaned/camera-static.mp4" data-has-audio="0" muted loop playsinline preload="none"></video><div class="badge">Static</div></div>
+          <div class="variant"><video data-src="./videos/cleaned/camera-dolly-in.mp4" data-has-audio="0" muted loop playsinline preload="none"></video><div class="badge">Dolly-in</div></div>
+          <div class="variant"><video data-src="./videos/cleaned/camera-dolly-out.mp4" data-has-audio="0" muted loop playsinline preload="none"></video><div class="badge">Dolly-out</div></div>
+          <div class="variant"><video data-src="./videos/cleaned/camera-dolly-right.mp4" data-has-audio="0" muted loop playsinline preload="none"></video><div class="badge">Dolly-right</div></div>
         </div>
       </div>
     </div>
@@ -5611,7 +5995,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       </div>
       <div class="cap-media">
         <div class="video-mock" data-lipdub-langs>
-          <video data-has-audio="0" class="frame" data-src="./videos/cleaned/lipdub-no-labels.mp4" muted loop playsinline preload="none" data-track="cap:lip-dub"></video>
+          <video data-has-audio="1" class="frame" data-src="./videos/cleaned/lipdub-no-labels.mp4?v=audio1" muted loop playsinline preload="none" data-track="cap:lip-dub"></video>
           <div class="badge" data-pos="tl">Original</div>
           <div class="badge" data-pos="tr">DE</div>
           <div class="badge" data-pos="bl">SP</div>
@@ -5651,7 +6035,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="rule"></div>
 
   <nav class="cap-nav" aria-labelledby="capGroupPostProduction">
-    <h2 id="capGroupPostProduction" class="cap-nav__title heading-style-h1">Post-Production</h2>
+    <h2 id="capGroupPostProduction" class="cap-nav__title heading-style-h2 text-weight-semibold">Post-production</h2>
     <div class="cap-nav-row">
       <button type="button" class="cap-btn ltx-chip active" data-cap="native">Native Resolution</button>
       <span class="cap-dot" aria-hidden="true"></span>
@@ -5774,7 +6158,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 <section class="site-section content-container sys-init" data-section="2" data-label="Also Built For">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
-  <h2 class="title heading-style-h1">Also Built For</h2>
+  <h2 class="title heading-style-h2 text-weight-semibold">Also built for</h2>
 
   <div class="sys-field">
     <svg class="sys-net" viewBox="0 0 1820 600" preserveAspectRatio="none">
@@ -5873,7 +6257,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="section-hero__scrim" aria-hidden="true"></div>
       <div class="section-hero__text-fade" aria-hidden="true"></div>
       <div class="section-hero__inner" id="chapterIntroUseCases">
-        <h1 class="section-hero__title h1-display">Use Cases &amp; Workflows</h1>
+        <h1 class="section-hero__title heading-style-h1">Use cases &amp; workflows</h1>
         <p class="section-sub text-size-large text-balanced">Use audio, image, and video conditioning together to iterate through real production workflows.</p>
       </div>
     </header>
@@ -5887,7 +6271,6 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 
   <div class="acc-wrap">
     <nav class="acc-nav" aria-label="Workflow Navigator">
-      <div class="acc-nav-lbl chart-label is-caps">Workflow Navigator</div>
       <div class="acc-path">
         <span class="acc-path-line" aria-hidden="true"></span>
         <button type="button" class="acc-item active" data-acc="multimodal" data-track="wf:multimodal">
@@ -5921,7 +6304,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="acc-panel active" data-acc="multimodal">
         <div class="acc-text">
           <h5 class="acc-headline heading-style-h5">Multi-Modal Animation Controls</h5>
-          <p class="acc-sub text-size-regular text-balanced">Using audio, image and video conditioning simultaneously to iterate</p>
+          <p class="acc-sub text-size-small text-color-secondary text-balanced">Using audio, image and video conditioning simultaneously to iterate</p>
         </div>
         <div class="acc-media">
           <div class="acc-video-frame"><video data-src="../sales-deck-original/videos/ccff283ddb3a3d8fdc208748870925682a0fc6ce.mov" data-has-audio="1" muted loop playsinline preload="none"></video></div>
@@ -5931,7 +6314,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="acc-panel" data-acc="animref">
         <div class="acc-text">
           <h5 class="acc-headline heading-style-h5">Animation Reference</h5>
-          <p class="acc-sub text-size-regular text-balanced">Design-centric workflows</p>
+          <p class="acc-sub text-size-small text-color-secondary text-balanced">Design-centric workflows</p>
         </div>
         <div class="acc-media">
           <div class="acc-video-frame"><video data-src="../sales-deck-original/videos/1142938c57ba501cb88a0aed3831582c5b5ab9c4.mp4" data-has-audio="0" muted loop playsinline preload="none"></video></div>
@@ -5941,7 +6324,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="acc-panel" data-acc="blocking">
         <div class="acc-text">
           <h5 class="acc-headline heading-style-h5">Blocking-to-Animation</h5>
-          <p class="acc-sub text-size-regular text-balanced">Fine-tuned model (trained on pairs of 3D animatics + final output) + multi-KF interpolation</p>
+          <p class="acc-sub text-size-small text-color-secondary text-balanced">Fine-tuned model (trained on pairs of 3D animatics + final output) + multi-KF interpolation</p>
         </div>
         <div class="acc-media">
           <div class="acc-video-frame"><video data-src="../sales-deck-original/videos/d235f40361ff6b4aee03a76d29de3306f0dd455f.mp4" data-has-audio="0" muted loop playsinline preload="none"></video></div>
@@ -5951,7 +6334,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="acc-panel" data-acc="labpreview">
         <div class="acc-text">
           <h5 class="acc-headline heading-style-h5">Lab Preview &mdash; 3D Guidance + Style Transfer + HDR</h5>
-          <p class="acc-sub text-size-regular text-balanced">Using ControlNet to render, preview, and direct with precision, all while retaining HDR throughout the pipeline.</p>
+          <p class="acc-sub text-size-small text-color-secondary text-balanced">Using ControlNet to render, preview, and direct with precision, all while retaining HDR throughout the pipeline.</p>
         </div>
         <div class="acc-media">
           <div class="acc-video-frame"><video data-src="../sales-deck-original/videos/0b5384ece65cc1c4eb2ec5af3a8e0c2770811153.mp4" data-has-audio="1" muted loop playsinline preload="none"></video></div>
@@ -5961,7 +6344,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="acc-panel" data-acc="3dguidance">
         <div class="acc-text">
           <h5 class="acc-headline heading-style-h5">3D Guidance + Multi KFs + Custom Pipeline</h5>
-          <p class="acc-sub text-size-regular text-balanced">Precision shot-planning and direction inside familiar DCCs</p>
+          <p class="acc-sub text-size-small text-color-secondary text-balanced">Precision shot-planning and direction inside familiar DCCs</p>
         </div>
         <div class="acc-media">
           <div class="acc-video-frame"><video data-has-audio="0" data-src="../sales-deck-original/videos/2812be34e63386be601248811bd851eefa2e268a.mp4" muted loop playsinline preload="none"></video></div>
@@ -6005,7 +6388,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="section-hero__scrim" aria-hidden="true"></div>
       <div class="section-hero__text-fade" aria-hidden="true"></div>
       <div class="section-hero__inner" id="chapterIntroWhy">
-        <h1 class="section-hero__title h1-display">Why LTX Wins</h1>
+        <h1 class="section-hero__title heading-style-h1">Why LTX wins</h1>
         <p class="section-sub text-size-large text-balanced">Open weights, efficient inference, and deployment paths built for teams that need control in production.</p>
       </div>
     </header>
@@ -6017,8 +6400,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <div class="adv-head-row">
-    <h2 class="title heading-style-h1">The LTX Advantage</h2>
+    <h2 class="title heading-style-h2 text-weight-semibold">The LTX advantage</h2>
     <p class="adv-final-label section-sub text-size-large text-balanced">Open technology. Efficient infrastructure. Production deployment. A team that scales with you.</p>
+    <div class="heading-content-spacer" aria-hidden="true"></div>
   </div>
 
   <div class="adv-row" id="advRow">
@@ -6039,8 +6423,6 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="adv-build-area">
         <div class="adv-step">
           <div class="adv-metric"><span class="adv-mval">8&times;</span><span class="adv-mlbl">Lower Cost</span></div>
-        </div>
-        <div class="adv-step">
           <div class="adv-metric"><span class="adv-mval">10&times;</span><span class="adv-mlbl">Faster Rendering</span></div>
         </div>
         <div class="adv-step">
@@ -6068,12 +6450,6 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="adv-head"><h3 class="heading-style-h3">Built With You</h3></div>
       <div class="adv-build-area">
         <div class="adv-step">
-          <p class="adv-line">From first integration to production scale</p>
-        </div>
-        <div class="adv-step">
-          <p class="adv-wf-note" style="margin:0;">We learn your business, workflows, and constraints, then work with your team to adapt the model, solve domain-specific problems, and scale what works.</p>
-        </div>
-        <div class="adv-step">
           <div class="adv-path">
             <span class="adv-path-step ltx-chip">Understand</span>
             <span class="adv-path-line" aria-hidden="true"></span>
@@ -6089,6 +6465,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
             <span class="side ltx-chip">LTX</span>
           </div>
         </div>
+        <p class="adv-wf-note">From first integration to production scale. We learn your business, workflows, and constraints, then work with your team to adapt the model, solve domain-specific problems, and scale what works.</p>
       </div>
     </div>
   </div>
@@ -6099,8 +6476,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <div class="cs-head">
-    <h2 class="title heading-style-h1">Customer Stories</h2>
+    <h2 class="title heading-style-h2 text-weight-semibold">Customer stories</h2>
     <p class="cs-kicker">Real results from teams building with LTX.</p>
+    <div class="heading-content-spacer" aria-hidden="true"></div>
   </div>
 
   <div class="cs-main">
@@ -6139,7 +6517,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="section-hero__scrim" aria-hidden="true"></div>
       <div class="section-hero__text-fade" aria-hidden="true"></div>
       <div class="section-hero__inner" id="chapterIntroAccess">
-        <h1 class="section-hero__title h1-display">Ways to Access LTX</h1>
+        <h1 class="section-hero__title heading-style-h1">Ways to access LTX</h1>
         <p class="section-sub text-size-large text-balanced">License open weights for self-hosting, or integrate through a managed API — deploy the way your team works.</p>
       </div>
     </header>
@@ -6151,8 +6529,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <div class="nx-head">
-    <h2 class="title nx-title heading-style-h1">Ways to Access LTX</h2>
+    <h2 class="title nx-title heading-style-h2 text-weight-semibold">Ways to access LTX</h2>
     <p class="section-sub text-size-large text-balanced">License the model, or call it through the API.</p>
+    <div class="heading-content-spacer" aria-hidden="true"></div>
   </div>
   <div class="nx-shell">
     <div class="nx-tabs" role="tablist" aria-label="Ways to access LTX">
@@ -6172,23 +6551,23 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         <div class="nx-left">
           <p class="nx-cat chart-label is-caps">Built to own</p>
           <h2 class="nx-h heading-style-h2 text-balanced">License the model. Run it your way.</h2>
-          <p class="section-sub text-size-large text-balanced">Open weights, on-prem deployment, and enterprise support when you need it.</p>
+          <p class="section-sub text-size-large">Open weights, on-prem deployment,<br>and enterprise support when you need it.</p>
         </div>
         <div class="nx-cards">
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Open weights</p>
-            <h3 class="heading-style-h5">True Open Weights</h3>
-            <p class="text-size-regular text-color-secondary">Real open weights you can customize, deploy, and self-host — with cleaner, more permissive licensing and a clear path to commercialize.</p>
+            <h5 class="heading-style-h5">True Open Weights</h5>
+            <p class="text-size-small text-color-secondary">Real open weights you can customize, deploy, and self-host — with cleaner, more permissive licensing and a clear path to commercialize.</p>
           </article>
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Deployment</p>
-            <h3 class="heading-style-h5">On-Prem by Design</h3>
-            <p class="text-size-regular text-color-secondary">Run LTX entirely in your own environment: behind your firewall, on your infrastructure.</p>
+            <h5 class="heading-style-h5">On-Prem by Design</h5>
+            <p class="text-size-small text-color-secondary">Run LTX entirely in your own environment: behind your firewall, on your infrastructure.</p>
           </article>
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Support</p>
-            <h3 class="heading-style-h5">Enterprise Support</h3>
-            <p class="text-size-regular text-color-secondary">Dedicated CSM, early access, and custom integrations when you need them.</p>
+            <h5 class="heading-style-h5">Enterprise Support</h5>
+            <p class="text-size-small text-color-secondary">Dedicated CSM, early access, and custom integrations when you need them.</p>
           </article>
         </div>
       </div>
@@ -6201,23 +6580,23 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         <div class="nx-cards">
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Reliability</p>
-            <h3 class="heading-style-h5">Production Reliability</h3>
-            <p class="text-size-regular text-color-secondary">Enterprise-grade infrastructure built for reliable production deployments.</p>
+            <h5 class="heading-style-h5">Production Reliability</h5>
+            <p class="text-size-small text-color-secondary">Enterprise-grade infrastructure built for reliable production deployments.</p>
           </article>
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Infrastructure</p>
-            <h3 class="heading-style-h5">No Infra Burden</h3>
-            <p class="text-size-regular text-color-secondary">Runs entirely on LTX&rsquo;s infrastructure. No GPUs, no local machines, no setup.</p>
+            <h5 class="heading-style-h5">No Infra Burden</h5>
+            <p class="text-size-small text-color-secondary">Runs entirely on LTX&rsquo;s infrastructure. No GPUs, no local machines, no setup.</p>
           </article>
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Deployment</p>
-            <h3 class="heading-style-h5">Deploy Your Way</h3>
-            <p class="text-size-regular text-color-secondary">Start with a managed API and migrate to self-hosted as you scale.</p>
+            <h5 class="heading-style-h5">Deploy Your Way</h5>
+            <p class="text-size-small text-color-secondary">Start with a managed API and migrate to self-hosted as you scale.</p>
           </article>
           <article class="nx-card">
             <p class="nx-card-cat chart-label is-caps">Access</p>
-            <h3 class="heading-style-h5">Stay Ahead</h3>
-            <p class="text-size-regular text-color-secondary">Early access to new models and features before they&rsquo;re publicly available.</p>
+            <h5 class="heading-style-h5">Stay Ahead</h5>
+            <p class="text-size-small text-color-secondary">Early access to new models and features before they&rsquo;re publicly available.</p>
           </article>
         </div>
       </div>
@@ -6225,76 +6604,63 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   </div>
 </section>
 
-<!-- Next steps — circles + hairlines (Usage-Based pattern) -->
+<!-- Next steps — chapter hero -->
+<section class="site-section content-container section-hero-slide" data-section="5" data-label="Next Steps" data-no-sound="1" id="section-nextsteps-hero">
+  <div class="section-hero-block">
+    <header class="section-hero" aria-label="Next steps">
+      <video class="section-hero__video" data-src="../sales-deck-original/videos/ai-video-generation-api-hero-DK-web.mp4" data-has-audio="0" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <div class="section-hero__scrim" aria-hidden="true"></div>
+      <div class="section-hero__text-fade" aria-hidden="true"></div>
+      <div class="section-hero__inner" id="chapterIntroNextSteps">
+        <h1 class="section-hero__title heading-style-h1">Exploration to production</h1>
+        <p class="section-sub text-size-large text-balanced">Our pilot is designed around your goals: helping your team validate, optimize, and confidently move into production.</p>
+      </div>
+    </header>
+  </div>
+</section>
+
+<!-- Next steps — seven stage boxes; click one to show its subtext -->
 <section class="site-section content-container next-steps" data-section="5" data-label="Next Steps">
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
 
   <div class="ns-stack">
-    <div class="ns-head">
-      <h2 class="title ns-title heading-style-h1">Next steps:<br>Exploration to production</h2>
-      <p class="ns-intro section-sub text-size-large text-balanced">Our pilot is designed around your goals: helping your team validate, optimize, and confidently move into production.</p>
-    </div>
-
+    <span class="ns-eyebrow section-name-new"><span class="text-scramble">[</span><span class="section-name">Select stage</span><span class="text-scramble">]</span></span>
     <div class="ns-row" id="nsRow">
-      <div class="ns-stage" data-i="0" data-track="steps:01" role="button" tabindex="0">
-        <div class="ns-dot-row">
-          <div class="ns-dot"><span class="index-num">01</span></div>
-          <div class="ns-seg" data-i="0" aria-hidden="true"><span class="ns-seg-fill"></span></div>
-        </div>
-        <h4>Explore the Use Case</h4>
+      <div class="ns-stage" data-i="0" data-track="steps:01" role="button" tabindex="0" aria-pressed="false">
+        <span class="ns-num index-num">01</span>
+        <h5 class="heading-style-h5">Explore the use case</h5>
+        <p class="ns-desc text-size-small text-color-secondary">Explore the use case with your own content when available, or create new content together when needed.</p>
       </div>
-      <div class="ns-stage" data-i="1" data-track="steps:02" role="button" tabindex="0">
-        <div class="ns-dot-row">
-          <div class="ns-dot"><span class="index-num">02</span></div>
-          <div class="ns-seg" data-i="1" aria-hidden="true"><span class="ns-seg-fill"></span></div>
-        </div>
-        <h4>Align on Goals and Requirements</h4>
+      <div class="ns-stage" data-i="1" data-track="steps:02" role="button" tabindex="0" aria-pressed="false">
+        <span class="ns-num index-num">02</span>
+        <h5 class="heading-style-h5">Align on goals and requirements</h5>
+        <p class="ns-desc text-size-small text-color-secondary">Define stakeholders, business goals, security, technical requirements, and pilot scope.</p>
       </div>
-      <div class="ns-stage" data-i="2" data-track="steps:03" role="button" tabindex="0">
-        <div class="ns-dot-row">
-          <div class="ns-dot"><span class="index-num">03</span></div>
-          <div class="ns-seg" data-i="2" aria-hidden="true"><span class="ns-seg-fill"></span></div>
-        </div>
-        <h4>Define Success Criteria</h4>
+      <div class="ns-stage" data-i="2" data-track="steps:03" role="button" tabindex="0" aria-pressed="false">
+        <span class="ns-num index-num">03</span>
+        <h5 class="heading-style-h5">Define success criteria</h5>
+        <p class="ns-desc text-size-small text-color-secondary">Agree on key workflows, quality standards, and success metrics.</p>
       </div>
-      <div class="ns-stage" data-i="3" data-track="steps:04" role="button" tabindex="0">
-        <div class="ns-dot-row">
-          <div class="ns-dot"><span class="index-num">04</span></div>
-          <div class="ns-seg" data-i="3" aria-hidden="true"><span class="ns-seg-fill"></span></div>
-        </div>
-        <h4>Enable Your Teams</h4>
+      <div class="ns-stage" data-i="3" data-track="steps:04" role="button" tabindex="0" aria-pressed="false">
+        <span class="ns-num index-num">04</span>
+        <h5 class="heading-style-h5">Enable your teams</h5>
+        <p class="ns-desc text-size-small text-color-secondary">Train your teams to achieve consistent, production-ready results.</p>
       </div>
-      <div class="ns-stage" data-i="4" data-track="steps:05" role="button" tabindex="0">
-        <div class="ns-dot-row">
-          <div class="ns-dot"><span class="index-num">05</span></div>
-          <div class="ns-seg" data-i="4" aria-hidden="true"><span class="ns-seg-fill"></span></div>
-        </div>
-        <h4>Test Workflows &amp; Customization</h4>
+      <div class="ns-stage" data-i="4" data-track="steps:05" role="button" tabindex="0" aria-pressed="false">
+        <span class="ns-num index-num">05</span>
+        <h5 class="heading-style-h5">Test workflows &amp; customization</h5>
+        <p class="ns-desc text-size-small text-color-secondary">Validate key use cases and evaluate LoRAs or other customization options.</p>
       </div>
-      <div class="ns-stage" data-i="5" data-track="steps:06" role="button" tabindex="0">
-        <div class="ns-dot-row">
-          <div class="ns-dot"><span class="index-num">06</span></div>
-          <div class="ns-seg" data-i="5" aria-hidden="true"><span class="ns-seg-fill"></span></div>
-        </div>
-        <h4>Optimize Inference &amp; Deployment</h4>
+      <div class="ns-stage" data-i="5" data-track="steps:06" role="button" tabindex="0" aria-pressed="false">
+        <span class="ns-num index-num">06</span>
+        <h5 class="heading-style-h5">Optimize inference &amp; deployment</h5>
+        <p class="ns-desc text-size-small text-color-secondary">Work with your technical team on infrastructure, performance, integrations, and deployment.</p>
       </div>
-      <div class="ns-stage" data-i="6" data-track="steps:07" role="button" tabindex="0">
-        <div class="ns-dot-row">
-          <div class="ns-dot"><span class="index-num">07</span></div>
-        </div>
-        <h4>Define the Path to Production Licensing</h4>
-      </div>
-    </div>
-
-    <div class="ns-panel" id="nsPanel">
-      <span class="ns-panel-tag section-name-new"><span class="text-scramble">[</span><span class="section-name">Selected stage</span><span class="text-scramble">]</span></span>
-      <div class="ns-panel-body">
-        <span class="index-num" id="nsPanelNum">01</span>
-        <div class="ns-panel-text">
-          <h3 id="nsPanelTitle">Explore the Use Case</h3>
-          <p id="nsPanelDesc">Explore the use case with your own content when available, or create new content together when needed.</p>
-        </div>
+      <div class="ns-stage" data-i="6" data-track="steps:07" role="button" tabindex="0" aria-pressed="false">
+        <span class="ns-num index-num">07</span>
+        <h5 class="heading-style-h5">Define the path to production licensing</h5>
+        <p class="ns-desc text-size-small text-color-secondary">Review pilot results and align on a 12+ month plan to scale LTX.</p>
       </div>
     </div>
   </div>
@@ -6308,7 +6674,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       <div class="section-hero__scrim" aria-hidden="true"></div>
       <div class="section-hero__text-fade" aria-hidden="true"></div>
       <div class="section-hero__inner" id="chapterIntroCommercial">
-        <h1 class="section-hero__title h1-display">Commercial Partnerships</h1>
+        <h1 class="section-hero__title heading-style-h1">Commercial partnerships</h1>
         <p class="section-sub text-size-large text-balanced">Choose the commercial model that best matches your business.</p>
       </div>
     </header>
@@ -6320,14 +6686,15 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="topbar"><div class="logo">ltx</div><div class="date">July 2026</div></div>
   <div class="rule"></div>
   <div class="commercial-hub-head">
-    <h2 class="title heading-style-h1">Two commercial models</h2>
+    <h2 class="title heading-style-h2 text-weight-semibold">Two commercial models</h2>
     <p class="section-sub text-size-xlarge text-balanced">Choose the commercial model that best matches your business.</p>
+    <div class="heading-content-spacer" aria-hidden="true"></div>
   </div>
 
   <div class="grid price-grid hub-grid" id="priceGrid">
     <a class="price-card hub-card" href="#slideRevenueShare" data-track="models:revshare">
-      <h3 class="heading-style-h5">Revenue Share</h3>
-      <p class="text-size-regular text-color-secondary">Ideal for companies embedding LTX into commercial products.</p>
+      <h5 class="heading-style-h5">Revenue Share</h5>
+      <p class="text-size-small text-color-secondary">Ideal for companies embedding LTX into commercial products.</p>
       <ul class="price-list">
         <li>Annual commitment starting at $150K</li>
         <li>Your commitment locks in your revenue-share rate</li>
@@ -6339,8 +6706,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     </a>
 
     <a class="price-card hub-card" href="#slideUsageBased" data-track="models:usage">
-      <h3 class="heading-style-h5">Usage-Based</h3>
-      <p class="text-size-regular text-color-secondary">Ideal for production teams with predictable workloads.</p>
+      <h5 class="heading-style-h5">Usage-Based</h5>
+      <p class="text-size-small text-color-secondary">Ideal for production teams with predictable workloads.</p>
       <ul class="price-list">
         <li>Annual commitment starting at $150K</li>
         <li>Pay based on usage</li>
@@ -6359,18 +6726,19 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="rule"></div>
   <button type="button" class="back-to-hub" data-goto-id="slideCommercialHub"><span aria-hidden="true">&larr;</span><span>Back to Commercial Models</span></button>
   <div class="pricing-sim-head">
-    <h2 class="title heading-style-h1">Revenue Share</h2>
-    <p class="section-sub text-size-large text-balanced">We succeed when you succeed.<br>Instead of paying per use, you share a percentage of the revenue generated by your LTX-powered product.</p>
+    <h2 class="title heading-style-h2 text-weight-semibold">Revenue share</h2>
+    <p class="section-sub text-size-large text-balanced">We succeed when you succeed. Instead of paying per use, you share a percentage of the revenue generated by your LTX-powered product.</p>
+    <div class="heading-content-spacer" aria-hidden="true"></div>
   </div>
   <div class="pricing-sim-body">
     <div class="pricing-sim-main">
       <div class="pricing-sim-points">
         <div class="pricing-sim-row">
           <span class="pricing-sim-lbl text-size-regular text-weight-semibold">Revenue share,<br>not per use</span>
-          <span class="text-size-regular">You share a percentage of the revenue generated by your LTX-powered product.</span>
+          <span class="text-size-regular text-balanced">You share a percentage of the revenue generated by your LTX-powered product.</span>
         </div>
         <div class="pricing-sim-row">
-          <span class="pricing-sim-lbl text-size-regular text-weight-semibold">The more you grow, the lower your percentage</span>
+          <span class="pricing-sim-lbl text-size-regular text-weight-semibold text-balanced">The more you grow, the lower your percentage</span>
           <span class="text-size-regular">Better economics as you scale.</span>
         </div>
         <div class="pricing-sim-row">
@@ -6429,6 +6797,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
           <g class="pr-pt" data-i="5" tabindex="0"><circle class="hit" cx="570" cy="160" r="16"/><circle class="dot" cx="570" cy="160" r="4"/></g>
           <g class="pr-pt" data-i="6" tabindex="0"><circle class="hit" cx="680" cy="182" r="16"/><circle class="dot" cx="680" cy="182" r="4"/></g>
         </g>
+        <circle id="prMarkerAura" r="12.5" cx="20" cy="40" aria-hidden="true"/>
         <circle id="prMarker" r="6.5" cx="20" cy="40" fill="#2e3445"/>
         <g fill="#858585" font-size="12">
           <text x="0" y="220">$150K</text><text x="105" y="220">$250K</text><text x="215" y="220">$500K</text><text x="335" y="220">$1M</text><text x="435" y="220">$2.5M</text><text x="550" y="220">$5M</text><text x="650" y="220">$10M</text>
@@ -6450,8 +6819,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   <div class="rule"></div>
   <button type="button" class="back-to-hub" data-goto-id="slideCommercialHub"><span aria-hidden="true">&larr;</span><span>Back to Commercial Models</span></button>
   <div class="usage-flow-head">
-    <h2 class="title heading-style-h1">Usage-Based</h2>
+    <h2 class="title heading-style-h2 text-weight-semibold">Usage-based</h2>
     <p class="section-sub text-size-xlarge text-balanced">Commit to a 12-month agreement with a minimum annual commitment of $150K. Instead of sharing revenue, you pay only for the usage you consume.</p>
+    <div class="heading-content-spacer" aria-hidden="true"></div>
   </div>
 
   <div class="uf-wrap" id="ufWrap">
@@ -6462,7 +6832,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
           <div class="uf-line" data-i="0"><span class="uf-line-fill"></span></div>
         </div>
         <h4>Annual Commitment</h4>
-        <p class="uf-sub">$150K committed for the year.</p>
+        <p class="uf-sub">$150K committed for the year</p>
         <div class="uf-tip">Your minimum 12-month commitment — it funds the credits you'll draw on all year.</div>
       </div>
       <div class="uf-node" data-i="1">
@@ -6471,7 +6841,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
           <div class="uf-line" data-i="1"><span class="uf-line-fill"></span></div>
         </div>
         <h4>Credits Generated</h4>
-        <p class="uf-sub" id="ufSubCredits">$150K in credits allocated.</p>
+        <p class="uf-sub" id="ufSubCredits">$150K in credits allocated</p>
         <div class="uf-tip">Credits are allocated from your annual commitment.</div>
       </div>
       <div class="uf-node" data-i="2">
@@ -6480,7 +6850,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
           <div class="uf-line" data-i="2"><span class="uf-line-fill"></span></div>
         </div>
         <h4>Production Usage</h4>
-        <p class="uf-sub" id="ufSubUsage">$0K used so far.</p>
+        <p class="uf-sub" id="ufSubUsage">$0K used so far</p>
         <div class="uf-tip">Credits are deducted only when production workloads run.</div>
       </div>
       <div class="uf-node" data-i="3">
@@ -6511,8 +6881,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   </div>
 </section>
 
-<!-- SLIDE 42: Thank you -->
-<section class="site-section content-container cover" data-section="6" data-label="Thank you">
+<!-- Closing — fullscreen only (hidden from layout + section-step outside FS) -->
+<section class="site-section content-container cover thank-you" data-section="6" data-label="Thank you" data-no-sound="1">
   <div class="collage" id="collage2"></div>
   <div class="cover-copy cover-copy--solo">
     <h1 class="headline h1-display">Thank you</h1>
@@ -6527,7 +6897,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 
   <nav class="appnav-items" id="appnavItems"></nav>
   <div class="appnav-right">
-    <button class="icon-btn" id="fullscreen-btn" title="Fullscreen (F)">&#9974;</button>
+    <button type="button" class="icon-btn" id="fullscreen-btn" title="Fullscreen (F)" aria-label="Fullscreen">
+      <svg viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2.5 5V2.5H5M9 2.5h2.5V5M11.5 9v2.5H9M5 11.5H2.5V9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
     <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
 </header>
@@ -6542,6 +6914,14 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   </div>
 </div>
 <div id="navScrim"></div>
+<nav id="section-step" aria-label="Section">
+  <button type="button" class="icon-btn" id="sectionPrev" aria-label="Previous section" title="Previous section">
+    <svg viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M8.5 3L4.5 7l4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button type="button" class="icon-btn" id="sectionNext" aria-label="Next section" title="Next section">
+    <svg viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M5.5 3l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</nav>
 
 <script>
 (function(){
@@ -6549,6 +6929,20 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   var sections = Array.prototype.slice.call(chapterRoot.querySelectorAll('.site-section'));
   var total = sections.length;
   var idx = 0;
+  var thankYouIdx = sections.findIndex(function(s){ return s.classList.contains('thank-you'); });
+  function inFullscreen(){
+    return document.body.classList.contains('is-fullscreen') || !!document.fullscreenElement;
+  }
+  function isFsOnlySection(slide){
+    return !!(slide && slide.classList.contains('thank-you'));
+  }
+  function clampSectionIdx(n){
+    n = Math.max(0, Math.min(total - 1, n));
+    if(isFsOnlySection(sections[n]) && !inFullscreen()){
+      return thankYouIdx > 0 ? thankYouIdx - 1 : 0;
+    }
+    return n;
+  }
 
   // ---- build photo/video collages for cover/closing slides ----
   // pixel-accurate to the original Figma cover collage (positions taken directly from the
@@ -6660,10 +7054,10 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       { label:'API', idx:16, pane:'api' }
     ]},
     { label:'Next Steps', crumb:'Next Steps', idx:17, sub:[] },
-    { label:'Commercial Partnerships', crumb:'Commercial Partnerships', idx:18, sub:[
-      { label:'Overview', idx:18, scroll:'chapterIntroCommercial' },
-      { label:'Revenue Share', idx:20 },
-      { label:'Usage-Based', idx:21 }
+    { label:'Commercial Partnerships', crumb:'Commercial Partnerships', idx:19, sub:[
+      { label:'Overview', idx:19, scroll:'chapterIntroCommercial' },
+      { label:'Revenue Share', idx:21 },
+      { label:'Usage-Based', idx:22 }
     ]}
   ];
   // a chapter "owns" every slide from its own click target up to (but not including)
@@ -6719,6 +7113,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var line = scrollFocusLine();
     var focus = range.start;
     for(var i = range.start; i <= range.end; i++){
+      /* display:none thank-you reports top=0 — skip so it never steals focus outside FS */
+      if(isFsOnlySection(sections[i]) && !inFullscreen()) continue;
       var slot = sections[i] && sections[i].parentElement;
       if(slot && slot.getBoundingClientRect().top <= line) focus = i;
     }
@@ -6743,6 +7139,12 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       }
       if(sub.pane){
         if(sub.idx === focus && sections[focus] && sections[focus].getAttribute('data-access') === sub.pane){
+          best = sub;
+        }
+        return;
+      }
+      if(sub.tab){
+        if(sub.idx === focus && sections[focus] && sections[focus].getAttribute('data-nx-tab') === sub.tab){
           best = sub;
         }
         return;
@@ -6838,9 +7240,11 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         it.setAttribute('data-idx', sub.idx);
         if(sub.scroll) it.setAttribute('data-scroll', sub.scroll);
         if(sub.pane) it.setAttribute('data-pane', sub.pane);
+        if(sub.tab) it.setAttribute('data-tab', sub.tab);
         it.addEventListener('click', function(e){
           e.stopPropagation();
           if(sub.pane) pendingAccessPane = sub.pane;
+          if(sub.tab) pendingNxTab = sub.tab;
           goTo(sub.idx, sub.scroll);
           closeAllMenus();
         });
@@ -7034,18 +7438,21 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       var itemIdx = parseInt(it.getAttribute('data-idx'), 10);
       var scroll = it.getAttribute('data-scroll') || '';
       var pane = it.getAttribute('data-pane') || '';
+      var tab = it.getAttribute('data-tab') || '';
       var on = false;
       if(current){
         on = it.textContent === current.label &&
           itemIdx === current.idx &&
           scroll === (current.scroll || '') &&
-          pane === (current.pane || '');
+          pane === (current.pane || '') &&
+          tab === (current.tab || '');
       }
       if(on) it.classList.add('current');
     });
     applyChapterSubnavVisibility();
     if(chapterSubnavVisible()) updateBreadcrumbs();
     syncOverviewMedia(chapterIndex, focus);
+    syncSectionStep();
   }
   function syncOverviewMedia(c, focus){
     if(c !== 0) return;
@@ -7077,16 +7484,11 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     opts = opts || {};
     var nav = readChromeTop();
     var mobile = window.matchMedia('(max-width:900px)').matches;
-    var pad = readSectionPadUnderChrome();
     var slot = el.classList.contains('screen') ? el : el.closest('.screen');
-    var artboard = slot && slot.classList.contains('layout-artboard');
-    /* Document sections already pad the H1 via --section-pad-under-chrome.
-       Artboard crops the H1 to the slot top — apply the same pad as scroll offset
-       so menu landings match document sections (e.g. Production-grade model). */
-    var extra = 0;
-    if(opts.chapterHero) extra = 0;
-    else if(artboard) extra = pad;
-    else if(mobile) extra = 16;
+    /* Land the section flush under chrome. Document sections keep H1 inset via
+       --section-pad-under-chrome; artboards via --fit-top. Do not add a scroll
+       gap — that left the previous section visible under the subnav. */
+    var extra = (!opts.chapterHero && mobile) ? 8 : 0;
     var top = el.getBoundingClientRect().top + window.scrollY - nav - extra;
     window.scrollTo({ top: Math.max(0, top), behavior: smooth ? 'smooth' : 'auto' });
   }
@@ -7108,14 +7510,20 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   }
 
   var pendingAccessPane = null;
+  var pendingNxTab = null;
+  var setNxTab = function(){};
   function goTo(n, scrollId){
     var prevChapter = chapterIndex;
-    idx = Math.max(0, Math.min(total-1, n));
+    idx = clampSectionIdx(n);
     var slide = sections[idx];
     render();
     if(pendingAccessPane){
       if(typeof setAccessPane === 'function') setAccessPane(pendingAccessPane);
       pendingAccessPane = null;
+    }
+    if(pendingNxTab){
+      setNxTab(pendingNxTab);
+      pendingNxTab = null;
     }
     var range = chapterRanges[chapterIndex];
     var chapterStartSlide = range && sections[range.start];
@@ -7136,6 +7544,157 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       });
     });
   }
+
+  /* Bottom arrows: every .screen in a chapter, with menu scroll/pane stops
+     where they exist. Sections not listed in the menu (e.g. commercial hub
+     between Overview and Revenue Share) still get a stop. */
+  var NAV_STOPS = [];
+  MENU.forEach(function(ch, ci){
+    var range = chapterRanges[ci];
+    if(!range) return;
+    var subs = ch.sub || [];
+    var covered = {};
+    subs.forEach(function(sub){ covered[sub.idx] = true; });
+    for(var si = range.start; si <= range.end; si++){
+      if(covered[si]){
+        subs.forEach(function(sub){
+          if(sub.idx !== si) return;
+          NAV_STOPS.push({
+            chapter: ci,
+            idx: sub.idx,
+            scroll: sub.scroll || null,
+            pane: sub.pane || null,
+            tab: sub.tab || null,
+            label: sub.label
+          });
+        });
+      }else{
+        var slide = sections[si];
+        NAV_STOPS.push({
+          chapter: ci,
+          idx: si,
+          scroll: null,
+          pane: null,
+          tab: null,
+          label: (slide && (slide.getAttribute('data-label') || slide.id)) || ('Section ' + si)
+        });
+      }
+    }
+  });
+  /* What's New tabs stay arrow stops only. They are not submenu links.
+     Next/prev still walks prod → world → adapt → scale before leaving,
+     the same way Access walks Licensing → API. */
+  (function expandNxArrowStops(){
+    var tabs = [
+      { tab:'prod', label:'Real Production' },
+      { tab:'world', label:'World Consistency' },
+      { tab:'adapt', label:'Deep Adaptation' },
+      { tab:'scale', label:'Scale' }
+    ];
+    for(var i = 0; i < NAV_STOPS.length; i++){
+      var stop = NAV_STOPS[i];
+      if(stop.tab) continue;
+      var slide = sections[stop.idx];
+      if(!slide || !slide.classList.contains('nx-slide') || slide.classList.contains('access-slide')) continue;
+      var expanded = tabs.map(function(t){
+        return {
+          chapter: stop.chapter,
+          idx: stop.idx,
+          scroll: null,
+          pane: null,
+          tab: t.tab,
+          label: t.label
+        };
+      });
+      NAV_STOPS.splice.apply(NAV_STOPS, [i, 1].concat(expanded));
+      i += expanded.length - 1;
+    }
+  })();
+  /* Next Steps: hero + stages are one composition (esp. in FS). Keep a single
+     arrow stop on the hero so next/prev never lands on stages-only. */
+  (function collapseNextStepsStops(){
+    for(var i = NAV_STOPS.length - 1; i >= 0; i--){
+      var slide = sections[NAV_STOPS[i].idx];
+      if(slide && slide.classList.contains('next-steps')) NAV_STOPS.splice(i, 1);
+    }
+  })();
+  function currentNavStopIndex(){
+    var c = chapterIndex >= 0 ? chapterIndex : currentChapter();
+    if(c < 0) c = 0;
+    var ch = MENU[c];
+    if(!ch) return 0;
+    var focus = focusSlideInChapter(c);
+    var cur = ch.sub.length ? resolveCurrentSub(ch, focus) : null;
+    var best = -1;
+    for(var i = 0; i < NAV_STOPS.length; i++){
+      var s = NAV_STOPS[i];
+      if(s.chapter !== c) continue;
+      /* Tab stops are not menu rows, so match the live What's New tab. */
+      if(s.tab){
+        var liveTab = (sections[s.idx] && sections[s.idx].getAttribute('data-nx-tab')) || 'prod';
+        if(s.idx === focus && liveTab === s.tab) return i;
+        continue;
+      }
+      if(cur && s.idx === cur.idx &&
+        (s.scroll || '') === (cur.scroll || '') &&
+        (s.pane || '') === (cur.pane || '') &&
+        (s.tab || '') === (cur.tab || '')) return i;
+      /* Prefer the stop for the focused screen when it has no menu sub. */
+      if(!s.scroll && !s.pane && !s.tab && s.idx === focus) best = i;
+      if(best < 0 && s.idx === focus) best = i;
+      if(best < 0 && s.idx < focus) best = i;
+    }
+    if(best >= 0) return best;
+    for(var j = 0; j < NAV_STOPS.length; j++){
+      if(NAV_STOPS[j].chapter === c) return j;
+    }
+    return 0;
+  }
+  function goToNavStop(stop){
+    if(!stop) return;
+    if(stop.pane) pendingAccessPane = stop.pane;
+    if(stop.tab) pendingNxTab = stop.tab;
+    goTo(stop.idx, stop.scroll || null);
+  }
+  function navStopAllowed(stop){
+    if(!stop) return false;
+    return !isFsOnlySection(sections[stop.idx]) || inFullscreen();
+  }
+  function nextAllowedNavStop(from){
+    for(var i = from + 1; i < NAV_STOPS.length; i++){
+      if(navStopAllowed(NAV_STOPS[i])) return i;
+    }
+    return -1;
+  }
+  function prevAllowedNavStop(from){
+    for(var i = from - 1; i >= 0; i--){
+      if(navStopAllowed(NAV_STOPS[i])) return i;
+    }
+    return -1;
+  }
+  function syncSectionStep(){
+    var prevBtn = document.getElementById('sectionPrev');
+    var nextBtn = document.getElementById('sectionNext');
+    if(!prevBtn || !nextBtn) return;
+    var i = currentNavStopIndex();
+    prevBtn.disabled = prevAllowedNavStop(i) < 0;
+    nextBtn.disabled = nextAllowedNavStop(i) < 0;
+  }
+  (function(){
+    var prevBtn = document.getElementById('sectionPrev');
+    var nextBtn = document.getElementById('sectionNext');
+    if(!prevBtn || !nextBtn) return;
+    prevBtn.addEventListener('click', function(){
+      var i = currentNavStopIndex();
+      var p = prevAllowedNavStop(i);
+      if(p >= 0) goToNavStop(NAV_STOPS[p]);
+    });
+    nextBtn.addEventListener('click', function(){
+      var i = currentNavStopIndex();
+      var n = nextAllowedNavStop(i);
+      if(n >= 0) goToNavStop(NAV_STOPS[n]);
+    });
+  })();
 
   (function(){
     var slide = chapterRoot.querySelector('.ctrl-slide');
@@ -7286,14 +7845,21 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   })();
 
   (function(){
-    var slide = chapterRoot.querySelector('.nx-slide');
+    var slide = chapterRoot.querySelector('.nx-slide:not(.access-slide)');
     if(!slide) return;
-    var tabs = slide.querySelectorAll('.nx-tab');
-    var groups = slide.querySelectorAll('.nx-group');
+    var tabs = slide.querySelectorAll('.nx-tab[data-tab]');
+    var groups = slide.querySelectorAll('.nx-group[data-tab]');
     var progLbl = slide.querySelector('#nxProgLbl');
     var progTicks = slide.querySelectorAll('#nxProgTicks .nx-tick');
     var tabOrder = ['prod', 'world', 'adapt', 'scale'];
-    function show(tab){
+    function syncNxNav(){
+      document.querySelectorAll('.submenu .sub-item[data-tab]').forEach(function(it){
+        it.classList.toggle('current', sections[idx] === slide && it.getAttribute('data-tab') === slide.getAttribute('data-nx-tab'));
+      });
+    }
+    setNxTab = function(tab){
+      if(!tab || tabOrder.indexOf(tab) < 0) tab = 'prod';
+      slide.setAttribute('data-nx-tab', tab);
       tabs.forEach(function(el){
         var on = el.getAttribute('data-tab') === tab;
         el.classList.toggle('is-on', on);
@@ -7310,10 +7876,14 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       progTicks.forEach(function(tick, j){
         tick.classList.toggle('is-on', j <= i);
       });
-    }
+      syncNxNav();
+      syncSectionStep();
+    };
     tabs.forEach(function(tab){
-      tab.addEventListener('click', function(){ show(tab.getAttribute('data-tab')); });
+      tab.addEventListener('click', function(){ setNxTab(tab.getAttribute('data-tab')); });
     });
+    setNxTab(pendingNxTab || slide.getAttribute('data-nx-tab') || 'prod');
+    pendingNxTab = null;
   })();
 
   window.addEventListener('keydown', function(e){
@@ -7330,6 +7900,35 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     else { document.exitFullscreen(); }
   }
   document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);
+  function syncFullscreenChrome(){
+    document.body.classList.toggle('is-fullscreen', !!document.fullscreenElement);
+    syncChromeHeights();
+    syncNavContentGap();
+  }
+  /* Document sections: match Access air (32 artboard px × scale) under chrome in fullscreen.
+     Sample a 1440 content artboard only — never .cover (1920), which understates the pad. */
+  function syncNavContentGap(){
+    var root = document.documentElement;
+    if(!document.body.classList.contains('is-fullscreen')){
+      root.style.removeProperty('--section-pad-under-chrome');
+      return;
+    }
+    var sample = document.querySelector('.chapter.is-on .layout-artboard > .site-section:not(.cover)')
+      || document.querySelector('.layout-artboard > .site-section:not(.cover)');
+    var scale = sample
+      ? (parseFloat(getComputedStyle(sample).getPropertyValue('--artboard-scale')) || 0)
+      : 0;
+    if(!(scale > 0)){
+      var slot = document.querySelector('.chapter.is-on .screen.layout-artboard:not(:has(> .cover))')
+        || document.querySelector('.chapter.is-on .main-container')
+        || document.querySelector('.main-container');
+      var slotW = (slot && slot.clientWidth) || root.clientWidth || FIT_ART_W;
+      scale = slotW / FIT_ART_W;
+    }
+    var air = parseFloat(getComputedStyle(root).getPropertyValue('--nav-to-content-air'));
+    if(!isFinite(air)) air = 32;
+    root.style.setProperty('--section-pad-under-chrome', Math.round(air * scale) + 'px');
+  }
 
   function scaleAboutGlobe(){
     var frame = document.getElementById('aboutGlobeFrame');
@@ -7346,7 +7945,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     syncChromeHeights();
     var root = getComputedStyle(document.documentElement);
     var top = parseFloat(root.getPropertyValue('--topnav-h')) || 72;
-    if(document.body.classList.contains('has-chapter-sub')) top += parseFloat(root.getPropertyValue('--subnav-h')) || 0;
+    if(document.body.classList.contains('has-chapter-sub') && !document.body.classList.contains('is-fullscreen')){
+      top += parseFloat(root.getPropertyValue('--subnav-h')) || 0;
+    }
     return top;
   }
   function syncChromeHeights(){
@@ -7357,7 +7958,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       document.documentElement.style.setProperty('--topnav-h', Math.round(navBottom) + 'px');
     }
     var subH = 0;
-    if(sub && !sub.hidden && document.body.classList.contains('has-chapter-sub')){
+    if(sub && !sub.hidden && document.body.classList.contains('has-chapter-sub') && !document.body.classList.contains('is-fullscreen')){
       subH = sub.getBoundingClientRect().height || sub.offsetHeight || 0;
     }
     document.documentElement.style.setProperty('--subnav-h', subH + 'px');
@@ -7367,7 +7968,87 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   var FIT_ART_W = 1440;
   var FIT_COVER_W = 1920;
   function artboardContentBottom(slide){
-    /* Short hubs: crop empty canvas below the last positioned block (not full 1080). */
+    /* Crop empty canvas below the last positioned block (not full 1080). */
+    if(slide.classList.contains('access-slide')){
+      var accessShell = slide.querySelector('.nx-shell');
+      if(accessShell) return accessShell.offsetTop + accessShell.offsetHeight + 32;
+      return 0;
+    }
+    /* What's New (not Access): fullscreen grows the artboard to the viewport and
+       drops the white shell to a clear gap above #section-step — same pattern as
+       Advantage / Access arrow clearance. Non-FS keeps CSS bottom:154px. */
+    if(slide.classList.contains('nx-slide')){
+      var nxShell = slide.querySelector('.nx-shell');
+      if(!nxShell) return 0;
+      if(!document.body.classList.contains('is-fullscreen')){
+        nxShell.style.bottom = '';
+        return 0;
+      }
+      var nxSlot = slide.parentElement;
+      var nxSlotW = (nxSlot && nxSlot.clientWidth) || FIT_ART_W;
+      var nxScale = nxSlotW / FIT_ART_W;
+      if(!(nxScale > 0)) nxScale = 1;
+      var nxCrop = parseFloat(getComputedStyle(slide).getPropertyValue('--fit-top')) || 0;
+      var nxChrome = readChromeTop();
+      var nxFs = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      var nxGap = 1.25 * nxFs;
+      var nxStep = document.getElementById('section-step');
+      var nxArrowTop = window.innerHeight - nxGap - 34;
+      if(nxStep){
+        var nxStepRect = nxStep.getBoundingClientRect();
+        if(nxStepRect.height > 0) nxArrowTop = nxStepRect.top;
+      }
+      var nxViewH = Math.max(320, window.innerHeight - nxChrome);
+      var nxContentBottom = nxCrop + (nxViewH / nxScale);
+      var nxShellFromTop = nxArrowTop - nxChrome - nxGap;
+      if(nxShellFromTop < 180) nxShellFromTop = nxViewH - (34 + nxGap + nxGap);
+      var nxShellBottom = nxCrop + (nxShellFromTop / nxScale);
+      var nxArrowInset = (34 + nxGap + nxGap) / nxScale;
+      if(nxShellBottom > nxContentBottom - 4) nxShellBottom = nxContentBottom - nxArrowInset;
+      nxShell.style.bottom = Math.max(0, nxContentBottom - nxShellBottom) + 'px';
+      return nxContentBottom;
+    }
+    if(slide.classList.contains('adv-slide')){
+      var advRow = slide.querySelector('.adv-row');
+      if(!advRow) return 0;
+      /* Fill the viewport under chrome; keep card bottoms ~1.25rem above #section-step. */
+      var advSlot = slide.parentElement;
+      var advSlotW = (advSlot && advSlot.clientWidth) || FIT_ART_W;
+      var advScale = advSlotW / FIT_ART_W;
+      if(!(advScale > 0)) advScale = 1;
+      var advCrop = parseFloat(getComputedStyle(slide).getPropertyValue('--fit-top')) || 0;
+      var advChrome = readChromeTop();
+      var advFs = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      var advGap = 1.25 * advFs;
+      var advStep = document.getElementById('section-step');
+      var advArrowTop = window.innerHeight - advGap - 34;
+      if(advStep){
+        var advStepRect = advStep.getBoundingClientRect();
+        if(advStepRect.height > 0) advArrowTop = advStepRect.top;
+      }
+      var advViewH = Math.max(320, window.innerHeight - advChrome);
+      var advContentBottom = advCrop + (advViewH / advScale);
+      var advCardFromTop = advArrowTop - advChrome - advGap;
+      if(advCardFromTop < 180) advCardFromTop = advViewH - (34 + advGap + advGap);
+      var advCardBottom = advCrop + (advCardFromTop / advScale);
+      var advArrowInset = (34 + advGap + advGap) / advScale;
+      if(advCardBottom > advContentBottom - 4) advCardBottom = advContentBottom - advArrowInset;
+      /* Fullscreen only: pull grid bottom up ~12% so white cards are a bit less tall
+         (less empty mid-card). Title stays top / build-area stays bottom via margin-top:auto. */
+      if(document.body.classList.contains('is-fullscreen')){
+        var advRowTop = parseFloat(getComputedStyle(advRow).top);
+        if(!(advRowTop > 0)) advRowTop = 332;
+        var advGridSpan = Math.max(0, advCardBottom - advRowTop);
+        advCardBottom -= advGridSpan * 0.12;
+      }
+      advRow.style.bottom = Math.max(0, advContentBottom - advCardBottom) + 'px';
+      return advContentBottom;
+    }
+    if(slide.classList.contains('cs-slide')){
+      var csRail = slide.querySelector('.cs-rail');
+      if(csRail) return csRail.offsetTop + csRail.offsetHeight + 28;
+      return 0;
+    }
     if(!slide.classList.contains('commercial-hub')) return 0;
     var bottom = 0;
     slide.querySelectorAll('.commercial-hub-head, .hub-grid').forEach(function(el){
@@ -7380,8 +8061,21 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     document.querySelectorAll('.chapter.is-on .screen').forEach(function(slot){
       var slide = slot.querySelector('.site-section');
       if(!slide) return;
-      if(mobile || slot.classList.contains('layout-document')){
+      /* Thank you is FS-only — collapse its slot so chapter height ignores it outside FS */
+      if(isFsOnlySection(slide) && !inFullscreen()){
+        slot.style.height = '0px';
+        slide.style.transform = '';
+        slide.style.width = '';
+        slide.style.height = '';
+        slide.style.removeProperty('--artboard-scale');
+        return;
+      }
+      /* Next Steps FS: document-flow composition (hero + stages in one viewport).
+         Clear inline artboard size so --ns-fs-* CSS owns width/height. */
+      var nsFsFlow = !mobile && document.body.classList.contains('is-fullscreen') && slide.classList.contains('next-steps');
+      if(mobile || slot.classList.contains('layout-document') || nsFsFlow){
         slot.style.height = '';
+        slot.style.width = '';
         slide.style.transform = '';
         slide.style.width = '';
         slide.style.height = '';
@@ -7415,17 +8109,46 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       scale = slotW / FIT_ART_W;
       var contentBottom = artboardContentBottom(slide);
       slide.style.width = (slotW / scale) + 'px';
-      slide.style.height = artH + 'px';
+      /* Advantage / What's New (FS): viewport-tall; bottom inset is relative to that height. */
+      var growToContent = contentBottom > cropTop && (
+        slide.classList.contains('adv-slide') ||
+        (slide.classList.contains('nx-slide') && !slide.classList.contains('access-slide') && document.body.classList.contains('is-fullscreen'))
+      );
+      var slideH = growToContent ? contentBottom : artH;
+      slide.style.height = slideH + 'px';
       slide.style.transform = 'scale(' + scale + ') translateY(' + (-cropTop) + 'px)';
       slide.style.setProperty('--artboard-scale', String(scale));
       var usedH = (contentBottom > cropTop) ? contentBottom : artH;
       var slotH = Math.ceil((usedH - cropTop) * scale);
+      /* Hub is short — in fullscreen, fill the viewport so the next section stays below the fold. */
+      if(document.body.classList.contains('is-fullscreen') && slide.classList.contains('commercial-hub')){
+        var viewH = Math.round(window.innerHeight - readChromeTop());
+        if(slotH < viewH) slotH = viewH;
+      }
       slot.style.height = slotH + 'px';
     });
     if(!mobile) scaleAboutGlobe();
+    syncNavContentGap();
   }
   window.addEventListener('resize', syncArtboardLayout);
-  document.addEventListener('fullscreenchange', syncArtboardLayout);
+  document.addEventListener('fullscreenchange', function(){
+    /* Capture thank-you focus before clearing is-fullscreen (focus spy skips it after). */
+    var leavingFs = !document.fullscreenElement;
+    var onThankYou = false;
+    if(leavingFs && thankYouIdx >= 0){
+      var focusCi = chapterIndex >= 0 ? chapterIndex : currentChapter();
+      onThankYou = idx === thankYouIdx ||
+        isFsOnlySection(sections[idx]) ||
+        focusSlideInChapter(focusCi) === thankYouIdx;
+    }
+    syncFullscreenChrome();
+    if(leavingFs && onThankYou){
+      goTo(thankYouIdx > 0 ? thankYouIdx - 1 : 0);
+    }else{
+      syncArtboardLayout();
+      syncSectionStep();
+    }
+  });
   if('IntersectionObserver' in window){
     var screenObserver = new IntersectionObserver(function(entries){
       entries.forEach(function(entry){
@@ -7452,17 +8175,66 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   }, { passive:true });
 
   // ---- video lifecycle: lazy-load on first need, play when visible, pause when hidden ----
-  // All deck videos autoplay muted when their slide/panel is active. Pause + sound
-  // toggles stay; sound only appears on data-has-audio="1".
+  // All deck videos autoplay muted. Audio only when the user clicks .sound-toggle on
+  // one clip (tracked by unmutedVideo). Cap/slide changes mute everything again.
   var DECK_VIDEOS_PAUSED = false;
   var heroVideosUserPaused = false;
+  var unmutedVideo = null;
   function isCoverCollageVideo(video){
     return !!(video && video.closest('.site-section.cover .collage'));
+  }
+  function forceMuteVideo(video){
+    if(!video) return;
+    video.muted = true;
+    video.setAttribute('muted', '');
+    if(unmutedVideo === video) unmutedVideo = null;
+    updateSoundBtn(video);
+  }
+  function muteAllDeckVideosHard(){
+    unmutedVideo = null;
+    document.querySelectorAll('video').forEach(function(vid){
+      vid.defaultMuted = true;
+      vid.muted = true;
+      vid.setAttribute('muted', '');
+      updateSoundBtn(vid);
+    });
+  }
+  // Document-wide guard: any media event on a video that is not unmutedVideo
+  // (compared by element identity, never by URL) forces it back to muted.
+  function enforceVideoMute(e){
+    var v = e.target;
+    if(!v || v.tagName !== 'VIDEO' || v === unmutedVideo) return;
+    v.defaultMuted = true;
+    if(!v.hasAttribute('muted')) v.setAttribute('muted', '');
+    if(!v.muted){
+      v.muted = true;
+      updateSoundBtn(v);
+    }
+  }
+  ['loadstart', 'loadedmetadata', 'play', 'playing', 'volumechange'].forEach(function(type){
+    document.addEventListener(type, enforceVideoMute, true);
+  });
+  document.querySelectorAll('video').forEach(function(vid){
+    vid.defaultMuted = true;
+    vid.muted = true;
+    vid.setAttribute('muted', '');
+  });
+  function applyPlaybackMute(video){
+    // Every play/activate path: muted unless this is the explicit user-unmuted clip.
+    if(!video) return;
+    if(video === unmutedVideo){
+      video.muted = false;
+      video.removeAttribute('muted');
+    }else{
+      video.muted = true;
+      video.setAttribute('muted', '');
+    }
+    updateSoundBtn(video);
   }
   function playCoverCollageVideos(slide){
     slide.querySelectorAll('.collage video').forEach(function(vid){
       if(!vid.getAttribute('src') && vid.dataset.src) vid.setAttribute('src', vid.dataset.src);
-      vid.muted = true;
+      forceMuteVideo(vid);
       if(vid.paused){
         var p = vid.play();
         if(p && p.catch) p.catch(function(){});
@@ -7481,7 +8253,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       video.setAttribute('src', video.dataset.src);
       video.load();
     }
-    video.muted = true;
+    applyPlaybackMute(video);
     var p = video.play();
     if(p && p.catch) p.catch(function(){ /* autoplay may be blocked until user interacts — harmless */ });
     updatePlayBtn(video);
@@ -7496,12 +8268,13 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       video.load();
     }
     try{ video.currentTime = 0; }catch(e){}
-    video.muted = true;
+    applyPlaybackMute(video);
     var p = video.play();
     if(p && p.catch) p.catch(function(){});
     updatePlayBtn(video);
   }
   function pauseAllDeckVideos(){
+    muteAllDeckVideosHard();
     chapterRoot.querySelectorAll('video').forEach(function(vid){
       if(isCoverCollageVideo(vid)) return;
       pauseVideo(vid);
@@ -7510,9 +8283,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   function pauseVideo(video){
     if(!video) return;
     if(!video.paused) video.pause();
-    video.muted = true;
+    forceMuteVideo(video);
     updatePlayBtn(video);
-    updateSoundBtn(video);
   }
 
   // ---- chapter hero videos: optional pause (resets on full page reload) ----
@@ -7619,6 +8391,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     return false;
   }
   function shouldOfferSound(video){
+    // Customer-story teasers keep only "Watch the Full Video" — no mute control.
+    if(video.closest('.cs-hero')) return false;
     // Only show mute when data-has-audio="1" — silent clips never get a sound button.
     return videoAudioHint(video) === true;
   }
@@ -7634,14 +8408,27 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     btn.setAttribute('aria-pressed', 'false');
     btn.addEventListener('click', function(e){
       e.stopPropagation();
-      var turningOn = video.muted;
-      chapterRoot.querySelectorAll('video').forEach(function(v){
-        if(v !== video && !v.muted){ v.muted = true; updateSoundBtn(v); }
+      var turningOn = unmutedVideo !== video;
+      // Mute every other clip first; only one may have sound.
+      document.querySelectorAll('video').forEach(function(v){
+        if(v === video) return;
+        v.muted = true;
+        v.setAttribute('muted', '');
+        updateSoundBtn(v);
       });
-      video.muted = !turningOn;
-      if(turningOn && video.paused){
-        var p = video.play();
-        if(p && p.catch) p.catch(function(){});
+      if(turningOn){
+        unmutedVideo = video;
+        if(!video.volume) video.volume = 1;
+        video.muted = false;
+        video.removeAttribute('muted');
+        if(video.paused){
+          var p = video.play();
+          if(p && p.catch) p.catch(function(){});
+        }
+      }else{
+        unmutedVideo = null;
+        video.muted = true;
+        video.setAttribute('muted', '');
       }
       updateSoundBtn(video);
       updatePlayBtn(video);
@@ -7669,6 +8456,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       if(!parent) return;
       var style = window.getComputedStyle(parent);
       if(style.position === 'static') parent.style.position = 'relative';
+      forceMuteVideo(vid);
       var playBtn = document.createElement('button');
       playBtn.type = 'button';
       playBtn.className = 'video-play-toggle is-paused';
@@ -7682,6 +8470,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
             vid.setAttribute('src', vid.dataset.src);
             vid.load();
           }
+          applyPlaybackMute(vid);
           var p = vid.play();
           if(p && p.catch) p.catch(function(){});
         }else{
@@ -7690,6 +8479,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         updatePlayBtn(vid);
       });
       vid.addEventListener('play', function(){
+        // Safety net: never allow autoplay-with-sound except the user-unmuted clip.
+        applyPlaybackMute(vid);
         updatePlayBtn(vid);
         syncSoundBtnVisibility(vid);
       });
@@ -7704,6 +8495,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       updatePlayBtn(vid);
       syncSoundBtnVisibility(vid);
     });
+    muteAllDeckVideosHard();
   }
 
   function activateSlideVideos(slide){
@@ -7724,6 +8516,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   }
   function deactivateSlideVideos(slide){
     if(slide && slide.classList.contains('cover')) return;
+    muteAllDeckVideosHard();
     slide.querySelectorAll('video').forEach(pauseVideo);
   }
 
@@ -7735,6 +8528,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var btns = nav.querySelectorAll('.cap-btn');
     var panels = stage.querySelectorAll('.cap-panel');
     function activateCap(cap, fromUser){
+      // Cap switch always kills sound — user must click .sound-toggle again.
+      muteAllDeckVideosHard();
       btns.forEach(function(b){
         var on = b.getAttribute('data-cap') === cap;
         b.classList.toggle('active', on);
@@ -7798,6 +8593,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     function showPair(i){
       index = (i + pairs.length) % pairs.length;
       var live = !(show.closest('.cap-panel') && !show.closest('.cap-panel').classList.contains('active'));
+      muteAllDeckVideosHard();
       pairs.forEach(function(pair, n){
         var on = n === index;
         pair.classList.toggle('is-on', on);
@@ -7849,11 +8645,12 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         hdrHero.setAttribute('src', src);
         hdrHero.load();
       }
-      hdrHero.muted = true;
+      forceMuteVideo(hdrHero);
       restartAndPlay(hdrHero);
     }
 
     function activateAcc(key, fromUser){
+      muteAllDeckVideosHard();
       btns.forEach(function(b){
         var on = b.getAttribute('data-acc') === key;
         b.classList.toggle('active', on);
@@ -8121,6 +8918,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var thumb = document.getElementById('prThumb');
     var commitVal = document.getElementById('prCommitVal');
     var marker = document.getElementById('prMarker');
+    var markerAura = document.getElementById('prMarkerAura');
     var cardCommit = document.getElementById('prCardCommit');
     var cardShare = document.getElementById('prCardShare');
     var cardBreak = document.getElementById('prCardBreak');
@@ -8174,6 +8972,10 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       thumb.style.left = pct + '%';
       marker.setAttribute('cx', x);
       marker.setAttribute('cy', y);
+      if(markerAura){
+        markerAura.setAttribute('cx', x);
+        markerAura.setAttribute('cy', y);
+      }
       commitVal.textContent = formatMoney(commit);
       range.setAttribute('data-track-value', formatMoney(commit));
       if(cardCommit) cardCommit.querySelector('.pr-card-val').textContent = formatMoney(commit);
@@ -8261,8 +9063,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       nodes.forEach(function(n){ n.classList.remove('active','done'); });
       wrap.querySelectorAll('.uf-line').forEach(function(l){ l.classList.remove('is-on'); });
       lines.forEach(function(l){ l.style.width = ''; l.style.transform = ''; });
-      subCredits.textContent = '$150K in credits allocated.';
-      subUsage.textContent = '$0K used so far.';
+      subCredits.textContent = '$150K in credits allocated';
+      subUsage.textContent = '$0K used so far';
       subBalance.textContent = '$150K remaining.';
       creditsVal.textContent = '100%';
       tlFill.style.width = '0%';
@@ -8295,8 +9097,8 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
           status.classList.add('is-payg');
         }
         creditsVal.textContent = creditsPct + '%';
-        subUsage.textContent = fmtK(used) + ' used so far.';
-        subBalance.textContent = remaining > 0 ? (fmtK(remaining) + ' remaining.') : 'Fully drawn — pay-as-you-go active.';
+        subUsage.textContent = fmtK(used) + ' used so far';
+        subBalance.textContent = remaining > 0 ? (fmtK(remaining) + ' remaining.') : 'Fully drawn — pay-as-you-go active';
 
         if(t < 1){
           rafId = requestAnimationFrame(step);
@@ -8352,96 +9154,96 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
   })();
 
   // ---- slide: Next steps — exploration-to-production journey ----
-  // Circles + hairlines cascade (Usage-Based pattern), then click-to-select
-  // fills the detail panel below.
+  // Seven boxes fade in left to right. All show number + heading + description.
+  // Click one → selected full, siblings .38. Click same again or click
+  // background (capture on document) → clear all to full opacity.
   var nsSlideEnter, nsSlideLeave;
   (function(){
     var row = chapterRoot.querySelector('#nsRow');
     if(!row) return;
     var slideEl = row.closest('.site-section');
+    var heroEl = document.getElementById('section-nextsteps-hero');
     var stages = row.querySelectorAll('.ns-stage');
-    var segs = row.querySelectorAll('.ns-seg');
-    var panel = document.getElementById('nsPanel');
-    var panelBody = panel ? panel.querySelector('.ns-panel-body') : null;
-    var panelNum = document.getElementById('nsPanelNum');
-    var panelTitle = document.getElementById('nsPanelTitle');
-    var panelDesc = document.getElementById('nsPanelDesc');
     var timers = [];
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    var STAGES = [
-      { n:'01', t:'Explore the Use Case', d:'Explore the use case with your own content when available, or create new content together when needed.' },
-      { n:'02', t:'Align on Goals and Requirements', d:'Define stakeholders, business goals, security, technical requirements, and pilot scope.' },
-      { n:'03', t:'Define Success Criteria', d:'Agree on key workflows, quality standards, and success metrics.' },
-      { n:'04', t:'Enable Your Teams', d:'Train your teams to achieve consistent, production-ready results.' },
-      { n:'05', t:'Test Workflows & Customization', d:'Validate key use cases and evaluate LoRAs or other customization options.' },
-      { n:'06', t:'Optimize Inference & Deployment', d:'Work with your technical team on infrastructure, performance, integrations, and deployment.' },
-      { n:'07', t:'Define the Path to Production Licensing', d:'Review pilot results and align on a 12+ month plan to scale LTX.' }
-    ];
+    function revealAll(){
+      timers.forEach(clearTimeout); timers = [];
+      stages.forEach(function(s){ s.classList.add('revealed'); });
+    }
 
-    function activateStage(i){
-      stages.forEach(function(s){
-        var si = parseInt(s.getAttribute('data-i'), 10);
-        if(si <= i) s.classList.add('revealed');
-        if(si < i){ s.classList.remove('active'); s.classList.add('done'); }
-        else if(si === i){ s.classList.add('active'); s.classList.remove('done'); }
-      });
+    function hasSelection(){
+      return row.classList.contains('is-focus') || !!row.querySelector('.ns-stage.selected');
     }
 
     function selectStage(i){
+      var any = false;
       stages.forEach(function(s){
-        var isSel = parseInt(s.getAttribute('data-i'), 10) === i;
-        s.classList.toggle('selected', isSel);
-        if(!isSel && s.classList.contains('active')){ s.classList.remove('active'); s.classList.add('done'); }
+        var on = parseInt(s.getAttribute('data-i'), 10) === i;
+        s.classList.toggle('selected', on);
+        s.setAttribute('aria-pressed', on ? 'true' : 'false');
+        if(on) any = true;
       });
-      row.classList.add('has-selection');
-      var d = STAGES[i];
-      if(panelBody){
-        panelBody.classList.remove('ns-fade');
-        void panelBody.offsetWidth;
-        panelBody.classList.add('ns-fade');
+      row.classList.toggle('is-focus', any);
+    }
+
+    function clearSelection(){
+      stages.forEach(function(s){
+        s.classList.remove('selected');
+        s.setAttribute('aria-pressed', 'false');
+      });
+      row.classList.remove('is-focus');
+    }
+
+    function pickStage(i){
+      if(timers.length) revealAll();
+      var cur = row.querySelector('.ns-stage.selected');
+      /* Second click on the same box clears (bonus); otherwise select. */
+      if(cur && parseInt(cur.getAttribute('data-i'), 10) === i){
+        clearSelection();
+        return;
       }
-      if(panelNum) panelNum.textContent = d.n;
-      if(panelTitle) panelTitle.textContent = d.t;
-      if(panelDesc) panelDesc.textContent = d.d;
+      selectStage(i);
     }
 
     stages.forEach(function(s){
       var i = parseInt(s.getAttribute('data-i'), 10);
-      s.addEventListener('click', function(){ selectStage(i); });
-      s.addEventListener('keydown', function(e){
-        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); selectStage(i); }
+      s.addEventListener('click', function(e){
+        e.stopPropagation();
+        pickStage(i);
       });
+      s.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pickStage(i); }
+      });
+    });
+
+    /* Capture-phase: any non-stage click clears while a stage is selected.
+       Skip only chrome controls so navbar / arrows / fullscreen stay usable. */
+    document.addEventListener('pointerdown', function(e){
+      if(!hasSelection()) return;
+      var t = e.target;
+      if(!t || !t.closest) return;
+      if(t.closest('.ns-stage')) return;
+      if(t.closest('#appnav, #section-step, #navScrim')) return;
+      clearSelection();
+    }, true);
+
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && hasSelection()) clearSelection();
     });
 
     function resetNs(){
       timers.forEach(clearTimeout); timers = [];
-      stages.forEach(function(s){ s.classList.remove('revealed','active','done','selected'); });
-      row.classList.remove('has-selection');
-      segs.forEach(function(seg){ seg.classList.remove('is-on'); });
-      var d0 = STAGES[0];
-      if(panelNum) panelNum.textContent = d0.n;
-      if(panelTitle) panelTitle.textContent = d0.t;
-      if(panelDesc) panelDesc.textContent = d0.d;
+      stages.forEach(function(s){ s.classList.remove('revealed'); });
+      clearSelection();
     }
 
     function runCascade(){
-      if(reduceMotion){
-        stages.forEach(function(s){ s.classList.add('revealed','done'); });
-        segs.forEach(function(seg){ seg.classList.add('is-on'); });
-        selectStage(stages.length - 1);
-        return;
-      }
-      activateStage(0);
-      var t = 280;
-      for(var i = 0; i < segs.length; i++){
-        (function(idx, delay){
-          timers.push(setTimeout(function(){ segs[idx].classList.add('is-on'); }, delay));
-          timers.push(setTimeout(function(){ activateStage(idx + 1); }, delay + 320));
-        })(i, t);
-        t += 620;
-      }
-      timers.push(setTimeout(function(){ selectStage(stages.length - 1); }, t + 160));
+      if(reduceMotion){ revealAll(); return; }
+      stages.forEach(function(s, idx){
+        timers.push(setTimeout(function(){ s.classList.add('revealed'); }, idx * 90));
+      });
+      timers.push(setTimeout(function(){ timers = []; }, stages.length * 90));
     }
 
     nsSlideEnter = function(enteredSlide){
@@ -8627,30 +9429,9 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     var chapter = document.querySelector('.who-chapter');
     if(!chapter) return;
     var aboutSlide = chapter.closest('.site-section');
-    var proof = chapter.querySelector('.who-num');
-    var counted = false;
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var delays = { '0': 40, '1': 90, '2': 40, '2b': 160, '3': 80 };
     var io = null;
-
-    function countUp(el){
-      if(!el || counted) return;
-      counted = true;
-      var target = parseFloat(el.getAttribute('data-count')) || 0;
-      var prefix = el.getAttribute('data-prefix') || '';
-      var suffix = el.getAttribute('data-suffix') || '';
-      if(reduce){ el.textContent = prefix + target + suffix; return; }
-      var dur = 900, start = null;
-      function step(ts){
-        if(!start) start = ts;
-        var p = Math.min(1, (ts - start) / dur);
-        var eased = 1 - Math.pow(1 - p, 3);
-        el.textContent = prefix + Math.round(target * eased) + suffix;
-        if(p < 1) requestAnimationFrame(step);
-        else el.textContent = prefix + target + suffix;
-      }
-      requestAnimationFrame(step);
-    }
 
     function show(el){
       if(!el || el.classList.contains('is-shown')) return;
@@ -8658,13 +9439,10 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       var wait = reduce ? 0 : (delays[key] || 0);
       window.setTimeout(function(){
         el.classList.add('is-shown');
-        if(el.classList.contains('who-num')) countUp(el);
       }, wait);
     }
 
     function reset(){
-      counted = false;
-      if(proof) proof.textContent = '0M+';
       chapter.querySelectorAll('.who-reveal').forEach(function(el){
         el.classList.remove('is-shown');
         if(io) io.unobserve(el);
@@ -8686,7 +9464,6 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       if(enteredSlide !== aboutSlide) return;
       reset();
       syncWhoLogoMarquee();
-      if(proof) countUp(proof);
       requestAnimationFrame(function(){
         requestAnimationFrame(function(){
           var logos = chapter.querySelector('.who-logos.who-reveal');

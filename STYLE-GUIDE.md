@@ -27,7 +27,7 @@ Use three layers consistently:
 2. **Muted caps kickers** — **`.chart-label.is-caps`** (and Webflow **`.section-name`**, which shares the same tokens). Group lines (`.nx-cat`), control kickers, bridge copy, bracket chart tags, and card categories. Write source in sentence case; CSS uppercases. Diagram lane labels use plain **`.chart-label`** (sentence case in markup) unless they are a hub title (add **`.is-caps`**).
 3. **Short labels** — Title Case (site mega-menu style). Top nav and agenda chapters, tabs (`.nx-tab-lbl`, `.industry-tab__title`, `.pgx-item h4`, `.cap-btn` / `.cap-title`, workflow accordion labels, card titles on feature grids, licensing tiles, next-steps stages, commercial model names, and matching slide `data-label` values when they name a section.
 
-Chapter **section heroes** use Title Case for the big chapter name; the paragraph below stays a sentence-case statement.
+Chapter **section heroes** and matching page titles use sentence case (keep product names like LTX as written); the paragraph below stays a sentence-case statement. Nav, agenda, and short UI labels stay Title Case.
 
 A lead can be one sentence per line on a wide layout (`<br>` between sentences, `text-wrap: balance`). On a narrow layout those breaks disappear and the lead becomes one paragraph.
 
@@ -107,7 +107,7 @@ Values are the ltx.io site’s published classes. Clamps run from a 20rem viewpo
 | Large | `.text-size-large` | 1.375rem | 1.3 | −0.015em | 400 |
 | Medium | `.text-size-medium` | 1.125rem | 1.3 | 0.001em | 400 |
 | Regular | `.text-size-regular` | 1.03125rem | 1.1 | 0.01rem | 400 |
-| Small | `.text-size-small` | 0.9375rem | 1.1 | 0.01rem | 400 |
+| Small | `.text-size-small` | 0.9375rem | 1.2 | 0.01rem | 400 |
 | Tiny | `.text-size-tiny` | 0.8125rem | 1.1 | 0.002rem | 400 |
 | Index numeral | `.index-num` | 0.8125rem | 1.1 | 0.002rem | 400 |
 | Chart label | `.chart-label` | 0.8125rem | 1.1 | 0.002rem | 400 |
@@ -116,7 +116,7 @@ Values are the ltx.io site’s published classes. Clamps run from a 20rem viewpo
 
 `.chart-label` is the tiny scale, weight 400, `--ltx-grey-muted` — for diagram lanes, spec captions, and (with **`.is-caps`**) deck kickers. (The old name **viz-label** meant “visualization”; **chart-label** is clearer.)
 
-Line-height tokens: `--lh-tiny` 0.95, `--lh-compact` 1, `--lh-small` 1.1, `--lh-normal` 1.1, `--lh-medium` 1.3, `--lh-large` 1.4, `--lh-xlarge` 1.5. Supporting copy (regular, small, tiny, H5) uses `--lh-normal`. Multi-line body in slides often sets `--lh-medium` explicitly in component CSS.
+Line-height tokens: `--lh-tiny` 0.95, `--lh-compact` 1, `--lh-small` 1.1, `--lh-normal` 1.1, `--lh-medium` 1.3, `--lh-large` 1.4, `--lh-xlarge` 1.5. Regular, tiny, and H5 use `--lh-normal`; `.text-size-small` sets `line-height: 1.2` directly. Multi-line body in slides often sets `--lh-medium` explicitly in component CSS.
 
 Utilities with Webflow names: `.text-weight-light` (300), `.text-weight-normal` (400), `.text-weight-semibold` (600), `.text-style-allcaps`, `.text-style-muted` (opacity 0.6), `.text-balanced`, `.text-style-quote`.
 
@@ -182,9 +182,9 @@ Tracking and line-height stay on the shared tokens. `text-wrap: balance` on titl
 | `--space-lg` | 2.5rem |
 | `--space-xl` | 4rem |
 | `--space-2xl` | 6rem |
-| `--heading-to-content-gap` | 4rem — below a section H1, and below its chip/tag row before the stage |
+| `--heading-to-content-gap` | 2rem — subtext → content (and title/chips → stage). Use `.heading-content-spacer` in markup |
 
-Use the scale. Do not invent a one-off `18px` gap when `--space-sm` or `--space-md` is close. For section titles into chips/stage, use `--heading-to-content-gap`, not a one-off.
+Use the scale. Do not invent a one-off `18px` gap when `--space-sm` or `--space-md` is close. For subtext → content (and title/chips → stage), use `.heading-content-spacer` / `--heading-to-content-gap` (2rem), not a one-off margin.
 
 ### Deck page layout (chapter scroll)
 
@@ -300,6 +300,8 @@ Ebook specifics worth keeping when the layout is a cover:
 Use two `<video>` elements, desktop and mobile. Do not use `<source media>`. Browsers evaluate that only on the first load and never again. Show one, `display: none` the other, and pause the hidden one.
 
 Attributes: `autoplay muted loop playsinline preload="metadata"` (mobile can be `preload="none"`), `disablepictureinpicture`, `aria-hidden="true"`, `tabindex="-1"`, plus a `poster`. `object-fit: cover`.
+
+Baked captions and letterbox: many demo clips have titles, subtitles, and stage labels painted into the video pixels (not live HTML). Those must stay fully visible. Do not use `transform: scale(…)` letterbox-crop zooms to hide baked black bars — that clips edge captions. Prefer readable baked text over edge-to-edge fill; thin letterbox bars may show. When labels sit at the frame edges (Multi-Keyframe, Extend), use `object-fit: contain` instead of cover.
 
 ## Quotes, code, tables
 
