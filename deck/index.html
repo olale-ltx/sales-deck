@@ -1774,10 +1774,20 @@ body:not(.is-fullscreen) .site-section.thank-you{
 .ns-row.is-focus .ns-stage.revealed{ opacity:.38; }
 .ns-row.is-focus .ns-stage.revealed.selected{ opacity:1; }
 .ns-stage.selected{ border-color:var(--ltx-black); }
+/* Selected subtext reads as ink even when siblings are opacity-dimmed. */
+.ns-stage.selected .ns-desc{ color:var(--ltx-black); }
 .ns-num{ display:block; margin:0 0 0.5rem; }
 .ns-stage h5{ margin:0; text-wrap:balance; }
 /* Natural wrap — no text-wrap:balance / .text-balanced. */
 .ns-desc{ margin:auto 0 0; padding-top:0.75rem; text-wrap:wrap; }
+/* Shared stage height (regular + FS). Artboard /scale keeps regular visual = FS 18rem. */
+@media (min-width:901px){
+  :root{ --ns-stage-h:19.8rem; } /* 18rem + 10% */
+  body:not(.is-fullscreen) .ns-stage{
+    height:calc(var(--ns-stage-h) / var(--artboard-scale, 1));
+    box-sizing:border-box;
+  }
+}
 @media (prefers-reduced-motion:reduce){
   .ns-stage, .ns-stage.revealed{ opacity:1; transform:none; transition:none; }
   .ns-row.is-focus .ns-stage.revealed{ opacity:.38; }
@@ -3021,7 +3031,8 @@ body.is-fullscreen .section-hero-slide .section-hero__video{
   body.is-fullscreen .who-chapter .who-logos .who-logo-track{ animation:none; }
 }
 /* Next Steps ONLY fullscreen — own --ns-fs-* tokens (do not touch --who-fs-*).
-   Shorter hero than 16:9 so Select stage + 7 full-width boxes fit one viewport. */
+   Shorter hero than 16:9 so Select stage + 7 full-width boxes fit one viewport.
+   Cards use a fixed --ns-fs-stage-h (no stretch-to-arrows). */
 @media (min-width:901px){
   body.is-fullscreen{
     --ns-fs-slot:calc(100dvh - var(--chrome-top));
@@ -3030,8 +3041,9 @@ body.is-fullscreen .section-hero-slide .section-hero__video{
     --ns-fs-arrow-clear:calc(1.25rem + 34px + 1rem);
     --ns-fs-eyebrow:1.25rem;
     --ns-fs-eyebrow-gap:calc(var(--heading-to-content-gap) / 2);
-    /* Reserve room for the 7 cards; leftover goes to the hero (intentionally short). */
-    --ns-fs-stages-body:clamp(14rem, 38vh, 22rem);
+    /* Same fixed card height as regular (--ns-stage-h); leftover goes to hero. */
+    --ns-fs-stage-h:var(--ns-stage-h, 19.8rem);
+    --ns-fs-stages-body:var(--ns-fs-stage-h);
     --ns-fs-below:calc(
       var(--ns-fs-eyebrow) + var(--ns-fs-eyebrow-gap) + var(--ns-fs-stages-body) + var(--ns-fs-arrow-clear)
     );
@@ -3101,14 +3113,20 @@ body.is-fullscreen .section-hero-slide .section-hero__video{
   }
   body.is-fullscreen .ns-eyebrow{ flex:0 0 auto; margin:0 0 var(--ns-fs-eyebrow-gap); }
   body.is-fullscreen .ns-row{
-    flex:1 1 auto;
+    flex:0 0 auto;
     min-height:0;
     width:100%;
     max-width:none;
     align-items:stretch;
     grid-template-columns:repeat(7, minmax(0, 1fr));
   }
-  body.is-fullscreen .ns-stage{ min-height:0; width:100%; padding:10px 12px; }
+  body.is-fullscreen .ns-stage{
+    height:var(--ns-fs-stage-h);
+    min-height:0;
+    width:100%;
+    padding:10px 12px;
+    box-sizing:border-box;
+  }
 }
 .section-hero__video{
   position:absolute; inset:0; z-index:0;
@@ -6670,7 +6688,7 @@ if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
 <section class="site-section content-container section-hero-slide" data-section="6" data-label="Commercial Partnerships" data-no-sound="1" id="section-commercial-hero">
   <div class="section-hero-block">
     <header class="section-hero" aria-label="Commercial partnerships">
-      <video class="section-hero__video" data-src="../sales-deck-original/videos/cc70166460a2f0abec06e779ebdfdcedaff841de.mp4" data-has-audio="0" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <video class="section-hero__video" data-src="../sales-deck-original/videos/2.5-Hero-DK-2.mp4" data-has-audio="0" muted loop playsinline preload="none" aria-hidden="true"></video>
       <div class="section-hero__scrim" aria-hidden="true"></div>
       <div class="section-hero__text-fade" aria-hidden="true"></div>
       <div class="section-hero__inner" id="chapterIntroCommercial">
